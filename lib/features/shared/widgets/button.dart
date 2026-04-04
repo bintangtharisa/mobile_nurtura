@@ -23,8 +23,8 @@ class PrimaryButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
           ),
         ),
-        onPressed: () {},
-        child: Text("Buat Akun",
+        onPressed: onPressed,
+        child: Text(text,
           style: TextStyle(
             fontFamily: 'Manrope',
             fontSize: 16,

@@ -35,7 +35,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         fontWeight: FontWeight.w500,
         color: WarnaUtama.text1,
       ),
-      
+
       decoration: InputDecoration(
         hintText: widget.hint,
         hintStyle: TextStyle(
@@ -58,7 +58,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
         filled: true,
         fillColor: WarnaUtama.form,
         border: OutlineInputBorder(
-          borderRadius: BorderRadius.circular(20),
+          borderRadius: BorderRadius.circular(15),
           borderSide: BorderSide.none,
         ),
       ),

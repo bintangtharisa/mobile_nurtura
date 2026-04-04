@@ -22,51 +22,60 @@ class PilihRole extends StatelessWidget {
     );
   }
   
-Widget _buildItem(String role) {
-  final isSelected = selectedRole == role;
-  final roleColor = role == "Ibu"
-      ? WarnaUtama.primary
-      : WarnaUtama.secondary;
+  Widget _buildItem(String role) {
+    final isSelected = selectedRole == role;
+    final roleColor = role == "Ibu"
+        ? WarnaUtama.primary
+        : WarnaUtama.secondary;
+    final roleIcon = role == "Ibu"
+        ? Icons.female
+        : Icons.male;
 
   return Expanded(
     child: GestureDetector(
       onTap: () => onSelected(role),
-      child: AnimatedContainer(
+      child: AnimatedScale(
         duration: Duration(milliseconds: 200),
+        scale: isSelected ? 1.02 : 1.0,
+
+        child: Container(
         padding: EdgeInsets.symmetric(vertical: 20),
         decoration: BoxDecoration(
           color: isSelected
-              ? roleColor.withOpacity(0.1) // background 10%
+              ? roleColor.withOpacity(0.1)
               : Colors.transparent,
           borderRadius: BorderRadius.circular(20),
           border: Border.all(
             color: isSelected
-                ? roleColor // 100%
-                : roleColor.withOpacity(0.6), // 60%
+                ? roleColor
+                : roleColor.withOpacity(0.6),
             width: 2,
           ),
         ),
         child: Column(
           children: [
             Icon(
-              Icons.person,
-              size: 30,
+              roleIcon,
+              size: 28,
               color: isSelected
-                  ? roleColor // 100%
-                  : roleColor.withOpacity(0.6), // 60%
+                  ? roleColor
+                  : roleColor.withOpacity(0.6),
             ),
-            SizedBox(height: 8),
+            SizedBox(height: 6),
             Text(
               role,
               style: TextStyle(
-                fontSize: 18,
-                color: WarnaUtama.text1, // text tetap solid
+                fontFamily: 'Manrope',
+                fontSize: 14,
+                fontWeight: FontWeight.w500,
+                color: WarnaUtama.text1,
               ),
             ),
           ],
         ),
       ),
     ),
-  );
+   )
+    );
 }
 }

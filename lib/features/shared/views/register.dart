@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
-// import 'package:flutter/gestures.dart';
+import 'package:flutter/gestures.dart';
+import '../views/login.dart';
 import '../../../../core/theme/warna_utama.dart';
 import '../widgets/text_field.dart';
 import '../widgets/button.dart';
@@ -26,7 +27,9 @@ class _RegisterPageState extends State<RegisterPage> {
           icon: Icon(Icons.arrow_back),
           color: WarnaUtama.text1,
           onPressed: () {
-            Navigator.pop(context);
+            Navigator.pushReplacement(context, MaterialPageRoute(
+              builder: (context) => LoginPage(),
+            ));
           },
         ),
 
@@ -90,6 +93,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
               ),
+              SizedBox(height: 5),
               PilihRole(
                 selectedRole: selectedRole,
                 onSelected: (role) {
@@ -98,7 +102,6 @@ class _RegisterPageState extends State<RegisterPage> {
                   });
                 },
               ),
-
               SizedBox(height: 20),
 
               // Form
@@ -114,10 +117,11 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
               ),
+              SizedBox(height: 5),
               CustomTextField(hint: "Nama Lengkap", icon: Icons.person),
               SizedBox(height: 12),
 
-                            Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Email",
@@ -129,10 +133,11 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
               ),
+              SizedBox(height: 5),
               CustomTextField(hint: "Email", icon: Icons.email),
               SizedBox(height: 12),
 
-                            Align(
+              Align(
                 alignment: Alignment.centerLeft,
                 child: Text(
                   "Kata Sandi",
@@ -144,6 +149,7 @@ class _RegisterPageState extends State<RegisterPage> {
                   ),
                 ),
               ),
+              SizedBox(height: 5),
               CustomTextField(hint: "Kata Sandi", obscure: true, icon: Icons.lock),
               SizedBox(height: 20),
 
@@ -151,7 +157,35 @@ class _RegisterPageState extends State<RegisterPage> {
                 text: "Buat Akun",
                 onPressed: () {},
               ),
+              SizedBox(height: 20),
 
+              Row(
+                children: [
+                  Expanded(
+                    child: Divider(
+                      color: WarnaUtama.primary,
+                      thickness: 1,
+                    ),
+                  ),
+
+                  Padding(
+                    padding: EdgeInsets.symmetric(horizontal: 8),
+                    child: Icon(
+                      Icons.favorite_border,
+                      size: 16,
+                      color: WarnaUtama.primary,
+                    ),
+                  ),
+
+                  Expanded(
+                    child: Divider(
+                      color: WarnaUtama.primary,
+                      thickness: 1,
+                    ),
+                  ),
+                ],
+              ),
+              
               SizedBox(height: 20),
 
               RichText(
@@ -172,15 +206,15 @@ class _RegisterPageState extends State<RegisterPage> {
                         decorationColor: WarnaUtama.primary,
                         decorationThickness: 1.5,
                       ),
-                      // recognizer: TapGestureRecognizer()
-                      //   ..onTap = () {
-                      //     Navigator.pushReplacement(
-                      //       context,
-                      //       MaterialPageRoute(
-                      //         builder: (context) => LoginPage(),
-                      //       ),
-                          // );
-                        // },
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = () {
+                          Navigator.pushReplacement(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => LoginPage(),
+                            ),
+                          );
+                        },
                       ),
                     ],
                   ),

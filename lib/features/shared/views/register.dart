@@ -89,12 +89,11 @@ class _RegisterPageState extends State<RegisterPage> {
               SizedBox(height: 20),
 
               // Form
-              CustomTextField(hint: "Nama Lengkap"),
+              CustomTextField(hint: "Nama Lengkap", icon: Icons.person),
               SizedBox(height: 12),
-              CustomTextField(hint: "Email"),
+              CustomTextField(hint: "Email", icon: Icons.email),
               SizedBox(height: 12),
-              CustomTextField(hint: "Kata Sandi", obscure: true),
-
+              CustomTextField(hint: "Kata Sandi", obscure: true, icon: Icons.lock),
               SizedBox(height: 20),
 
               PrimaryButton(
@@ -104,7 +103,13 @@ class _RegisterPageState extends State<RegisterPage> {
 
               SizedBox(height: 20),
 
-              Text("Sudah punya akun? Masuk"),
+              Text("Sudah punya akun? Masuk",
+                style: TextStyle(
+                  fontFamily: 'Manrope',
+                  color: WarnaUtama.text1,
+                ),
+              ),
+
             ],
             ),
           ),

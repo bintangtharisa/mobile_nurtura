@@ -80,6 +80,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
+              SizedBox(height: 5),
               CustomTextField(hint: "Email", icon: Icons.email),
               SizedBox(height: 12),
 
@@ -95,6 +96,7 @@ class _LoginPageState extends State<LoginPage> {
                   ),
                 ),
               ),
+              SizedBox(height: 5),
               CustomTextField(hint: "Kata Sandi", obscure: true, icon: Icons.lock),
               SizedBox(height: 20),
               

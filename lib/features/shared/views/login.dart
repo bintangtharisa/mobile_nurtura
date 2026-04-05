@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/gestures.dart';
 import '../views/register.dart';
+import '../views/lupa_password.dart';
 import '../../../../core/theme/warna_utama.dart';
 import '../widgets/text_field.dart';
 import '../widgets/button.dart';
@@ -83,7 +84,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               SizedBox(height: 5),
-              CustomTextField(hint: "Email", icon: Icons.email),
+              CustomTextField(hint: "nama@gmail.com", icon: Icons.email),
               SizedBox(height: 12),
 
               Align(
@@ -99,7 +100,7 @@ class _LoginPageState extends State<LoginPage> {
                 ),
               ),
               SizedBox(height: 5),
-              CustomTextField(hint: "Kata Sandi", obscure: true, icon: Icons.lock),
+              CustomTextField(hint: "......", obscure: true, icon: Icons.lock),
 
               SizedBox(height: 20),
               
@@ -119,7 +120,7 @@ class _LoginPageState extends State<LoginPage> {
                         Navigator.pushReplacement(
                           context,
                           MaterialPageRoute(
-                            builder: (context) => RegisterPage(),
+                            builder: (context) => LupaPassword(),
                           ),
                         );
                       },

@@ -134,7 +134,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               SizedBox(height: 5),
-              CustomTextField(hint: "Email", icon: Icons.email),
+              CustomTextField(hint: "nama@gmail.com", icon: Icons.email),
               SizedBox(height: 12),
 
               Align(
@@ -150,7 +150,7 @@ class _RegisterPageState extends State<RegisterPage> {
                 ),
               ),
               SizedBox(height: 5),
-              CustomTextField(hint: "Kata Sandi", obscure: true, icon: Icons.lock),
+              CustomTextField(hint: "......", obscure: true, icon: Icons.lock),
               SizedBox(height: 20),
 
               PrimaryButton(

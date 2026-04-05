@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import '../views/login.dart';
+import '../views/periksa_email.dart';
 import '../../../../core/theme/warna_utama.dart';
 import '../widgets/text_field.dart';
 import '../widgets/button.dart';
@@ -105,7 +106,9 @@ class _LupaPasswordState extends State<LupaPassword> {
               PrimaryButton(
                 text: "Kirim Tautan",
                 onPressed: () {
-                  // Logika untuk mengirim tautan reset password
+                    Navigator.pushReplacement(context, MaterialPageRoute(
+                      builder: (context) => PeriksaEmail(),
+                    ));
                 },
               ),
               ],

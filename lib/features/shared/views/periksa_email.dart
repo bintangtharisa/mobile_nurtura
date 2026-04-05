@@ -93,6 +93,7 @@ class _PeriksaEmailState extends State<PeriksaEmail> {
               SizedBox(height: 20),
 
               PrimaryButton(
+                icon: Icons.email,
                 text: "Buka Aplikasi Email",
                 onPressed: () {
                   // Logika untuk membuka email di perangkat pengguna
@@ -116,7 +117,7 @@ class _PeriksaEmailState extends State<PeriksaEmail> {
                         fontFamily: 'Manrope',
                         fontSize: 14,
                         fontWeight: FontWeight.w400,
-                        color: WarnaUtama.primary,
+                        color: WarnaUtama.secondary,
                         ),
                       recognizer: TapGestureRecognizer()
                         ..onTap = () {
@@ -129,7 +130,7 @@ class _PeriksaEmailState extends State<PeriksaEmail> {
                   ),
                 ),
                       
-              SizedBox(height: 10),
+              SizedBox(height: 15),
 
               RichText(
                 text: TextSpan(

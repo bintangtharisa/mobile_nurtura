@@ -4,11 +4,13 @@ import '../../../core/theme/warna_utama.dart';
 class PrimaryButton extends StatelessWidget {
   final String text;
   final VoidCallback onPressed;
+  final IconData? icon;
 
   const PrimaryButton({
     super.key,
     required this.text,
     required this.onPressed,
+    this.icon,
   });
 
   @override
@@ -23,16 +25,30 @@ class PrimaryButton extends StatelessWidget {
             borderRadius: BorderRadius.circular(20),
           ),
         ),
-        onPressed: onPressed,
-        child: Text(text,
-          style: TextStyle(
-            fontFamily: 'Manrope',
-            fontSize: 16,
-            fontWeight: FontWeight.bold,
-            color: WarnaUtama.text2,
+      onPressed: onPressed,
+      child: Row(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            if (icon != null) ...[
+              Icon(
+                icon,
+                size: 20,
+                color: WarnaUtama.text2,
+              ),
+              SizedBox(width: 8),
+            ],
+
+          Text(text,
+            style: TextStyle(
+              fontFamily: 'Manrope',
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+              color: WarnaUtama.text2,
+            ),
           ),
-        ),
+        ],
       ),
+    ),
     );
   }
 }

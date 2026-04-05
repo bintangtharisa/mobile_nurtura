@@ -27,6 +27,7 @@ class _LoginPageState extends State<LoginPage> {
         style: TextStyle(
           fontFamily: 'Gloock',
           fontSize: 20,
+          letterSpacing: -0.3,
           color: WarnaUtama.text1,
            ),
           ),
@@ -46,6 +47,7 @@ class _LoginPageState extends State<LoginPage> {
                   borderRadius: BorderRadius.circular(20),
                 ),
               ),
+
               SizedBox(height: 20),
 
               Text(
@@ -98,8 +100,35 @@ class _LoginPageState extends State<LoginPage> {
               ),
               SizedBox(height: 5),
               CustomTextField(hint: "Kata Sandi", obscure: true, icon: Icons.lock),
+
               SizedBox(height: 20),
               
+              Align(
+                alignment: Alignment.centerRight,
+                child: RichText(
+                  text: TextSpan(
+                    text: "Lupa Password?",
+                    style: TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 14,
+                      fontWeight: FontWeight.w600,
+                      color: WarnaUtama.text1,
+                    ),
+                    recognizer: TapGestureRecognizer()
+                      ..onTap = () {
+                        Navigator.pushReplacement(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => RegisterPage(),
+                          ),
+                        );
+                      },
+                  ),
+                ),
+              ),
+                  
+              SizedBox(height: 15),
+
               PrimaryButton(
                 text: "Masuk",
                 onPressed: () {},
@@ -167,11 +196,11 @@ class _LoginPageState extends State<LoginPage> {
                      ],
                   ),
                ),
-             ],
+            ],
            ),
           ),
         ),
       ),
-    );
+      );
   }
 }

@@ -19,7 +19,7 @@ class _PeriksaEmailState extends State<PeriksaEmail> {
       appBar: AppBar(
         backgroundColor: WarnaUtama.background,
         elevation: 0,
-        leading: IconButton(
+        leading: IconButton(   
           icon: Icon(Icons.arrow_back),
           color: WarnaUtama.text1,
           onPressed: () {

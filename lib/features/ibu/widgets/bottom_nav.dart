@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/warna_utama.dart';
 
 class BottomNav extends StatefulWidget {
-  @override
-  _BottomNavState createState() => _BottomNavState();
+    const BottomNav({super.key});
+
+@override
+State<BottomNav> createState() => _BottomNavState();
 }
 
 class _BottomNavState extends State<BottomNav> {
@@ -17,8 +19,7 @@ class _BottomNavState extends State<BottomNav> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-      bottomNavigationBar: Container(
+    return Container(
         decoration: BoxDecoration(
           borderRadius: BorderRadius.vertical(top: Radius.circular(20)),
           color: Colors.white,
@@ -57,7 +58,6 @@ class _BottomNavState extends State<BottomNav> {
             ),
           ],
         ),
-      ),
-    );
+      );
   }
 }

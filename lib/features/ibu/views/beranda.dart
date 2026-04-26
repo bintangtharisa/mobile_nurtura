@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import '../../ibu/widgets/bottom_nav.dart';
 import '../../ibu/widgets/aksi_card.dart';
 import '../../ibu/widgets/tips_card.dart';
 import '../../ibu/widgets/status_card.dart';
@@ -13,7 +12,6 @@ class BerandaPage extends StatelessWidget {
   Widget build(BuildContext context) {
     return Scaffold(
       backgroundColor: WarnaUtama.background,
-      bottomNavigationBar: BottomNav(),
       body: SafeArea(
         child: SingleChildScrollView(
           child: Column(

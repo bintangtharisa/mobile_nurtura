@@ -6,6 +6,7 @@ import '../../../../core/theme/warna_utama.dart';
 import '../widgets/text_field.dart';
 import '../widgets/button.dart';
 import '../../../services/auth_service.dart';
+import '../../ibu/views/main_page_ibu.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -38,16 +39,25 @@ class _LoginPageState extends State<LoginPage> {
     setState(() => isLoading = false);
 
     if (res['success']) {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(const SnackBar(content: Text("Login berhasil")));
+      final data = res['data'];
+      final user = data['user'];
+      final role = user['role'];
 
-      // TODO: pindah ke halaman home
-      // Navigator.pushReplacement(context, MaterialPageRoute(builder: (_) => HomePage()));
-    } else {
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text(res['message'] ?? "Login gagal")));
+      if (role == "mother") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainPageIbu()),
+        );
+      // } else if (role == "father") {
+      //   Navigator.pushReplacement(
+      //     context,
+      //     MaterialPageRoute(builder: (_) => const MainPageAyah()),
+      //   );
+      } else {
+        ScaffoldMessenger.of(
+          context,
+        ).showSnackBar(const SnackBar(content: Text("Role tidak dikenali")));
+      }
     }
   }
 

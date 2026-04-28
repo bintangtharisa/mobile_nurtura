@@ -4,7 +4,6 @@ import '../../ibu/widgets/header.dart';
 import '../../ibu/widgets/filter_tips.dart';
 import '../../ibu/widgets/tips_populer.dart';
 import '../../ibu/widgets/artikel_card.dart';
-import '../views/beranda.dart';
 
 class LihatTipsPage extends StatelessWidget {
   const LihatTipsPage({super.key});
@@ -57,10 +56,7 @@ class LihatTipsPage extends StatelessWidget {
                 title: 'Lihat Tips',
                 leftIcon: Icons.chevron_left,
                 rightIcon: Icons.notifications_none,
-                onLeftTap: () => Navigator.pushReplacement(
-                  context,
-                  MaterialPageRoute(builder: (_) => const BerandaPage()),
-                ),
+                onLeftTap: () => Navigator.pop(context),
                 onRightTap: () {
                   // handle notifikasi
                 },

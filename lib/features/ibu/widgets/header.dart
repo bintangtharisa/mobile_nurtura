@@ -4,7 +4,7 @@ import '../../../core/theme/warna_utama.dart';
 class CardHeader extends StatelessWidget {
   final String title;
   final IconData leftIcon;
-  final IconData rightIcon;
+  final IconData? rightIcon;
   final VoidCallback? onLeftTap;
   final VoidCallback? onRightTap;
 
@@ -12,7 +12,7 @@ class CardHeader extends StatelessWidget {
     super.key,
     required this.title,
     required this.leftIcon,
-    required this.rightIcon,
+    this.rightIcon,
     this.onLeftTap,
     this.onRightTap,
   });
@@ -65,7 +65,10 @@ class CardHeader extends StatelessWidget {
             overflow: TextOverflow.ellipsis,
           ),
         ),
-        _iconButton(rightIcon, onRightTap),
+        if (rightIcon != null) 
+          _iconButton(rightIcon!, onRightTap)
+        else
+          const SizedBox(width: 44)
       ],
     );
   }

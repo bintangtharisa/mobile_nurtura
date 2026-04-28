@@ -7,6 +7,7 @@ import '../widgets/text_field.dart';
 import '../widgets/button.dart';
 import '../../../services/auth_service.dart';
 import '../../ibu/views/main_page_ibu.dart';
+import '../../ayah/views/main_page_ayah.dart';
 
 class LoginPage extends StatefulWidget {
   const LoginPage({super.key});
@@ -48,11 +49,11 @@ class _LoginPageState extends State<LoginPage> {
           context,
           MaterialPageRoute(builder: (_) => const MainPageIbu()),
         );
-      // } else if (role == "father") {
-      //   Navigator.pushReplacement(
-      //     context,
-      //     MaterialPageRoute(builder: (_) => const MainPageAyah()),
-      //   );
+      } else if (role == "father") {
+        Navigator.pushReplacement(
+          context,
+          MaterialPageRoute(builder: (_) => const MainPageAyah()),
+        );
       } else {
         ScaffoldMessenger.of(
           context,

@@ -2,14 +2,14 @@ import 'package:flutter/material.dart';
 import '../widgets/bottom_nav.dart';
 import '../views/beranda.dart';
 
-class MainPage extends StatefulWidget {
-  const MainPage({super.key});
+class MainPageAyah extends StatefulWidget {
+  const MainPageAyah({super.key});
 
   @override
-  State<MainPage> createState() => _MainPageState();
+  State<MainPageAyah> createState() => _MainPageState();
 }
 
-class _MainPageState extends State<MainPage> {
+class _MainPageState extends State<MainPageAyah> {
   int _selectedIndex = 0;
 
   final List<Widget> _pages = const [

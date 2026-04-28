@@ -4,6 +4,7 @@ import '../widgets/prediksi_card.dart';
 import '../widgets/hasil_skrining_card.dart';
 import '../widgets/mulai_skrining_card.dart';
 import '../widgets/header.dart';
+import '../views/tahap_skrining.dart';
 
 class PrediksiPage extends StatelessWidget {
     final VoidCallback? onBack;
@@ -57,7 +58,14 @@ class PrediksiPage extends StatelessWidget {
                     const SizedBox(height: 16),
 
                     MulaiSkriningCard(
-                      onMulai: () {},
+                      onMulai: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const TahapSkriningPage(),
+                          ),
+                        );
+                      },
                     ),
 
                     const SizedBox(height: 24),

@@ -5,6 +5,7 @@ import '../../ibu/widgets/status_card.dart';
 import '../../ibu/widgets/header_profil.dart';
 import '../../../core/theme/warna_utama.dart';
 import '../views/lihat_tips_page.dart';
+import '../views/tahap_skrining.dart';
 
 class BerandaPage extends StatelessWidget {
   const BerandaPage({super.key});
@@ -147,7 +148,12 @@ class BerandaPage extends StatelessWidget {
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
-                              // TODO: navigasi ke skrining
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const TahapSkriningPage(),
+                                ),
+                              );
                             },
                             child: AksiCard(
                               title: "Mulai Skrining",

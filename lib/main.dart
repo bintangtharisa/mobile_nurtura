@@ -1,5 +1,4 @@
 import 'package:flutter/material.dart';
-import 'features/shared/views/login.dart';
 
 void main() {
   runApp(const MyApp());
@@ -29,9 +28,9 @@ class MyApp extends StatelessWidget {
         //
         // This works for code too, not just values: Most code changes can be
         // tested with just a hot reload.
-        colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
+        colorScheme: .fromSeed(seedColor: Colors.deepPurple),
       ),
-      home: const LoginPage(),
+      home: const MyHomePage(title: 'Flutter Demo Home Page'),
     );
   }
 }

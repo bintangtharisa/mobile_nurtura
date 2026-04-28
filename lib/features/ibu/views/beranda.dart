@@ -4,6 +4,7 @@ import '../../ibu/widgets/tips_card.dart';
 import '../../ibu/widgets/status_card.dart';
 import '../../ibu/widgets/header_profil.dart';
 import '../../../core/theme/warna_utama.dart';
+import '../views/lihat_tips_page.dart';
 
 class BerandaPage extends StatelessWidget {
   const BerandaPage({super.key});
@@ -44,7 +45,12 @@ class BerandaPage extends StatelessWidget {
                         ),
                         GestureDetector(
                           onTap: () {
-                            // TODO: navigasi ke halaman tips
+                            Navigator.push(
+                              context,
+                              MaterialPageRoute(
+                                builder: (context) => const LihatTipsPage(),
+                              ),
+                            );
                           },
                         child: const Text(
                           "Lihat Semua",
@@ -154,7 +160,12 @@ class BerandaPage extends StatelessWidget {
                         Expanded(
                           child: GestureDetector(
                             onTap: () {
-                              // TODO: navigasi ke tips
+                              Navigator.push(
+                                context,
+                                MaterialPageRoute(
+                                  builder: (context) => const LihatTipsPage(),
+                                ),
+                              );
                             },
                             child: AksiCard(
                               title: "Lihat Tips",

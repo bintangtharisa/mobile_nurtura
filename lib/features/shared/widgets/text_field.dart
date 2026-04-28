@@ -5,12 +5,14 @@ class CustomTextField extends StatefulWidget {
   final String hint;
   final bool obscure;
   final IconData? icon;
+  final TextEditingController? controller;
 
   const CustomTextField({
     super.key,
     required this.hint,
     this.obscure = false,
     this.icon,
+    this.controller,
   });
 
   @override
@@ -29,6 +31,7 @@ class _CustomTextFieldState extends State<CustomTextField> {
   @override
   Widget build(BuildContext context) {
     return TextField(
+      controller: widget.controller, // 👈 TAMBAHKAN INI (PENTING)
       obscureText: isObscure,
       style: TextStyle(
         fontFamily: 'Manrope',
@@ -43,17 +46,23 @@ class _CustomTextFieldState extends State<CustomTextField> {
           color: WarnaUtama.text1.withOpacity(0.6),
         ),
 
-        prefixIcon: widget.icon != null ? Icon(widget.icon, color: WarnaUtama.text1.withOpacity(0.6)) : null,
+        prefixIcon: widget.icon != null
+            ? Icon(widget.icon, color: WarnaUtama.text1.withOpacity(0.6))
+            : null,
+
         suffixIcon: widget.obscure
-        ? IconButton(
-            icon: Icon(isObscure ? Icons.visibility_off : Icons.visibility, color: WarnaUtama.text1.withOpacity(0.6)),
-            onPressed: () {
-              setState(() {
-                isObscure = !isObscure;
-              });
-            },
-          )
-        : null,
+            ? IconButton(
+                icon: Icon(
+                  isObscure ? Icons.visibility_off : Icons.visibility,
+                  color: WarnaUtama.text1.withOpacity(0.6),
+                ),
+                onPressed: () {
+                  setState(() {
+                    isObscure = !isObscure;
+                  });
+                },
+              )
+            : null,
 
         filled: true,
         fillColor: WarnaUtama.form,

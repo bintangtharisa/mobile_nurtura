@@ -3,15 +3,42 @@ import 'package:flutter/gestures.dart';
 import '../views/login.dart';
 import '../../../../core/theme/warna_utama.dart';
 import '../widgets/button.dart';
+import '../../../services/auth_service.dart';
 
 class PeriksaEmail extends StatefulWidget {
-  const PeriksaEmail({super.key});
+  final String email;
+
+  const PeriksaEmail({super.key, required this.email});
 
   @override
   State<PeriksaEmail> createState() => _PeriksaEmailState();
 }
 
 class _PeriksaEmailState extends State<PeriksaEmail> {
+  bool isLoading = false;
+
+  Future<void> resendEmail() async {
+    if (isLoading) return;
+
+    setState(() => isLoading = true);
+
+    final result = await AuthService.forgotPassword(widget.email);
+
+    if (!mounted) return;
+
+    setState(() => isLoading = false);
+
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: Text(
+          result["success"]
+              ? "Link berhasil dikirim ulang"
+              : result["message"] ?? "Gagal kirim ulang",
+        ),
+      ),
+    );
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -19,54 +46,53 @@ class _PeriksaEmailState extends State<PeriksaEmail> {
       appBar: AppBar(
         backgroundColor: WarnaUtama.background,
         elevation: 0,
-        leading: IconButton(   
-          icon: Icon(Icons.arrow_back),
+        leading: IconButton(
+          icon: const Icon(Icons.arrow_back),
           color: WarnaUtama.text1,
           onPressed: () {
-            Navigator.pushReplacement(context, MaterialPageRoute(
-              builder: (context) => LoginPage(),
-            ));
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => LoginPage()),
+            );
           },
         ),
-
-      centerTitle: true,
-      title: Text(
-        "Nurtura",
-        style: TextStyle(
-          fontFamily: 'Gloock',
-          fontSize: 20,
-          color: WarnaUtama.text1,
-           ),
+        centerTitle: true,
+        title: Text(
+          "Nurtura",
+          style: TextStyle(
+            fontFamily: 'Gloock',
+            fontSize: 20,
+            color: WarnaUtama.text1,
           ),
         ),
+      ),
 
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              children: [
-                Center(
-                  child: Container(
-                    width: 192,
-                    height: 144,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(20),
-                      border: Border.all(
-                        color: WarnaUtama.primary,
-                        width: 2,
-                      ),
-                      color: WarnaUtama.text2.withOpacity(0.5),
-                    ),
-                    child: Icon(
-                      Icons.favorite,
-                      size: 40,
-                      color: WarnaUtama.primary,
-                    ),
-                  ),
-                ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
 
-              SizedBox(height: 30),
+              // ICON
+              Container(
+                width: 192,
+                height: 144,
+                decoration: BoxDecoration(
+                  borderRadius: BorderRadius.circular(20),
+                  border: Border.all(
+                    color: WarnaUtama.primary,
+                    width: 2,
+                  ),
+                  color: WarnaUtama.text2.withOpacity(0.5),
+                ),
+                child: Icon(
+                  Icons.favorite,
+                  size: 40,
+                  color: WarnaUtama.primary,
+                ),
+              ),
+
+              const SizedBox(height: 30),
 
               Text(
                 "Periksa Email Anda",
@@ -74,14 +100,14 @@ class _PeriksaEmailState extends State<PeriksaEmail> {
                   fontFamily: 'Gloock',
                   fontSize: 28,
                   fontWeight: FontWeight.w500,
-                  color: WarnaUtama.text1
+                  color: WarnaUtama.text1,
                 ),
               ),
 
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
 
               Text(
-                "Kami telah mengirimkan tautan pengaturan ulang kata sandi ke email Anda. Klik tautan di pesan tersebut untuk mengatur kata sandi baru.",
+                "Kami telah mengirimkan tautan ke ${widget.email}. Silakan cek email Anda untuk melanjutkan.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'Manrope',
@@ -90,17 +116,17 @@ class _PeriksaEmailState extends State<PeriksaEmail> {
                 ),
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               PrimaryButton(
                 icon: Icons.email,
                 text: "Buka Aplikasi Email",
                 onPressed: () {
-                  // Logika untuk membuka email di perangkat pengguna
+                  // optional: pakai url_launcher kalau mau real buka email
                 },
               ),
 
-              SizedBox(height: 20),
+              const SizedBox(height: 20),
 
               RichText(
                 text: TextSpan(
@@ -112,25 +138,20 @@ class _PeriksaEmailState extends State<PeriksaEmail> {
                   ),
                   children: [
                     TextSpan(
-                      text: "Kirim ulang tautan",
+                      text: isLoading ? "Mengirim..." : "Kirim ulang tautan",
                       style: TextStyle(
                         fontFamily: 'Manrope',
                         fontSize: 14,
-                        fontWeight: FontWeight.w400,
                         color: WarnaUtama.secondary,
-                        ),
-                      recognizer: TapGestureRecognizer()
-                        ..onTap = () {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text("Link telah dikirim ulang")),
-                          );
-                        },
                       ),
-                    ],
-                  ),
+                      recognizer: TapGestureRecognizer()
+                        ..onTap = isLoading ? null : resendEmail,
+                    ),
+                  ],
                 ),
-                      
-              SizedBox(height: 15),
+              ),
+
+              const SizedBox(height: 15),
 
               RichText(
                 text: TextSpan(
@@ -138,22 +159,18 @@ class _PeriksaEmailState extends State<PeriksaEmail> {
                   style: TextStyle(
                     fontFamily: 'Manrope',
                     fontSize: 14,
-                    fontWeight: FontWeight.w400,
                     color: WarnaUtama.text1.withOpacity(0.4),
                   ),
                   recognizer: TapGestureRecognizer()
                     ..onTap = () {
-                    Navigator.pushReplacement(
-                      context,
-                        MaterialPageRoute(
-                        builder: (context) => LoginPage(),
-                        ),
-                    );
-                  },
-                  ),
-              )
-              ],
-            ),
+                      Navigator.pushReplacement(
+                        context,
+                        MaterialPageRoute(builder: (context) => LoginPage()),
+                      );
+                    },
+                ),
+              ),
+            ],
           ),
         ),
       ),

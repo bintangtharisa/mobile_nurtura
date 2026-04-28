@@ -4,6 +4,7 @@ import '../views/periksa_email.dart';
 import '../../../../core/theme/warna_utama.dart';
 import '../widgets/text_field.dart';
 import '../widgets/button.dart';
+import '../../../services/auth_service.dart';
 
 class LupaPassword extends StatefulWidget {
   const LupaPassword({super.key});
@@ -13,6 +14,63 @@ class LupaPassword extends StatefulWidget {
 }
 
 class _LupaPasswordState extends State<LupaPassword> {
+  final TextEditingController emailController = TextEditingController();
+  bool isLoading = false;
+
+  @override
+  void dispose() {
+    emailController.dispose();
+    super.dispose();
+  }
+
+  Future<void> handleForgotPassword() async {
+    final email = emailController.text.trim();
+
+    // Validasi kosong
+    if (email.isEmpty) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Email tidak boleh kosong")),
+      );
+      return;
+    }
+
+    // Validasi sederhana email
+    if (!email.contains("@") || !email.contains(".")) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Format email tidak valid")),
+      );
+      return;
+    }
+
+    // Hindari spam klik
+    if (isLoading) return;
+
+    setState(() => isLoading = true);
+
+    final result = await AuthService.forgotPassword(email);
+
+    if (!mounted) return; // 🔥 cegah error setelah pindah halaman
+
+    setState(() => isLoading = false);
+
+    print("FORGOT RESULT: $result");
+
+    if (result["success"] == true) {
+      Navigator.pushReplacement(
+        context,
+        MaterialPageRoute(
+          builder: (context) => PeriksaEmail(email: email),
+        ),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text(result["message"] ?? "Terjadi kesalahan"),
+        ),
+      );
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -21,49 +79,48 @@ class _LupaPasswordState extends State<LupaPassword> {
         backgroundColor: WarnaUtama.background,
         elevation: 0,
         leading: IconButton(
-          icon: Icon(Icons.arrow_back),
+          icon: const Icon(Icons.arrow_back),
           color: WarnaUtama.text1,
           onPressed: () {
-            Navigator.pushReplacement(context, MaterialPageRoute(
-              builder: (context) => LoginPage(),
-            ));
+            Navigator.pushReplacement(
+              context,
+              MaterialPageRoute(builder: (context) => LoginPage()),
+            );
           },
         ),
-
-      centerTitle: true,
-      title: Text(
-        "Nurtura",
-        style: TextStyle(
-          fontFamily: 'Gloock',
-          fontSize: 20,
-          color: WarnaUtama.text1,
-           ),
+        centerTitle: true,
+        title: Text(
+          "Nurtura",
+          style: TextStyle(
+            fontFamily: 'Gloock',
+            fontSize: 20,
+            color: WarnaUtama.text1,
           ),
         ),
+      ),
 
       body: SafeArea(
         child: SingleChildScrollView(
-          child: Padding(
-            padding: EdgeInsets.all(20),
-            child: Column(
-              children: [
-                Center(
-                  child: Container(
-                    width: 100,
-                    height: 100,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: WarnaUtama.secondary.withOpacity(0.2),
-                    ),
-                    child: Icon(
-                      Icons.local_florist,
-                      size: 40,
-                      color: WarnaUtama.secondary,
-                    ),
-                  ),
-                ),
+          padding: const EdgeInsets.all(20),
+          child: Column(
+            children: [
 
-              SizedBox(height: 20),
+              // ICON
+              Container(
+                width: 100,
+                height: 100,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: WarnaUtama.secondary.withOpacity(0.2),
+                ),
+                child: Icon(
+                  Icons.local_florist,
+                  size: 40,
+                  color: WarnaUtama.secondary,
+                ),
+              ),
+
+              const SizedBox(height: 20),
 
               Text(
                 "Lupa Kata Sandi?",
@@ -71,14 +128,14 @@ class _LupaPasswordState extends State<LupaPassword> {
                   fontFamily: 'Gloock',
                   fontSize: 28,
                   fontWeight: FontWeight.w500,
-                  color: WarnaUtama.text1
+                  color: WarnaUtama.text1,
                 ),
               ),
 
-              SizedBox(height: 10),
+              const SizedBox(height: 10),
 
               Text(
-                "Masukkan email terdaftar Anda dan kami akan mengirimkan tautan pengaturan ulang kata sandi ke kotak masuk Anda.",
+                "Masukkan email terdaftar Anda untuk mengatur ulang kata sandi.",
                 textAlign: TextAlign.center,
                 style: TextStyle(
                   fontFamily: 'Manrope',
@@ -86,7 +143,8 @@ class _LupaPasswordState extends State<LupaPassword> {
                   color: WarnaUtama.text1.withOpacity(0.7),
                 ),
               ),
-              SizedBox(height: 20),
+
+              const SizedBox(height: 20),
 
               Align(
                 alignment: Alignment.centerLeft,
@@ -100,19 +158,22 @@ class _LupaPasswordState extends State<LupaPassword> {
                   ),
                 ),
               ),
-              SizedBox(height: 5),
-              CustomTextField(hint: "nama@gmail.com", icon: Icons.email),
-              SizedBox(height: 20),
-              PrimaryButton(
-                text: "Kirim Tautan",
-                onPressed: () {
-                    Navigator.pushReplacement(context, MaterialPageRoute(
-                      builder: (context) => PeriksaEmail(),
-                    ));
-                },
+
+              const SizedBox(height: 5),
+
+              CustomTextField(
+                hint: "nama@gmail.com",
+                icon: Icons.email,
+                controller: emailController,
               ),
-              ],
-            ),
+
+              const SizedBox(height: 20),
+
+              PrimaryButton(
+                text: isLoading ? "Loading..." : "Kirim Tautan",
+                onPressed: () { handleForgotPassword(); }
+              ),
+            ],
           ),
         ),
       ),

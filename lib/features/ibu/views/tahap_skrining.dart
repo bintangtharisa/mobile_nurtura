@@ -4,6 +4,7 @@ import '../widgets/header.dart';
 import '../widgets/kartu_pertanyaan.dart';
 import '../widgets/pilihan_jawaban.dart';
 import '../widgets/tombol_navigasi_skrining.dart';
+import '../views/hasil_skrining.dart';
 
 class TahapSkriningPage extends StatefulWidget {
   const TahapSkriningPage({super.key});
@@ -161,11 +162,13 @@ class _TahapSkriningPageState extends State<TahapSkriningPage> {
     if (_currentIndex < _pertanyaanList.length - 1) {
       setState(() => _currentIndex++);
     } else {
-      // TODO: navigasi ke hasil skrining, kirim jawaban ke model
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => const Placeholder(), // ganti dengan HasilSkriningPage
+          builder: (_) => HasilSkriningPage(
+            berisiko: false,
+            jawaban: _jawaban,
+          ),
         ),
       );
     }

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/bottom_nav.dart';
 import '../views/beranda.dart';
 import '../views/prediksi.dart';
+import '../views/riwayat.dart';
 
 class MainPage extends StatefulWidget {
   const MainPage({super.key});
@@ -16,6 +17,7 @@ class _MainPageState extends State<MainPage> {
   late final List<Widget> _pages = [
     const BerandaPage(),
     PrediksiPage(onBack: () => setState(() => _selectedIndex = 0)),
+    RiwayatPage(onBack: () => setState(() => _selectedIndex = 0))
   ];
 
   @override

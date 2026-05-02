@@ -8,6 +8,6 @@ class WarnaUtama {
   static const form = Color(0xFFEDE0D4);
   static const text1 = Color(0xFF3A3A3A);
   static const text2 = Color(0xFFFFFFFF);
-
+  static const beresiko = Color(0xFFFD1D00);
   static const kotakLogin = Color(0xFFF6CBB5);
 }

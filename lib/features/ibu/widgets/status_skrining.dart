@@ -15,8 +15,8 @@ class StatusSkrining extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color warnaPrimary = berisiko ? const Color(0xFFF5A0A0) : WarnaUtama.secondary;
-    final Color warnaIcon = berisiko ? const Color(0xFFE53935) : const Color(0xFF2E7D32);
+    final Color warnaPrimary = berisiko ? WarnaUtama.beresiko.withOpacity(0.2) : WarnaUtama.secondary;
+    final Color warnaIcon = berisiko ? WarnaUtama.beresiko : WarnaUtama.button;
 
     return Column(
       children: [

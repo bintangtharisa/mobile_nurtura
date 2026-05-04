@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import '../widgets/bottom_nav.dart';
 import '../views/beranda.dart';
+import '../views/prediksi_page.dart';
+import '../views/riwayat_page.dart';
+import '../views/profil_page.dart';
 
 class MainPageIbu extends StatefulWidget {
   const MainPageIbu({super.key});
@@ -14,6 +17,9 @@ class _MainPageState extends State<MainPageIbu> {
 
   final List<Widget> _pages = const [
     BerandaPage(),
+    PrediksiPage(),
+    RiwayatPage(),
+    ProfilPage(),
   ];
 
   @override

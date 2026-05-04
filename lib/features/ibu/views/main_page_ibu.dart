@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../widgets/bottom_nav.dart';
 import '../views/beranda.dart';
-import '../views/prediksi_page.dart';
-import '../views/riwayat_page.dart';
-import '../views/profil_page.dart';
+import '../views/prediksi.dart';
+import '../views/riwayat.dart';
+import '../views/profil.dart';
 
 class MainPageIbu extends StatefulWidget {
   const MainPageIbu({super.key});
@@ -15,11 +15,11 @@ class MainPageIbu extends StatefulWidget {
 class _MainPageState extends State<MainPageIbu> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = const [
-    BerandaPage(),
-    PrediksiPage(),
-    RiwayatPage(),
-    ProfilPage(),
+  late final List<Widget> _pages = [
+    const BerandaPage(),
+    PrediksiPage(onBack: () => setState(() => _selectedIndex = 0)),
+    RiwayatPage(onBack: () => setState(() => _selectedIndex = 0)),
+    ProfilPage(onBack: () => setState(() => _selectedIndex = 0)),
   ];
 
   @override

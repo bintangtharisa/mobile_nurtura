@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import '../widgets/bottom_nav.dart';
 import '../views/beranda.dart';
+import '../views/monitoring_kondisi.dart';
 
 class MainPageAyah extends StatefulWidget {
   const MainPageAyah({super.key});
@@ -12,8 +13,9 @@ class MainPageAyah extends StatefulWidget {
 class _MainPageState extends State<MainPageAyah> {
   int _selectedIndex = 0;
 
-  final List<Widget> _pages = const [
+  late final List<Widget> _pages = [
     BerandaAyahPage(),
+    MonitoringKondisiPage(onBack: () => setState(() => _selectedIndex = 0)),
   ];
 
   @override

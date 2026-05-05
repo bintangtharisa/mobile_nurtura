@@ -30,34 +30,20 @@ class AuthService {
       try {
         data = jsonDecode(response.body);
       } catch (_) {
-        return {
-          "success": false,
-          "message": "Response bukan JSON"
-        };
+        return {"success": false, "message": "Response bukan JSON"};
       }
 
       if (response.statusCode == 200) {
-
         if (data['token'] != null) {
           await Session.saveToken(data['token']);
         }
-
-        return {
-          "success": true,
-          "data": data
-        };
+        return {"success": true, "data": data};
       } else {
-        return {
-          "success": false,
-          "message": data['message'] ?? "Login gagal"
-        };
+        return {"success": false, "message": data['message'] ?? "Login gagal"};
       }
 
     } catch (e) {
-      return {
-        "success": false,
-        "message": "Error: $e"
-      };
+      return {"success": false, "message": "Error: $e"};
     }
   }
 
@@ -91,29 +77,17 @@ class AuthService {
       try {
         data = jsonDecode(response.body);
       } catch (_) {
-        return {
-          "success": false,
-          "message": "Response bukan JSON"
-        };
+        return {"success": false, "message": "Response bukan JSON"};
       }
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
-        return {
-          "success": true,
-          "data": data
-        };
+        return {"success": true, "data": data};
       } else {
-        return {
-          "success": false,
-          "message": data['message'] ?? "Register gagal"
-        };
+        return {"success": false, "message": data['message'] ?? "Register gagal"};
       }
 
     } catch (e) {
-      return {
-        "success": false,
-        "message": "Error: $e"
-      };
+      return {"success": false, "message": "Error: $e"};
     }
   }
 
@@ -137,29 +111,17 @@ class AuthService {
       try {
         data = jsonDecode(response.body);
       } catch (_) {
-        return {
-          "success": false,
-          "message": "Response bukan JSON"
-        };
+        return {"success": false, "message": "Response bukan JSON"};
       }
 
       if (response.statusCode == 200) {
-        return {
-          "success": true,
-          "data": data
-        };
+        return {"success": true, "data": data};
       } else {
-        return {
-          "success": false,
-          "message": data['message'] ?? "Gagal ambil user"
-        };
+        return {"success": false, "message": data['message'] ?? "Gagal ambil user"};
       }
 
     } catch (e) {
-      return {
-        "success": false,
-        "message": "Error: $e"
-      };
+      return {"success": false, "message": "Error: $e"};
     }
   }
 
@@ -182,29 +144,17 @@ class AuthService {
       try {
         data = jsonDecode(response.body);
       } catch (_) {
-        return {
-          "success": false,
-          "message": "Response bukan JSON"
-        };
+        return {"success": false, "message": "Response bukan JSON"};
       }
 
       if (response.statusCode == 200) {
-        return {
-          "success": true,
-          "data": data
-        };
+        return {"success": true, "data": data};
       } else {
-        return {
-          "success": false,
-          "message": data['message'] ?? "Gagal kirim email"
-        };
+        return {"success": false, "message": data['message'] ?? "Gagal kirim email"};
       }
 
     } catch (e) {
-      return {
-        "success": false,
-        "message": "Error: $e"
-      };
+      return {"success": false, "message": "Error: $e"};
     }
   }
 
@@ -235,29 +185,48 @@ class AuthService {
       try {
         data = jsonDecode(response.body);
       } catch (_) {
-        return {
-          "success": false,
-          "message": "Response bukan JSON"
-        };
+        return {"success": false, "message": "Response bukan JSON"};
       }
 
       if (response.statusCode == 200) {
-        return {
-          "success": true,
-          "data": data
-        };
+        return {"success": true, "data": data};
       } else {
-        return {
-          "success": false,
-          "message": data['message'] ?? "Reset gagal"
-        };
+        return {"success": false, "message": data['message'] ?? "Reset gagal"};
       }
 
     } catch (e) {
-      return {
-        "success": false,
-        "message": "Error: $e"
-      };
+      return {"success": false, "message": "Error: $e"};
+    }
+  }
+
+  // ================= GET KONEKSI =================
+  static Future<Map<String, dynamic>> getKoneksi() async {
+    try {
+      final token = await Session.getToken();
+
+      final response = await http.get(
+        Uri.parse("${Api.baseUrl}/koneksi"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json"
+        },
+      );
+
+      dynamic data;
+      try {
+        data = jsonDecode(response.body);
+      } catch (_) {
+        return {"success": false, "message": "Response bukan JSON"};
+      }
+
+      if (response.statusCode == 200) {
+        return {"success": true, "data": data};
+      } else {
+        return {"success": false, "message": data['message'] ?? "Gagal ambil koneksi"};
+      }
+
+    } catch (e) {
+      return {"success": false, "message": "Error: $e"};
     }
   }
 }

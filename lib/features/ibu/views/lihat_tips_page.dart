@@ -4,6 +4,7 @@ import '../../ibu/widgets/header.dart';
 import '../../ibu/widgets/filter_tips.dart';
 import '../../ibu/widgets/tips_populer.dart';
 import '../../ibu/widgets/artikel_card.dart';
+import '../../services/tips_service.dart';
 
 class LihatTipsPage extends StatefulWidget {
   const LihatTipsPage({super.key});
@@ -14,6 +15,9 @@ class LihatTipsPage extends StatefulWidget {
 
 class _LihatTipsPageState extends State<LihatTipsPage> {
   int _selectedKategori = 0;
+  List<Map<String, dynamic>> _artikelList = [];
+  Map<String, dynamic>? _tipsPopuler;
+  bool _isLoading = true;
 
   static const List<Map<String, dynamic>> _kategori = [
     {'label': 'Semua', 'icon': null},
@@ -22,32 +26,25 @@ class _LihatTipsPageState extends State<LihatTipsPage> {
     {'label': 'Nutrisi', 'icon': Icons.restaurant_outlined},
   ];
 
-  static const List<Map<String, dynamic>> _artikelList = [
-    {
-      'kategori': 'Self-Care',
-      'title': '5 Menit Meditasi untuk Ibu yang Sibuk',
-      'durasi': '5 menit baca',
-      'icon': Icons.self_improvement,
-    },
-    {
-      'kategori': 'Nutrisi',
-      'title': 'Menu Bergizi untuk Pemulihan Pasca Melahirkan',
-      'durasi': '8 menit baca',
-      'icon': Icons.restaurant_menu,
-    },
-    {
-      'kategori': 'Mental Health',
-      'title': 'Menghadapi Baby Blues dengan Tenang',
-      'durasi': '12 menit baca',
-      'icon': Icons.favorite_border,
-    },
-    {
-      'kategori': 'Self-Care',
-      'title': 'Olahraga Ringan Setelah Melahirkan',
-      'durasi': '6 menit baca',
-      'icon': Icons.directions_walk_outlined,
-    },
-  ];
+  @override
+  void initState() {
+    super.initState();
+    _loadTips();
+  }
+
+  Future<void> _loadTips() async {
+    try {
+      final data = await TipsService.getTips();
+      final populer = await TipsService.getTipsPopuler();
+      setState(() {
+        _artikelList = data;
+        _tipsPopuler = populer;
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() => _isLoading = false);
+    }
+  }
 
   List<Map<String, dynamic>> get _filteredArtikel {
     if (_selectedKategori == 0) return _artikelList;
@@ -86,66 +83,69 @@ class _LihatTipsPageState extends State<LihatTipsPage> {
             const SizedBox(height: 20),
 
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 16),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    TipsPopuler(
-                      title: 'Membangun Bonding dengan Si Kecil',
-                      subtitle: 'Rahasia kedekatan emosional ibu dan bayi.',
-                      image: const NetworkImage('https://picsum.photos/400/200'),
-                    ),
-
-                    const SizedBox(height: 24),
-
-                    const Text(
-                      'Terbaru untuk Ibu',
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 18,
-                        fontWeight: FontWeight.bold,
-                        color: WarnaUtama.text1,
+              child: _isLoading
+                ? const Center(child: CircularProgressIndicator())
+                : SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 16),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                       TipsPopuler(
+                        title: _tipsPopuler?['judul'] ?? _tipsPopuler?['title'] ?? 'Membangun Bonding dengan Si Kecil',
+                        subtitle: _tipsPopuler?['deskripsi'] ?? _tipsPopuler?['subtitle'] ?? 'Rahasia kedekatan emosional ibu dan bayi.',
+                        image: _tipsPopuler?['image'] != null
+                            ? NetworkImage(_tipsPopuler!['image'])
+                            : const NetworkImage('https://picsum.photos/400/200'),
                       ),
-                    ),
 
-                    const SizedBox(height: 12),
+                        const SizedBox(height: 24),
 
-                    _filteredArtikel.isEmpty
-                        ? const Center(
-                            child: Padding(
-                              padding: EdgeInsets.all(32),
-                              child: Text(
-                                'Tidak ada artikel di kategori ini',
-                                style: TextStyle(
-                                  color: WarnaUtama.text1,
-                                  fontSize: 14,
+                        const Text(
+                          'Terbaru untuk Ibu',
+                          style: TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 18,
+                            fontWeight: FontWeight.bold,
+                            color: WarnaUtama.text1,
+                          ),
+                        ),
+
+                        const SizedBox(height: 12),
+
+                        _filteredArtikel.isEmpty
+                          ? const Center(
+                              child: Padding(
+                                padding: EdgeInsets.all(32),
+                                child: Text(
+                                  'Tidak ada artikel di kategori ini',
+                                  style: TextStyle(
+                                    color: WarnaUtama.text1,
+                                    fontSize: 14,
+                                  ),
                                 ),
                               ),
-                            ),
-                          )
-                        : ListView.separated(
-                            shrinkWrap: true,
-                            physics: const NeverScrollableScrollPhysics(),
-                            itemCount: _filteredArtikel.length,
-                            separatorBuilder: (_, __) =>
-                                const SizedBox(height: 12),
-                            itemBuilder: (context, index) {
-                              final artikel = _filteredArtikel[index];
-                              return ArtikelCard(
-                                kategori: artikel['kategori'] as String,
-                                title: artikel['title'] as String,
-                                durasi: artikel['durasi'] as String,
-                                icon: artikel['icon'] as IconData,
+                            )
+                          : ListView.separated(
+                              shrinkWrap: true,
+                              physics: const NeverScrollableScrollPhysics(),
+                              itemCount: _filteredArtikel.length,
+                              separatorBuilder: (_, __) => const SizedBox(height: 12),
+                              itemBuilder: (context, index) {
+                                final artikel = _filteredArtikel[index];
+                                return ArtikelCard(
+                                kategori: artikel['kategori'] ?? '',
+                                title: artikel['judul'] ?? artikel['title'] ?? '',
+                                durasi: artikel['durasi'] ?? '',
+                                icon: Icons.article_outlined,
                                 onTap: () {},
                               );
-                            },
-                          ),
+                              },
+                            ),
 
-                    const SizedBox(height: 24),
-                  ],
-                ),
-              ),
+                        const SizedBox(height: 24),
+                      ],
+                    ),
+                  ),
             ),
           ],
         ),

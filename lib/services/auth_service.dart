@@ -229,4 +229,43 @@ class AuthService {
       return {"success": false, "message": "Error: $e"};
     }
   }
+
+  // ================= UPDATE PROFIL =================
+  static Future<Map<String, dynamic>> updateProfil({
+    required String nama,
+    required String email,
+  }) async {
+    try {
+      final token = await Session.getToken();
+
+      final response = await http.put(
+        Uri.parse("${Api.baseUrl}/user/update"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "name": nama,
+          "email": email,
+        }),
+      );
+
+      dynamic data;
+      try {
+        data = jsonDecode(response.body);
+      } catch (_) {
+        return {"success": false, "message": "Response bukan JSON"};
+      }
+
+      if (response.statusCode == 200) {
+        return {"success": true, "data": data};
+      } else {
+        return {"success": false, "message": data['message'] ?? "Gagal update profil"};
+      }
+
+    } catch (e) {
+      return {"success": false, "message": "Error: $e"};
+    }
+  }
 }

@@ -4,10 +4,12 @@ import '../../../core/theme/warna_utama.dart';
 
 class GrafikSkrining extends StatelessWidget {
   final List<double> nilaiPerMinggu;
+  final String periode;
 
   const GrafikSkrining({
     super.key,
     required this.nilaiPerMinggu,
+    this.periode = 'Minggu',
   });
 
   @override
@@ -64,8 +66,9 @@ class GrafikSkrining extends StatelessWidget {
                       getTitlesWidget: (value, meta) {
                         final index = value.toInt();
                         if (index < 0 || index >= nilaiPerMinggu.length) return const SizedBox();
+                        final label = periode == 'bulan' ? 'Bulan ${index + 1}' : 'Minggu ${index + 1}';
                         return Text(
-                          'Minggu ${index + 1}',
+                          label,
                           style: TextStyle(
                             fontFamily: 'Manrope',
                             fontSize: 11,

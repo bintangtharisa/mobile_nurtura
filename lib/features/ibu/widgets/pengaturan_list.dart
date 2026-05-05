@@ -1,4 +1,3 @@
-// pengaturan_list.dart
 import 'package:flutter/material.dart';
 import '../../../core/theme/warna_utama.dart';
 

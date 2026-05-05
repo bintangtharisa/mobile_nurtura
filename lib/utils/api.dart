@@ -1,3 +1,3 @@
 class Api {
-  static const String baseUrl = "http://10.18.175.141:8000/api";
+  static const String baseUrl = "http://10.10.6.103:8000/api";
 }

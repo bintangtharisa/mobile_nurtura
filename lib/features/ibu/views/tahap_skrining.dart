@@ -5,6 +5,7 @@ import '../widgets/kartu_pertanyaan.dart';
 import '../widgets/pilihan_jawaban.dart';
 import '../widgets/tombol_navigasi_skrining.dart';
 import '../views/hasil_skrining.dart';
+import '../../services/prediksi_service.dart';
 
 class TahapSkriningPage extends StatefulWidget {
   const TahapSkriningPage({super.key});
@@ -146,33 +147,40 @@ class _TahapSkriningPageState extends State<TahapSkriningPage> {
     }
   }
 
-  void _selanjutnya() {
-    if (_jawaban[_currentIndex] == null) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(
-          content: const Text('Pilih jawaban terlebih dahulu'),
-          backgroundColor: WarnaUtama.secondary,
-          behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
-        ),
-      );
-      return;
-    }
+  void _selanjutnya() async {
+  if (_jawaban[_currentIndex] == null) {
+    ScaffoldMessenger.of(context).showSnackBar(
+      SnackBar(
+        content: const Text('Pilih jawaban terlebih dahulu'),
+        backgroundColor: WarnaUtama.secondary,
+        behavior: SnackBarBehavior.floating,
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+      ),
+    );
+    return;
+  }
 
-    if (_currentIndex < _pertanyaanList.length - 1) {
-      setState(() => _currentIndex++);
-    } else {
+  if (_currentIndex < _pertanyaanList.length - 1) {
+    setState(() => _currentIndex++);
+  } else {
+    try {
+      final hasil = await PrediksiService.kirimJawaban(_jawaban);
       Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => HasilSkriningPage(
-            berisiko: false,
+            berisiko: hasil['berisiko'],
             jawaban: _jawaban,
           ),
         ),
       );
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal mengirim data: $e')),
+      );
     }
   }
+}
 
   @override
   Widget build(BuildContext context) {

@@ -5,10 +5,33 @@ import '../widgets/hasil_terakhir_skrining_card.dart';
 import '../widgets/mulai_skrining_card.dart';
 import '../widgets/header.dart';
 import '../views/tahap_skrining.dart';
+import '../../services/prediksi_service.dart';
 
-class PrediksiPage extends StatelessWidget {
-    final VoidCallback? onBack;
-    const PrediksiPage({super.key, this.onBack});
+class PrediksiPage extends StatefulWidget {
+  final VoidCallback? onBack;
+  const PrediksiPage({super.key, this.onBack});
+
+  @override
+  State<PrediksiPage> createState() => _PrediksiPageState();
+}
+
+class _PrediksiPageState extends State<PrediksiPage> {
+  Map<String, dynamic>? _hasilTerakhir;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadHasilTerakhir();
+  }
+
+  Future<void> _loadHasilTerakhir() async {
+    try {
+      final hasil = await PrediksiService.getHasilTerakhir();
+      setState(() => _hasilTerakhir = hasil);
+    } catch (e) {
+      // gagal load
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -23,7 +46,7 @@ class PrediksiPage extends StatelessWidget {
                 title: 'Prediksi',
                 leftIcon: Icons.chevron_left,
                 rightIcon: Icons.calendar_today_outlined,
-                onLeftTap: () => onBack?.call(),
+                onLeftTap: () => widget.onBack?.call(),
                 onRightTap: () {},
               ),
             ),
@@ -49,11 +72,19 @@ class PrediksiPage extends StatelessWidget {
 
                     const SizedBox(height: 12),
 
-                    HasilTerakhirCard(
-                      statusLabel: 'Berisiko Depresi',
-                      tanggal: '4 Mei 2025',
-                      onLihatDetail: () {},
-                    ),
+                    _hasilTerakhir == null
+                      ? const Text(
+                          'Belum ada hasil skrining',
+                          style: TextStyle(
+                            fontFamily: 'Manrope',
+                            color: WarnaUtama.text1,
+                          ),
+                        )
+                      : HasilTerakhirCard(
+                          statusLabel: _hasilTerakhir!['status'],
+                          tanggal: _hasilTerakhir!['tanggal'],
+                          onLihatDetail: () {},
+                        ),
 
                     const SizedBox(height: 16),
 

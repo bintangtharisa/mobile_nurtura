@@ -1,9 +1,6 @@
 import 'package:flutter/material.dart';
 import '../widgets/bottom_nav.dart';
 import '../views/beranda.dart';
-import '../views/monitoring_page.dart';
-import '../views/dukungan_page.dart';
-import '../views/profil_page.dart';
 
 class MainPageAyah extends StatefulWidget {
   const MainPageAyah({super.key});
@@ -17,9 +14,6 @@ class _MainPageState extends State<MainPageAyah> {
 
   final List<Widget> _pages = const [
     BerandaAyahPage(),
-    MonitoringPage(),
-    DukunganPage(),
-    ProfilAyahPage(),
   ];
 
   @override

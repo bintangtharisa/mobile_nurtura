@@ -93,7 +93,13 @@ class _LoginPageState extends State<LoginPage> {
                     color: WarnaUtama.primary,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                ),
+                    child: Center(
+                      child: Image.asset('assets/images/logo_nurtura.png',
+                      height: 80,
+                      fit: BoxFit.contain,
+                      ),
+                    ),
+                  ),
 
                 const SizedBox(height: 20),
 

@@ -6,11 +6,41 @@ import '../widgets/kode_koneksi_card.dart';
 import '../widgets/koneksi_pasangan_card.dart';
 import '../widgets/pengaturan_list.dart';
 import '../views/edit_profil.dart';
+import '../../../services/auth_service.dart';
 
-class ProfilPage extends StatelessWidget {
+class ProfilPage extends StatefulWidget {
   final VoidCallback? onBack;
-
   const ProfilPage({super.key, this.onBack});
+
+  @override
+  State<ProfilPage> createState() => _ProfilPageState();
+}
+
+class _ProfilPageState extends State<ProfilPage> {
+  Map<String, dynamic>? _user;
+  Map<String, dynamic>? _koneksi;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadData();
+  }
+
+  Future<void> _loadData() async {
+    try {
+      final userRes = await AuthService.getUser();
+      if (userRes['success']) {
+        setState(() => _user = userRes['data']);
+      }
+
+      final koneksiRes = await AuthService.getKoneksi();
+      if (koneksiRes['success']) {
+        setState(() => _koneksi = koneksiRes['data']);
+      }
+    } catch (e) {
+      // gagal load
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -25,7 +55,7 @@ class ProfilPage extends StatelessWidget {
                 title: 'Profil & Koneksi',
                 leftIcon: Icons.chevron_left,
                 rightIcon: Icons.notifications_outlined,
-                onLeftTap: () => onBack?.call(),
+                onLeftTap: () => widget.onBack?.call(),
                 onRightTap: () {},
               ),
             ),
@@ -37,12 +67,13 @@ class ProfilPage extends StatelessWidget {
                   children: [
                     const SizedBox(height: 8),
 
-                    // Avatar
                     Center(
                       child: ProfilAvatar(
-                        nama: 'Minju Kim',
-                        email: 'kim.minju@email.com',
-                        foto: const NetworkImage('https://picsum.photos/id/64/200/200'),
+                        nama: _user?['name'] ?? 'Memuat...',
+                        email: _user?['email'] ?? '',
+                        foto: _user?['foto'] != null
+                          ? NetworkImage(_user!['foto'])
+                          : const NetworkImage('https://picsum.photos/id/64/200/200'),
                         onEdit: () {
                           Navigator.push(
                             context,
@@ -56,7 +87,6 @@ class ProfilPage extends StatelessWidget {
 
                     const SizedBox(height: 28),
 
-                    // Kode koneksi
                     const Text(
                       'Kelola Koneksi Pasangan',
                       style: TextStyle(
@@ -67,22 +97,27 @@ class ProfilPage extends StatelessWidget {
                       ),
                     ),
                     const SizedBox(height: 12),
-                    const KodeKoneksiCard(kode: '742 891'),
+
+                    KodeKoneksiCard(
+                      kode: _koneksi?['kode'] ?? '------',
+                    ),
 
                     const SizedBox(height: 24),
 
-                    // Koneksi pasangan — ganti status sesuai kondisi
                     KoneksiPasanganCard(
-                      status: StatusKoneksi.terkoneksi,
-                      namaPasangan: 'Harry Potter',
-                      terhubungSejak: 'April 2023',
-                      fotoPasangan: const NetworkImage('https://picsum.photos/id/91/200/200'),
+                      status: _koneksi?['pasangan'] != null
+                        ? StatusKoneksi.terkoneksi
+                        : StatusKoneksi.belumAda,
+                      namaPasangan: _koneksi?['pasangan']?['name'] ?? '',
+                      terhubungSejak: _koneksi?['pasangan']?['sejak'] ?? '',
+                      fotoPasangan: _koneksi?['pasangan']?['foto'] != null
+                        ? NetworkImage(_koneksi!['pasangan']['foto'])
+                        : const NetworkImage('https://picsum.photos/id/91/200/200'),
                       onDisconnect: () {},
                     ),
 
                     const SizedBox(height: 24),
 
-                    // Pengaturan
                     PengaturanList(
                       onUbahSandi: () {},
                       onKeluarAkun: () {},

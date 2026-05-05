@@ -2,7 +2,16 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/warna_utama.dart';
 
 class StatusCard extends StatelessWidget {
-  const StatusCard({super.key});
+  final String status;
+  final String tanggal;
+  final bool berisiko;
+
+  const StatusCard({
+    super.key,
+    required this.status,
+    required this.tanggal,
+    required this.berisiko,
+  });
 
   @override
   Widget build(BuildContext context) {
@@ -61,18 +70,18 @@ class StatusCard extends StatelessWidget {
 
               Row(
                 crossAxisAlignment: CrossAxisAlignment.center,
-                children: const [
+                children: [
                   Text(
-                    "! ",
+                    berisiko ? "! " : "✓ ",
                     style: TextStyle(
-                      color: Colors.redAccent,
+                      color: berisiko ? Colors.redAccent : Colors.greenAccent,
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
                     ),
                   ),
                   Text(
-                    "Berisiko Depresi",
-                    style: TextStyle(
+                    status,
+                    style: const TextStyle(
                       color: WarnaUtama.text2,
                       fontSize: 24,
                       fontWeight: FontWeight.w700,
@@ -86,8 +95,9 @@ class StatusCard extends StatelessWidget {
               ClipRRect(
                 borderRadius: BorderRadius.circular(8),
                 child: LinearProgressIndicator(
+                  value: berisiko ? 0.8 : 0.2,
                   backgroundColor: WarnaUtama.text1.withOpacity(0.2),
-                  valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
                   minHeight: 5,
                 ),
               ),
@@ -95,8 +105,8 @@ class StatusCard extends StatelessWidget {
               const SizedBox(height: 12),
 
               Text(
-                "Berdasarkan hasil skrining terakhir 24 November 2026",
-                style: TextStyle(
+                "Berdasarkan hasil skrining terakhir $tanggal",
+                style: const TextStyle(
                   color: WarnaUtama.text2,
                   fontSize: 12,
                   fontWeight: FontWeight.w500,

@@ -29,7 +29,7 @@ class _FilterKategoriState extends State<FilterKategori> {
         separatorBuilder: (_, __) => const SizedBox(width: 10),
         itemBuilder: (context, index) {
           final isSelected = _selectedIndex == index;
-          final label = widget.kategori[index]['label'] as String;
+          final label = (widget.kategori[index]['display'] ?? widget.kategori[index]['label']) as String;
           final icon = widget.kategori[index]['icon'] as IconData?;
 
           return GestureDetector(

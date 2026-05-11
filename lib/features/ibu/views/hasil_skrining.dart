@@ -26,6 +26,7 @@ class HasilSkriningPage extends StatelessWidget {
     'Tetap terhidrasi dan jaga keseimbangan nutrisi.',
   ];
 
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(

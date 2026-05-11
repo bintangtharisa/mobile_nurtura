@@ -4,7 +4,8 @@ import '../../ibu/widgets/header.dart';
 import '../../ibu/widgets/filter_tips.dart';
 import '../../ibu/widgets/tips_populer.dart';
 import '../../ibu/widgets/artikel_card.dart';
-import '../../services/tips_service.dart';
+import '../services/article_service.dart';
+import '../services/article_category_service.dart';
 
 class LihatTipsPage extends StatefulWidget {
   const LihatTipsPage({super.key});
@@ -18,28 +19,45 @@ class _LihatTipsPageState extends State<LihatTipsPage> {
 
   late final Future<Map<String, dynamic>> _futureData;
 
- static const List<Map<String, dynamic>> _kategori = [
-  {'label': 'Semua', 'display': 'Semua', 'icon': null},
-  {'label': 'self-care', 'display': 'Self Care', 'icon': Icons.spa_outlined},
-  {'label': 'mental_health', 'display': 'Mental Health', 'icon': Icons.psychology_outlined},
-  {'label': 'nutrisi', 'display': 'Nutrisi', 'icon': Icons.restaurant_outlined},
-];
+  static const List<Map<String, dynamic>> _kategori = [
+    {'label': 'Semua', 'display': 'Semua', 'icon': null},
+    {'label': 'self-care', 'display': 'Self Care', 'icon': Icons.spa_outlined},
+    {'label': 'mental_health', 'display': 'Mental Health', 'icon': Icons.psychology_outlined},
+    {'label': 'nutrisi', 'display': 'Nutrisi', 'icon': Icons.restaurant_outlined},
+  ];
 
   @override
   void initState() {
     super.initState();
-    _futureData = TipsService.getAllTips();
+    _futureData = ArticleService.getTipsPageData();
   }
 
-  List<Map<String, dynamic>> _filterTips(List<Map<String, dynamic>> list) {
-  if (_selectedKategori == 0) return list;
-  final label = _kategori[_selectedKategori]['label'] as String;
-  return list
-      .where((a) => (a['kategori'] as String).toLowerCase() == label.toLowerCase())
-      .toList();
-}
-String _formatKategori(String kategori) {
-    switch (kategori.toLowerCase()) {
+  List<Map<String, dynamic>> _filterArticles(List<Map<String, dynamic>> list) {
+    if (_selectedKategori == 0) return list;
+    final label = _kategori[_selectedKategori]['label'] as String;
+
+    return list.where((a) {
+      // category bisa berupa Map {'name': '...'} atau String langsung
+      final raw = a['category'];
+      final String categoryName;
+      if (raw is Map) {
+        categoryName = (raw['name'] ?? '').toString();
+      } else {
+        categoryName = (raw ?? '').toString();
+      }
+      return categoryName.toLowerCase() == label.toLowerCase();
+    }).toList();
+  }
+
+  String _formatKategori(dynamic category) {
+    final String name;
+    if (category is Map) {
+      name = (category['name'] ?? '').toString();
+    } else {
+      name = (category ?? '').toString();
+    }
+
+    switch (name.toLowerCase()) {
       case 'mental_health':
         return 'Mental Health';
       case 'nutrisi':
@@ -47,8 +65,14 @@ String _formatKategori(String kategori) {
       case 'self-care':
         return 'Self Care';
       default:
-        return kategori;
+        return name;
     }
+  }
+
+  String _getSubtitle(Map<String, dynamic> article) {
+    // Coba field 'content' dulu, fallback ke 'excerpt'
+    final text = (article['content'] ?? article['excerpt'] ?? '') as String;
+    return text.length > 50 ? '${text.substring(0, 50)}...' : text;
   }
 
   @override
@@ -105,31 +129,35 @@ String _formatKategori(String kategori) {
                   }
 
                   final data = snapshot.data!;
-                  final tipsPopuler = data['populer'] as Map<String, dynamic>?;
-                  // FIX: key 'tips' bukan 'artikel'
-                  final tipsList = (data['tips'] as List?)
-                          ?.map((e) => e as Map<String, dynamic>)
-                          .toList() ??
-                      [];
-                  final filteredTips = _filterTips(tipsList);
+
+                  // key 'articles' sesuai ArticleService.getTipsPageData()
+                  final articleList = (data['articles'] as List? ?? [])
+                      .map((e) => e as Map<String, dynamic>)
+                      .toList();
+
+                  final populer = data['populer'] as Map<String, dynamic>?;
+
+                  final populerSubtitle = () {
+                    final text = (populer?['content'] ?? populer?['excerpt'] ??
+                        'Temukan tips terbaik untuk ibu.') as String;
+                    return text.length > 60 ? '${text.substring(0, 60)}...' : text;
+                  }();
+
+                  final populerImage = populer?['image'] ?? populer?['thumbnail'];
+
+                  final filteredList = _filterArticles(articleList);
 
                   return SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(horizontal: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        // Tips Populer
                         TipsPopuler(
-                          title: tipsPopuler?['judul'] ?? 'Tips Populer',
-                          subtitle: tipsPopuler?['konten'] != null
-                              ? (tipsPopuler!['konten'] as String).length > 60
-                                  ? '${(tipsPopuler['konten'] as String).substring(0, 60)}...'
-                                  : tipsPopuler['konten']
-                              : 'Temukan tips terbaik untuk ibu.',
-                          image: tipsPopuler?['gambar'] != null
-                              ? NetworkImage(tipsPopuler!['gambar'])
-                              : const NetworkImage(
-                                  'https://picsum.photos/400/200'),
+                          title: populer?['title'] ?? 'Tips Populer',
+                          subtitle: populerSubtitle,
+                          image: populerImage != null
+                              ? NetworkImage(populerImage)
+                              : const NetworkImage('https://picsum.photos/400/200'),
                         ),
 
                         const SizedBox(height: 24),
@@ -146,12 +174,12 @@ String _formatKategori(String kategori) {
 
                         const SizedBox(height: 12),
 
-                        filteredTips.isEmpty
+                        filteredList.isEmpty
                             ? const Center(
                                 child: Padding(
                                   padding: EdgeInsets.all(32),
                                   child: Text(
-                                    'Tidak ada tips di kategori ini',
+                                    'Tidak ada artikel di kategori ini',
                                     style: TextStyle(
                                       color: WarnaUtama.text1,
                                       fontSize: 14,
@@ -162,18 +190,15 @@ String _formatKategori(String kategori) {
                             : ListView.separated(
                                 shrinkWrap: true,
                                 physics: const NeverScrollableScrollPhysics(),
-                                itemCount: filteredTips.length,
+                                itemCount: filteredList.length,
                                 separatorBuilder: (_, __) =>
                                     const SizedBox(height: 12),
                                 itemBuilder: (context, index) {
-                                  final tips = filteredTips[index];
+                                  final article = filteredList[index];
                                   return ArtikelCard(
-                                   kategori: _formatKategori(tips['kategori'] ?? ''),
-                                    title: tips['judul'] ?? '',
-                                    // konten dipotong jadi durasi/subtitle
-                                    durasi: (tips['konten'] as String).length > 50
-                                        ? '${(tips['konten'] as String).substring(0, 50)}...'
-                                        : tips['konten'] ?? '',
+                                    kategori: _formatKategori(article['category']),
+                                    title: article['title'] ?? '',
+                                    durasi: _getSubtitle(article),
                                     icon: Icons.tips_and_updates_outlined,
                                     onTap: () {},
                                   );

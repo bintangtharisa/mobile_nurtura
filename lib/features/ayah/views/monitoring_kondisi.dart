@@ -84,7 +84,10 @@ class _MonitoringKondisiPageState extends State<MonitoringKondisiPage> {
                     const SizedBox(height: 20),
 
                     // Grafik
-                    GrafikSkrining(nilaiPerMinggu: dataGrafik),
+                    GrafikSkrining(
+                      nilaiPerMinggu: dataGrafik,
+                      periode: _periodeIndex == 0 ? 'minggu' : 'bulan',
+                    ),
 
                     const SizedBox(height: 24),
 

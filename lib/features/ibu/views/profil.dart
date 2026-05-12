@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/warna_utama.dart';
 import '../../shared/widgets/header.dart';
-import '../widgets/profil_avatar.dart';
+import '../../shared/widgets/profil_avatar.dart';
 import '../widgets/kode_koneksi_card.dart';
 import '../widgets/koneksi_pasangan_card.dart';
-import '../widgets/pengaturan_list.dart';
-import '../views/edit_profil.dart';
+import '../../shared/widgets/pengaturan_list.dart';
+import '../../shared/views/edit_profil.dart';
 import '../../../services/auth_service.dart';
 
 class ProfilPage extends StatefulWidget {

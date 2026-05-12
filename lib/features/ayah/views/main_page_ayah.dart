@@ -3,6 +3,7 @@ import '../widgets/bottom_nav.dart';
 import '../views/beranda.dart';
 import '../views/monitoring_kondisi.dart';
 import '../views/panduan_dukungan.dart';
+import '../views/profil_ayah.dart';
 
 class MainPageAyah extends StatefulWidget {
   const MainPageAyah({super.key});
@@ -18,6 +19,7 @@ class _MainPageState extends State<MainPageAyah> {
     BerandaAyahPage(),
     MonitoringKondisiPage(onBack: () => setState(() => _selectedIndex = 0)),
     PanduanDukunganPage(onBack: () => setState(() => _selectedIndex = 0)),
+    ProfilAyahPage(onBack: () => setState(() => _selectedIndex = 0)),
   ];
 
   @override

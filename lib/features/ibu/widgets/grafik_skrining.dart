@@ -50,62 +50,90 @@ class GrafikSkrining extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          SizedBox(
-            height: 150,
-            child: LineChart(
-              LineChartData(
-                gridData: const FlGridData(show: false),
-                borderData: FlBorderData(show: false),
-                titlesData: FlTitlesData(
-                  leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                  bottomTitles: AxisTitles(
-                    sideTitles: SideTitles(
-                      showTitles: true,
-                      getTitlesWidget: (value, meta) {
-                        final index = value.toInt();
-                        if (index < 0 || index >= nilaiPerMinggu.length) return const SizedBox();
-                        final label = periode == 'bulan' ? 'Bulan ${index + 1}' : 'Minggu ${index + 1}';
-                        return Text(
-                          label,
-                          style: TextStyle(
-                            fontFamily: 'Manrope',
-                            fontSize: 11,
-                            color: WarnaUtama.text1.withOpacity(0.5),
+          nilaiPerMinggu.isEmpty
+              ? Container(
+                  height: 150,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    color: WarnaUtama.primary.withOpacity(0.05),
+                    borderRadius: BorderRadius.circular(12),
+                  ),
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(
+                        Icons.show_chart_rounded,
+                        size: 40,
+                        color: WarnaUtama.secondary.withOpacity(0.4),
+                      ),
+                      const SizedBox(height: 8),
+                      Text(
+                        'Belum ada data skrining',
+                        style: TextStyle(
+                          fontFamily: 'Manrope',
+                          fontSize: 13,
+                          color: WarnaUtama.text1.withOpacity(0.4),
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+              : SizedBox(
+                  height: 150,
+                  child: LineChart(
+                    LineChartData(
+                      gridData: const FlGridData(show: false),
+                      borderData: FlBorderData(show: false),
+                      titlesData: FlTitlesData(
+                        leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        bottomTitles: AxisTitles(
+                          sideTitles: SideTitles(
+                            showTitles: true,
+                            getTitlesWidget: (value, meta) {
+                              final index = value.toInt();
+                              if (index < 0 || index >= nilaiPerMinggu.length) return const SizedBox();
+                              final label = periode == 'bulan' ? 'Bulan ${index + 1}' : 'Minggu ${index + 1}';
+                              return Text(
+                                label,
+                                style: TextStyle(
+                                  fontFamily: 'Manrope',
+                                  fontSize: 11,
+                                  color: WarnaUtama.text1.withOpacity(0.5),
+                                ),
+                              );
+                            },
                           ),
-                        );
-                      },
+                        ),
+                      ),
+                      lineBarsData: [
+                        LineChartBarData(
+                          spots: List.generate(
+                            nilaiPerMinggu.length,
+                            (i) => FlSpot(i.toDouble(), nilaiPerMinggu[i]),
+                          ),
+                          isCurved: true,
+                          color: WarnaUtama.secondary,
+                          barWidth: 2.5,
+                          dotData: FlDotData(
+                            show: true,
+                            getDotPainter: (spot, percent, bar, index) => FlDotCirclePainter(
+                              radius: 5,
+                              color: WarnaUtama.text2,
+                              strokeWidth: 2.5,
+                              strokeColor: WarnaUtama.secondary,
+                            ),
+                          ),
+                          belowBarData: BarAreaData(
+                            show: true,
+                            color: WarnaUtama.secondary.withOpacity(0.08),
+                          ),
+                        ),
+                      ],
                     ),
                   ),
                 ),
-                lineBarsData: [
-                  LineChartBarData(
-                    spots: List.generate(
-                      nilaiPerMinggu.length,
-                      (i) => FlSpot(i.toDouble(), nilaiPerMinggu[i]),
-                    ),
-                    isCurved: true,
-                    color: WarnaUtama.secondary,
-                    barWidth: 2.5,
-                    dotData: FlDotData(
-                      show: true,
-                      getDotPainter: (spot, percent, bar, index) => FlDotCirclePainter(
-                        radius: 5,
-                        color: WarnaUtama.text2,
-                        strokeWidth: 2.5,
-                        strokeColor: WarnaUtama.secondary,
-                      ),
-                    ),
-                    belowBarData: BarAreaData(
-                      show: true,
-                      color: WarnaUtama.secondary.withOpacity(0.08),
-                    ),
-                  ),
-                ],
-              ),
-            ),
-          ),
         ],
       ),
     );

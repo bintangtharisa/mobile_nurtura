@@ -268,4 +268,51 @@ class AuthService {
       return {"success": false, "message": "Error: $e"};
     }
   }
+  // ================= LOGOUT =================
+  static Future<Map<String, dynamic>> logout() async {
+    try {
+      await Session.saveToken('');
+      return {"success": true};
+    } catch (e) {
+      return {"success": false, "message": "Error: $e"};
+    }
+  }
+
+  // ================= CHANGE PASSWORD =================
+  static Future<Map<String, dynamic>> changePassword({
+    required String passwordLama,
+    required String passwordBaru,
+  }) async {
+    try {
+      final token = await Session.getToken();
+      final response = await http.put(
+        Uri.parse("${Api.baseUrl}/change-password"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({
+          "current_password": passwordLama,
+          "new_password": passwordBaru,
+          "new_password_confirmation": passwordBaru,
+        }),
+      );
+
+      dynamic data;
+      try {
+        data = jsonDecode(response.body);
+      } catch (_) {
+        return {"success": false, "message": "Response bukan JSON"};
+      }
+
+      if (response.statusCode == 200) {
+        return {"success": true, "data": data};
+      } else {
+        return {"success": false, "message": data['message'] ?? "Gagal ubah sandi"};
+      }
+    } catch (e) {
+      return {"success": false, "message": "Error: $e"};
+    }
+  }
 }

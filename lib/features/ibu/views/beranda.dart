@@ -7,6 +7,7 @@ import '../../../core/theme/warna_utama.dart';
 import '../views/lihat_tips_page.dart';
 import '../views/tahap_skrining.dart';
 import '../../services/prediksi_service.dart';
+import '../../services/tips_service.dart';
 
 class BerandaPage extends StatefulWidget {
   const BerandaPage({super.key});
@@ -17,11 +18,13 @@ class BerandaPage extends StatefulWidget {
 
 class _BerandaPageState extends State<BerandaPage> {
   Map<String, dynamic>? _statusTerakhir;
+  List<Map<String, dynamic>> _tipsList = [];
 
   @override
   void initState() {
     super.initState();
     _loadStatus();
+    _loadTips();
   }
 
   Future<void> _loadStatus() async {
@@ -33,6 +36,41 @@ class _BerandaPageState extends State<BerandaPage> {
     }
   }
 
+  Future<void> _loadTips() async {
+    try {
+      final data = await TipsService.getTips();
+      setState(() => _tipsList = data);
+    } catch (e) {
+      // gagal load tips
+    }
+  }
+
+  IconData _getIcon(String kategori) {
+  switch (kategori.toLowerCase()) {
+    case 'mental_health':
+      return Icons.psychology_outlined;
+    case 'nutrisi':
+      return Icons.restaurant_outlined;
+    case 'self-care':
+      return Icons.spa_outlined;
+    default:
+      return Icons.tips_and_updates_outlined;
+  }
+}
+
+String _formatKategori(String kategori) {
+  switch (kategori.toLowerCase()) {
+    case 'mental_health':
+      return 'Mental Health';
+    case 'nutrisi':
+      return 'Nutrisi';
+    case 'self-care':
+      return 'Self Care';
+    default:
+      return kategori;
+  }
+}
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -42,34 +80,29 @@ class _BerandaPageState extends State<BerandaPage> {
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
-
               Padding(
                 padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const HeaderProfil(),
-
                     const SizedBox(height: 20),
-
                     _statusTerakhir == null
-                      ? const StatusCard(
-                          status: 'Belum ada data',
-                          tanggal: '-',
-                          berisiko: false,
-                        )
-                      : StatusCard(
-                          status: _statusTerakhir!['status'],
-                          tanggal: _statusTerakhir!['tanggal'],
-                          berisiko: _statusTerakhir!['berisiko'],
-                        ),
-
+                        ? const StatusCard(
+                            status: 'Belum ada data',
+                            tanggal: '-',
+                            berisiko: false,
+                          )
+                        : StatusCard(
+                            status: _statusTerakhir!['status'],
+                            tanggal: _statusTerakhir!['tanggal'],
+                            berisiko: _statusTerakhir!['berisiko'],
+                          ),
                     const SizedBox(height: 28),
-
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
                       children: [
-                        Text(
+                        const Text(
                           "Tips Harian",
                           style: TextStyle(
                             fontSize: 18,
@@ -105,57 +138,26 @@ class _BerandaPageState extends State<BerandaPage> {
 
               SizedBox(
                 height: 155,
-                child: ListView(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  clipBehavior: Clip.none,
-                  children: const [
-                    SizedBox(
-                      width: 155,
-                      child: TipsCard(
-                        title: "Latihan Meditasi untuk Ibu Baru",
-                        duration: "5 min read",
-                        icon: Icons.self_improvement,
+                child: _tipsList.isEmpty
+                    ? const Center(child: CircularProgressIndicator())
+                    : ListView.separated(
+                        scrollDirection: Axis.horizontal,
+                        padding: const EdgeInsets.symmetric(horizontal: 20),
+                        clipBehavior: Clip.none,
+                        itemCount: _tipsList.length,
+                        separatorBuilder: (_, __) => const SizedBox(width: 12),
+                        itemBuilder: (context, index) {
+                          final tips = _tipsList[index];
+                          return SizedBox(
+                            width: 155,
+                            child: TipsCard(
+                              title: tips['judul'] ?? '',
+                              duration: _formatKategori(tips['kategori'] ?? ''),
+                              icon: _getIcon(tips['kategori'] ?? ''),
+                            ),
+                          );
+                        },
                       ),
-                    ),
-                    SizedBox(width: 12),
-                    SizedBox(
-                      width: 155,
-                      child: TipsCard(
-                        title: "Tips untuk Kualitas Tidur Lebih Baik",
-                        duration: "3 min read",
-                        icon: Icons.nightlight_round,
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    SizedBox(
-                      width: 155,
-                      child: TipsCard(
-                        title: "Mengelola Stres Pasca Melahirkan",
-                        duration: "4 min read",
-                        icon: Icons.spa_outlined,
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    SizedBox(
-                      width: 155,
-                      child: TipsCard(
-                        title: "Nutrisi Penting untuk Ibu Menyusui",
-                        duration: "6 min read",
-                        icon: Icons.restaurant_outlined,
-                      ),
-                    ),
-                    SizedBox(width: 12),
-                    SizedBox(
-                      width: 155,
-                      child: TipsCard(
-                        title: "Olahraga Ringan Setelah Melahirkan",
-                        duration: "4 min read",
-                        icon: Icons.directions_walk_outlined,
-                      ),
-                    ),
-                  ],
-                ),
               ),
 
               Padding(
@@ -164,7 +166,6 @@ class _BerandaPageState extends State<BerandaPage> {
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
                     const SizedBox(height: 28),
-
                     const Text(
                       "Aksi Cepat",
                       style: TextStyle(
@@ -173,9 +174,7 @@ class _BerandaPageState extends State<BerandaPage> {
                         color: WarnaUtama.text1,
                       ),
                     ),
-
                     const SizedBox(height: 12),
-
                     Row(
                       children: [
                         Expanded(
@@ -215,13 +214,9 @@ class _BerandaPageState extends State<BerandaPage> {
                         ),
                       ],
                     ),
-
                     const SizedBox(height: 12),
-
                     GestureDetector(
-                      onTap: () {
-                        // TODO: navigasi ke koneksi
-                      },
+                      onTap: () {},
                       child: AksiCard(
                         title: "Koneksi",
                         icon: Icons.hub_outlined,
@@ -229,7 +224,6 @@ class _BerandaPageState extends State<BerandaPage> {
                         fullWidth: true,
                       ),
                     ),
-
                     const SizedBox(height: 20),
                   ],
                 ),

@@ -38,11 +38,11 @@ class BottomNav extends StatelessWidget {
             label: 'Beranda',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.bar_chart),
+            icon: Icon(Icons.auto_stories),
             label: 'Monitoring',
           ),
           BottomNavigationBarItem(
-            icon: Icon(Icons.show_chart),
+            icon: Icon(Icons.handshake_rounded),
             label: 'Dukungan',
           ),
           BottomNavigationBarItem(

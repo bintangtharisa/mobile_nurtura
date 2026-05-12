@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import '../widgets/bottom_nav.dart';
 import '../views/beranda.dart';
 import '../views/monitoring_kondisi.dart';
+import '../views/panduan_dukungan.dart';
 
 class MainPageAyah extends StatefulWidget {
   const MainPageAyah({super.key});
@@ -16,6 +17,7 @@ class _MainPageState extends State<MainPageAyah> {
   late final List<Widget> _pages = [
     BerandaAyahPage(),
     MonitoringKondisiPage(onBack: () => setState(() => _selectedIndex = 0)),
+    PanduanDukunganPage(onBack: () => setState(() => _selectedIndex = 0)),
   ];
 
   @override

@@ -5,7 +5,6 @@ import '../widgets/hasil_terakhir_skrining_card.dart';
 import '../widgets/mulai_skrining_card.dart';
 import '../widgets/header.dart';
 import '../views/tahap_skrining.dart';
-import '../../services/prediksi_service.dart';
 
 class PrediksiPage extends StatefulWidget {
   final VoidCallback? onBack;
@@ -18,20 +17,6 @@ class PrediksiPage extends StatefulWidget {
 class _PrediksiPageState extends State<PrediksiPage> {
   Map<String, dynamic>? _hasilTerakhir;
 
-  @override
-  void initState() {
-    super.initState();
-    _loadHasilTerakhir();
-  }
-
-  Future<void> _loadHasilTerakhir() async {
-    try {
-      final hasil = await PrediksiService.getHasilTerakhir();
-      setState(() => _hasilTerakhir = hasil);
-    } catch (e) {
-      // gagal load
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

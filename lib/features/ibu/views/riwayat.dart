@@ -3,7 +3,6 @@ import '../../../core/theme/warna_utama.dart';
 import '../widgets/header.dart';
 import '../widgets/grafik_skrining.dart';
 import '../widgets/riwayat_card.dart';
-import '../../services/prediksi_service.dart';
 
 class RiwayatPage extends StatefulWidget {
   final VoidCallback? onBack;
@@ -16,24 +15,6 @@ class RiwayatPage extends StatefulWidget {
 class _RiwayatPageState extends State<RiwayatPage> {
   List<Map<String, dynamic>> _riwayatList = [];
   bool _isLoading = true;
-
-  @override
-  void initState() {
-    super.initState();
-    _loadRiwayat();
-  }
-
-  Future<void> _loadRiwayat() async {
-    try {
-      final data = await PrediksiService.getRiwayat();
-      setState(() {
-        _riwayatList = data;
-        _isLoading = false;
-      });
-    } catch (e) {
-      setState(() => _isLoading = false);
-    }
-  }
 
   @override
   Widget build(BuildContext context) {

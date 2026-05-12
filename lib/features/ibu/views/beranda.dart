@@ -6,8 +6,7 @@ import '../../ibu/widgets/header_profil.dart';
 import '../../../core/theme/warna_utama.dart';
 import '../views/lihat_tips_page.dart';
 import '../views/tahap_skrining.dart';
-import '../../services/prediksi_service.dart';
-import '../../services/tips_service.dart';
+
 
 class BerandaPage extends StatefulWidget {
   const BerandaPage({super.key});
@@ -20,30 +19,6 @@ class _BerandaPageState extends State<BerandaPage> {
   Map<String, dynamic>? _statusTerakhir;
   List<Map<String, dynamic>> _tipsList = [];
 
-  @override
-  void initState() {
-    super.initState();
-    _loadStatus();
-    _loadTips();
-  }
-
-  Future<void> _loadStatus() async {
-    try {
-      final data = await PrediksiService.getHasilTerakhir();
-      setState(() => _statusTerakhir = data);
-    } catch (e) {
-      // gagal load
-    }
-  }
-
-  Future<void> _loadTips() async {
-    try {
-      final data = await TipsService.getTips();
-      setState(() => _tipsList = data);
-    } catch (e) {
-      // gagal load tips
-    }
-  }
 
   IconData _getIcon(String kategori) {
   switch (kategori.toLowerCase()) {

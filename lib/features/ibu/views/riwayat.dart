@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/warna_utama.dart';
-import '../widgets/header.dart';
-import '../widgets/grafik_skrining.dart';
-import '../widgets/riwayat_card.dart';
+import '../../shared/widgets/header.dart';
+import '../../shared/widgets/grafik_skrining.dart';
+import '../../shared/widgets/riwayat_card.dart';
 
 class RiwayatPage extends StatefulWidget {
   final VoidCallback? onBack;

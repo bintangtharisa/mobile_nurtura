@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/warna_utama.dart';
-import '../widgets/header.dart';
+import '../../shared/widgets/header.dart';
 import '../widgets/kartu_pertanyaan.dart';
 import '../widgets/pilihan_jawaban.dart';
 import '../widgets/tombol_navigasi_skrining.dart';

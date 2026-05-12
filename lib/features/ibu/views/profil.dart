@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/warna_utama.dart';
-import '../widgets/header.dart';
+import '../../shared/widgets/header.dart';
 import '../widgets/profil_avatar.dart';
 import '../widgets/kode_koneksi_card.dart';
 import '../widgets/koneksi_pasangan_card.dart';

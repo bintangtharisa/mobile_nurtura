@@ -3,7 +3,7 @@ import '../../../core/theme/warna_utama.dart';
 import '../widgets/prediksi_card.dart';
 import '../widgets/hasil_terakhir_skrining_card.dart';
 import '../widgets/mulai_skrining_card.dart';
-import '../widgets/header.dart';
+import '../../shared/widgets/header.dart';
 import '../views/tahap_skrining.dart';
 
 class PrediksiPage extends StatefulWidget {

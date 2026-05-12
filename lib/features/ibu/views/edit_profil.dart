@@ -1,7 +1,7 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/warna_utama.dart';
-import '../widgets/header.dart';
-import '../widgets/edit_profil_card.dart';
+import '../../shared/widgets/header.dart';
+import '../../shared/widgets/edit_profil_card.dart';
 
 class EditProfilPage extends StatefulWidget {
   const EditProfilPage({super.key});

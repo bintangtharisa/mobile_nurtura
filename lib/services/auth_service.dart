@@ -4,45 +4,58 @@ import '../utils/api.dart';
 import '../services/session.dart';
 
 class AuthService {
-
-  // ================= LOGIN =================
   static Future<Map<String, dynamic>> login(
     String email,
     String password,
   ) async {
     try {
+      final token = await Session.getToken();
+
+      final headers = {
+        "Accept": "application/json",
+        "Content-Type": "application/json",
+      };
+
+      // hanya kirim token jika ada
+      if (token != null && token.isNotEmpty) {
+        headers["Authorization"] = "Bearer $token";
+      }
+
       final response = await http.post(
         Uri.parse("${Api.baseUrl}/auth/login"),
-        headers: {
-          "Accept": "application/json",
-          "Content-Type": "application/json",
-        },
-        body: jsonEncode({
-          "email": email,
-          "password": password
-        }),
+        headers: headers,
+        body: jsonEncode({"email": email, "password": password}),
       );
 
+      print("LOGIN URL: ${Api.baseUrl}/auth/login");
       print("LOGIN STATUS: ${response.statusCode}");
       print("LOGIN BODY: ${response.body}");
 
       dynamic data;
+
       try {
         data = jsonDecode(response.body);
       } catch (_) {
-        return {"success": false, "message": "Response bukan JSON"};
+        return {
+          "success": false,
+          "message": "Response bukan JSON",
+          "raw": response.body,
+        };
       }
 
       if (response.statusCode == 200) {
+        // simpan token baru dari Laravel
         if (data['token'] != null) {
           await Session.saveToken(data['token']);
         }
+
         return {"success": true, "data": data};
       } else {
         return {"success": false, "message": data['message'] ?? "Login gagal"};
       }
-
     } catch (e) {
+      print("LOGIN ERROR: $e");
+
       return {"success": false, "message": "Error: $e"};
     }
   }
@@ -83,9 +96,11 @@ class AuthService {
       if (response.statusCode >= 200 && response.statusCode < 300) {
         return {"success": true, "data": data};
       } else {
-        return {"success": false, "message": data['message'] ?? "Register gagal"};
+        return {
+          "success": false,
+          "message": data['message'] ?? "Register gagal",
+        };
       }
-
     } catch (e) {
       return {"success": false, "message": "Error: $e"};
     }
@@ -97,10 +112,10 @@ class AuthService {
       final token = await Session.getToken();
 
       final response = await http.get(
-        Uri.parse("${Api.baseUrl}/user"),
+        Uri.parse("${Api.baseUrl}/profile"),
         headers: {
           "Authorization": "Bearer $token",
-          "Accept": "application/json"
+          "Accept": "application/json",
         },
       );
 
@@ -108,6 +123,7 @@ class AuthService {
       print("USER BODY: ${response.body}");
 
       dynamic data;
+
       try {
         data = jsonDecode(response.body);
       } catch (_) {
@@ -117,9 +133,11 @@ class AuthService {
       if (response.statusCode == 200) {
         return {"success": true, "data": data};
       } else {
-        return {"success": false, "message": data['message'] ?? "Gagal ambil user"};
+        return {
+          "success": false,
+          "message": data['message'] ?? "Gagal ambil user",
+        };
       }
-
     } catch (e) {
       return {"success": false, "message": "Error: $e"};
     }
@@ -150,9 +168,11 @@ class AuthService {
       if (response.statusCode == 200) {
         return {"success": true, "data": data};
       } else {
-        return {"success": false, "message": data['message'] ?? "Gagal kirim email"};
+        return {
+          "success": false,
+          "message": data['message'] ?? "Gagal kirim email",
+        };
       }
-
     } catch (e) {
       return {"success": false, "message": "Error: $e"};
     }
@@ -193,7 +213,6 @@ class AuthService {
       } else {
         return {"success": false, "message": data['message'] ?? "Reset gagal"};
       }
-
     } catch (e) {
       return {"success": false, "message": "Error: $e"};
     }
@@ -208,7 +227,7 @@ class AuthService {
         Uri.parse("${Api.baseUrl}/koneksi"),
         headers: {
           "Authorization": "Bearer $token",
-          "Accept": "application/json"
+          "Accept": "application/json",
         },
       );
 
@@ -222,9 +241,11 @@ class AuthService {
       if (response.statusCode == 200) {
         return {"success": true, "data": data};
       } else {
-        return {"success": false, "message": data['message'] ?? "Gagal ambil koneksi"};
+        return {
+          "success": false,
+          "message": data['message'] ?? "Gagal ambil koneksi",
+        };
       }
-
     } catch (e) {
       return {"success": false, "message": "Error: $e"};
     }
@@ -245,10 +266,7 @@ class AuthService {
           "Accept": "application/json",
           "Content-Type": "application/json",
         },
-        body: jsonEncode({
-          "name": nama,
-          "email": email,
-        }),
+        body: jsonEncode({"name": nama, "email": email}),
       );
 
       dynamic data;
@@ -261,13 +279,16 @@ class AuthService {
       if (response.statusCode == 200) {
         return {"success": true, "data": data};
       } else {
-        return {"success": false, "message": data['message'] ?? "Gagal update profil"};
+        return {
+          "success": false,
+          "message": data['message'] ?? "Gagal update profil",
+        };
       }
-
     } catch (e) {
       return {"success": false, "message": "Error: $e"};
     }
   }
+
   // ================= LOGOUT =================
   static Future<Map<String, dynamic>> logout() async {
     try {
@@ -309,7 +330,10 @@ class AuthService {
       if (response.statusCode == 200) {
         return {"success": true, "data": data};
       } else {
-        return {"success": false, "message": data['message'] ?? "Gagal ubah sandi"};
+        return {
+          "success": false,
+          "message": data['message'] ?? "Gagal ubah sandi",
+        };
       }
     } catch (e) {
       return {"success": false, "message": "Error: $e"};

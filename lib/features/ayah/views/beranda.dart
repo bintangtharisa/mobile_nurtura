@@ -3,7 +3,7 @@ import '../../../core/theme/warna_utama.dart';
 import '../widgets/header_profil.dart';
 import '../widgets/dukungan_card.dart';
 import '../widgets/status_card.dart';
-import '../widgets/artikel_card.dart';
+import '../../shared/widgets/artikel_card.dart';
 
 class BerandaAyahPage extends StatelessWidget {
   const BerandaAyahPage({super.key});

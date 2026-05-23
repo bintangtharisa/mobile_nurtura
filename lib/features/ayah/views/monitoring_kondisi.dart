@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/warna_utama.dart';
-import '../../ibu/widgets/header.dart';
-import '../../ibu/widgets/grafik_skrining.dart';
-import '../../ibu/widgets/riwayat_card.dart';
+import '../../shared/widgets/header.dart';
+import '../../shared/widgets/grafik_skrining.dart';
+import '../../shared/widgets/riwayat_card.dart';
 import '../widgets/toggle_periode.dart';
 import '../widgets/pengaturan_notifikasi.dart';
 

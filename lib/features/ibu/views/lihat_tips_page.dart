@@ -1,9 +1,9 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/warna_utama.dart';
-import '../../ibu/widgets/header.dart';
+import '../../shared/widgets/header.dart';
 import '../../ibu/widgets/filter_tips.dart';
 import '../../ibu/widgets/tips_populer.dart';
-import '../../ibu/widgets/artikel_card.dart';
+import '../../shared/widgets/artikel_card.dart';
 import '../services/article_service.dart';
 import '../services/article_category_service.dart';
 

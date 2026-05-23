@@ -4,11 +4,13 @@ import '../../../core/theme/warna_utama.dart';
 class PengaturanList extends StatefulWidget {
   final VoidCallback? onUbahSandi;
   final VoidCallback? onKeluarAkun;
+  final bool showNotifikasi;
 
   const PengaturanList({
     super.key,
     this.onUbahSandi,
     this.onKeluarAkun,
+    this.showNotifikasi = true,
   });
 
   @override
@@ -98,6 +100,7 @@ class _PengaturanListState extends State<PengaturanList> {
         const SizedBox(height: 12),
         Column(
           children: [
+            if (widget.showNotifikasi) ...[
             _itemPengaturan(
               icon: Icons.notifications_outlined,
               iconBg: WarnaUtama.secondary.withOpacity(0.15),
@@ -110,6 +113,7 @@ class _PengaturanListState extends State<PengaturanList> {
                 activeColor: WarnaUtama.secondary,
               ),
             ),
+            ],
             const SizedBox(height: 10),
             _itemPengaturan(
               icon: Icons.shield_outlined,

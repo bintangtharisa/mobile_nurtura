@@ -11,7 +11,7 @@ class MLService {
       };
 
       final response = await http
-          .post(
+          .post(  
             Uri.parse('$_baseUrl/predict'),
             headers: {'Content-Type': 'application/json'},
             body: jsonEncode(payload),

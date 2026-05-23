@@ -3,6 +3,7 @@ import '../../../core/theme/warna_utama.dart';
 import '../../shared/widgets/header.dart';
 import '../../shared/widgets/grafik_skrining.dart';
 import '../../shared/widgets/riwayat_card.dart';
+import '../services/screening_service.dart';
 
 class RiwayatPage extends StatefulWidget {
   final VoidCallback? onBack;
@@ -15,14 +16,49 @@ class RiwayatPage extends StatefulWidget {
 class _RiwayatPageState extends State<RiwayatPage> {
   List<Map<String, dynamic>> _riwayatList = [];
   bool _isLoading = true;
+  String? _errorMessage;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchScreeningHistory();
+  }
+
+  Future<void> _fetchScreeningHistory() async {
+    try {
+      debugPrint('🔄 [RiwayatPage] Starting to fetch screening history...');
+      setState(() {
+        _isLoading = true;
+        _errorMessage = null;
+      });
+      debugPrint('⏳ [RiwayatPage] Loading state set to true');
+
+      final screenings = await ScreeningService.getScreeningHistory();
+      debugPrint('📊 [RiwayatPage] Received ${screenings.length} raw screening records');
+      
+      final formattedList = screenings
+          .map((screening) => ScreeningService.formatScreening(screening))
+          .toList();
+      
+      debugPrint('✨ [RiwayatPage] Formatted ${formattedList.length} screening records for display');
+
+      setState(() {
+        _riwayatList = formattedList;
+        _isLoading = false;
+      });
+      debugPrint('✅ [RiwayatPage] Successfully loaded ${_riwayatList.length} records');
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _errorMessage = e.toString();
+      });
+      debugPrint('❌ [RiwayatPage] Error fetching screening history: $e');
+      debugPrint('❌ [RiwayatPage] Error message displayed: $_errorMessage');
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final nilaiGrafik = _riwayatList
-        .reversed
-        .map((e) => (e['nilai'] as num).toDouble())
-        .toList();
-
     return Scaffold(
       backgroundColor: WarnaUtama.background,
       body: SafeArea(
@@ -42,12 +78,40 @@ class _RiwayatPageState extends State<RiwayatPage> {
             Expanded(
               child: _isLoading
                 ? const Center(child: CircularProgressIndicator())
+                : _errorMessage != null
+                  ? Center(
+                      child: Column(
+                        mainAxisAlignment: MainAxisAlignment.center,
+                        children: [
+                          const Icon(Icons.error_outline,
+                              color: Colors.red, size: 48),
+                          const SizedBox(height: 12),
+                          Text(
+                            'Gagal memuat riwayat\n$_errorMessage',
+                            textAlign: TextAlign.center,
+                            style: const TextStyle(color: WarnaUtama.text1),
+                          ),
+                          const SizedBox(height: 16),
+                          ElevatedButton.icon(
+                            onPressed: _fetchScreeningHistory,
+                            icon: const Icon(Icons.refresh),
+                            label: const Text('Coba Lagi'),
+                          ),
+                        ],
+                      ),
+                    )
                 : SingleChildScrollView(
                     padding: const EdgeInsets.symmetric(horizontal: 20),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        GrafikSkrining(nilaiPerMinggu: nilaiGrafik),
+                        if (_riwayatList.isNotEmpty)
+                          GrafikSkrining(
+                            nilaiPerMinggu: _riwayatList
+                                .reversed
+                                .map((e) => (e['berisiko'] ? 1.0 : 0.0))
+                                .toList(),
+                          ),
 
                         const SizedBox(height: 24),
 
@@ -64,9 +128,9 @@ class _RiwayatPageState extends State<RiwayatPage> {
                               ),
                             ),
                             GestureDetector(
-                              onTap: () {},
+                              onTap: _fetchScreeningHistory,
                               child: const Text(
-                                'Lihat Semua',
+                                'Refresh',
                                 style: TextStyle(
                                   fontFamily: 'Manrope',
                                   fontSize: 13,
@@ -81,11 +145,16 @@ class _RiwayatPageState extends State<RiwayatPage> {
                         const SizedBox(height: 12),
 
                         _riwayatList.isEmpty
-                          ? const Text(
-                              'Belum ada riwayat skrining',
-                              style: TextStyle(
-                                fontFamily: 'Manrope',
-                                color: WarnaUtama.text1,
+                          ? const Padding(
+                              padding: EdgeInsets.all(32),
+                              child: Center(
+                                child: Text(
+                                  'Belum ada riwayat skrining',
+                                  style: TextStyle(
+                                    fontFamily: 'Manrope',
+                                    color: WarnaUtama.text1,
+                                  ),
+                                ),
                               ),
                             )
                           : ListView.separated(

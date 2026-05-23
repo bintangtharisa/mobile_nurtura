@@ -29,16 +29,22 @@ class _ProfilPageState extends State<ProfilPage> {
   Future<void> _loadData() async {
     try {
       final userRes = await AuthService.getUser();
+      print("USER RESULT: $userRes");
       if (userRes['success']) {
         setState(() => _user = userRes['data']);
+      } else {
+        print("USER ERROR: ${userRes['message']}");
       }
 
       final koneksiRes = await AuthService.getKoneksi();
+      print("KONEKSI RESULT: $koneksiRes");
       if (koneksiRes['success']) {
         setState(() => _koneksi = koneksiRes['data']);
+      } else {
+        print("KONEKSI ERROR: ${koneksiRes['message']}");
       }
     } catch (e) {
-      // gagal load
+      print("LOAD DATA ERROR: $e");
     }
   }
 
@@ -70,8 +76,8 @@ class _ProfilPageState extends State<ProfilPage> {
                       child: ProfilAvatar(
                         nama: _user?['name'] ?? 'Memuat...',
                         email: _user?['email'] ?? '',
-                        foto: _user?['foto'] != null
-                            ? NetworkImage(_user!['foto'])
+                        foto: _user?['photo'] != null
+                            ? NetworkImage(_user!['photo'])
                             : const NetworkImage('https://picsum.photos/id/64/200/200'),
                         onEdit: () {
                           Navigator.push(
@@ -104,8 +110,8 @@ class _ProfilPageState extends State<ProfilPage> {
                           : StatusKoneksi.belumAda,
                       namaPasangan: _koneksi?['pasangan']?['name'] ?? '',
                       terhubungSejak: _koneksi?['pasangan']?['sejak'] ?? '',
-                      fotoPasangan: _koneksi?['pasangan']?['foto'] != null
-                          ? NetworkImage(_koneksi!['pasangan']['foto'])
+                      fotoPasangan: _koneksi?['pasangan']?['photo'] != null
+                          ? NetworkImage(_koneksi!['pasangan']['photo'])
                           : const NetworkImage('https://picsum.photos/id/91/200/200'),
                       onDisconnect: () {},
                     ),

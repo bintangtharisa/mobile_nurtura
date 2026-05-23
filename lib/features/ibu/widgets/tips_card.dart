@@ -30,6 +30,7 @@ class TipsCard extends StatelessWidget {
       ),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
+        mainAxisSize: MainAxisSize.min,
         children: [
           CircleAvatar(
             radius: 16,
@@ -37,18 +38,24 @@ class TipsCard extends StatelessWidget {
             child: Icon(icon, size: 16, color: WarnaUtama.primary),
           ),
           const SizedBox(height: 10),
-          Text(
-            title,
-            style: const TextStyle(
-              color : WarnaUtama.text1,
-              fontFamily: 'Manrope',
-              fontSize: 14,
-              fontWeight: FontWeight.bold,
+          Expanded(
+            child: Text(
+              title,
+              maxLines: 2,
+              overflow: TextOverflow.ellipsis,
+              style: const TextStyle(
+                color : WarnaUtama.text1,
+                fontFamily: 'Manrope',
+                fontSize: 14,
+                fontWeight: FontWeight.bold,
+              ),
             ),
           ),
           const SizedBox(height: 6),
           Text(
             duration,
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
             style: TextStyle(
               fontFamily: 'Manrope', 
               fontSize: 11,

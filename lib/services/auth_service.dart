@@ -131,7 +131,7 @@ class AuthService {
       }
 
       if (response.statusCode == 200) {
-        return {"success": true, "data": data};
+        return {"success": true, "data": data['data']};
       } else {
         return {
           "success": false,
@@ -239,7 +239,7 @@ class AuthService {
       }
 
       if (response.statusCode == 200) {
-        return {"success": true, "data": data};
+        return {"success": true, "data": data['data']};
       } else {
         return {
           "success": false,

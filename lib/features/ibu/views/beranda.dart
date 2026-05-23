@@ -6,6 +6,7 @@ import '../../ibu/widgets/header_profil.dart';
 import '../../../core/theme/warna_utama.dart';
 import '../views/lihat_tips_page.dart';
 import '../views/tahap_skrining.dart';
+import '../services/article_service.dart';
 
 class BerandaPage extends StatefulWidget {
   const BerandaPage({super.key});
@@ -17,6 +18,41 @@ class BerandaPage extends StatefulWidget {
 class _BerandaPageState extends State<BerandaPage> {
   Map<String, dynamic>? _statusTerakhir;
   List<Map<String, dynamic>> _tipsList = [];
+  bool _isLoading = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _fetchTips();
+  }
+
+  Future<void> _fetchTips() async {
+    try {
+      final articles = await ArticleService.getArticles();
+      
+      setState(() {
+        _tipsList = articles
+            .map((article) => {
+                  'id': article['_id'] ?? article['id'] ?? '',
+                  'judul': article['title'] ?? '',
+                  'kategori': article['category'] is Map 
+                      ? (article['category']['name'] ?? 'general')
+                      : 'general',
+                  'deskripsi': article['description'] ?? '',
+                  'thumbnail': article['thumbnail'] ?? '',
+                })
+            .take(5)
+            .toList();
+        _isLoading = false;
+      });
+    } catch (e) {
+      setState(() {
+        _isLoading = false;
+        _tipsList = [];
+      });
+      debugPrint('Error fetching tips: $e');
+    }
+  }
 
   IconData _getIcon(String kategori) {
     switch (kategori.toLowerCase()) {
@@ -114,26 +150,36 @@ class _BerandaPageState extends State<BerandaPage> {
 
               SizedBox(
                 height: 155,
-                child: _tipsList.isEmpty
+                child: _isLoading
                     ? const Center(child: CircularProgressIndicator())
-                    : ListView.separated(
-                        scrollDirection: Axis.horizontal,
-                        padding: const EdgeInsets.symmetric(horizontal: 20),
-                        clipBehavior: Clip.none,
-                        itemCount: _tipsList.length,
-                        separatorBuilder: (_, __) => const SizedBox(width: 12),
-                        itemBuilder: (context, index) {
-                          final tips = _tipsList[index];
-                          return SizedBox(
-                            width: 155,
-                            child: TipsCard(
-                              title: tips['judul'] ?? '',
-                              duration: _formatKategori(tips['kategori'] ?? ''),
-                              icon: _getIcon(tips['kategori'] ?? ''),
+                    : _tipsList.isEmpty
+                        ? const Center(
+                            child: Text(
+                              'Belum ada tips tersedia',
+                              style: TextStyle(
+                                color: WarnaUtama.text2,
+                                fontSize: 14,
+                              ),
                             ),
-                          );
-                        },
-                      ),
+                          )
+                        : ListView.separated(
+                            scrollDirection: Axis.horizontal,
+                            padding: const EdgeInsets.symmetric(horizontal: 20),
+                            clipBehavior: Clip.hardEdge,
+                            itemCount: _tipsList.length,
+                            separatorBuilder: (_, __) => const SizedBox(width: 12),
+                            itemBuilder: (context, index) {
+                              final tips = _tipsList[index];
+                              return SizedBox(
+                                width: 155,
+                                child: TipsCard(
+                                  title: tips['judul'] ?? '',
+                                  duration: _formatKategori(tips['kategori'] ?? ''),
+                                  icon: _getIcon(tips['kategori'] ?? ''),
+                                ),
+                              );
+                            },
+                          ),
               ),
 
               Padding(

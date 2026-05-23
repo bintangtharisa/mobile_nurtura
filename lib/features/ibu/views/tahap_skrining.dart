@@ -5,7 +5,7 @@ import '../widgets/kartu_pertanyaan.dart';
 import '../widgets/pilihan_jawaban.dart';
 import '../widgets/tombol_navigasi_skrining.dart';
 import 'hasil_skrining.dart';
-import '../../../services/ml_service.dart';
+import '../../../services/laravel_service.dart';
 
 class TahapSkriningPage extends StatefulWidget {
   const TahapSkriningPage({super.key});
@@ -26,7 +26,7 @@ class _TahapSkriningPageState extends State<TahapSkriningPage> {
           'Dalam 7 hari terakhir, saya sering merasakan sedih dan sering menangis',
       'subjudul':
           'Pilih jawaban yang paling sesuai dengan perasaan Anda akhir-akhir ini.',
-      'pilihan': ['Tidak', 'Jarang', 'Iya', 'Sering'],
+      'pilihan': ['Not at all', 'Sometimes', 'Yes'],
     },
 
     {
@@ -34,42 +34,42 @@ class _TahapSkriningPageState extends State<TahapSkriningPage> {
       'pertanyaan': 'Saya merasa cemas atau khawatir tanpa alasan yang jelas',
       'subjudul':
           'Pilih jawaban yang paling sesuai dengan perasaan Anda akhir-akhir ini.',
-      'pilihan': ['Tidak', 'Jarang', 'Iya', 'Sering'],
+      'pilihan': ['Not at all', 'Sometimes', 'Yes'],
     },
 
     {
       'kategori': 'Pola Tidur',
       'pertanyaan': 'Saya mengalami kesulitan tidur meskipun bayi sedang tidur',
       'subjudul': 'Pilih jawaban yang paling sesuai dengan kondisi Anda.',
-      'pilihan': ['Tidak', 'Jarang', 'Iya', 'Sering'],
+      'pilihan': ['Not at all', 'Sometimes', 'Yes'],
     },
 
     {
       'kategori': 'Pola Tidur',
       'pertanyaan': 'Saya merasa sangat lelah meskipun sudah beristirahat',
       'subjudul': 'Pilih jawaban yang paling sesuai dengan kondisi Anda.',
-      'pilihan': ['Tidak', 'Jarang', 'Iya', 'Sering'],
+      'pilihan': ['Not at all', 'Sometimes', 'Yes'],
     },
 
     {
       'kategori': 'Hubungan Sosial',
       'pertanyaan': 'Saya merasa sulit untuk terhubung dengan bayi saya',
       'subjudul': 'Pilih jawaban yang paling sesuai dengan perasaan Anda.',
-      'pilihan': ['Tidak', 'Jarang', 'Iya', 'Sering'],
+      'pilihan': ['Not at all', 'Sometimes', 'Yes'],
     },
 
     {
       'kategori': 'Hubungan Sosial',
       'pertanyaan': 'Saya merasa tidak mendapat dukungan dari orang sekitar',
       'subjudul': 'Pilih jawaban yang paling sesuai dengan perasaan Anda.',
-      'pilihan': ['Tidak', 'Jarang', 'Iya', 'Sering'],
+      'pilihan': ['Not at all', 'Sometimes', 'Yes'],
     },
 
     {
       'kategori': 'Kesehatan Fisik',
       'pertanyaan': 'Saya kehilangan nafsu makan atau makan berlebihan',
       'subjudul': 'Pilih jawaban yang paling sesuai dengan kondisi Anda.',
-      'pilihan': ['Tidak', 'Jarang', 'Iya', 'Sering'],
+      'pilihan': ['Not at all', 'Sometimes', 'Yes'],
     },
 
     {
@@ -77,14 +77,20 @@ class _TahapSkriningPageState extends State<TahapSkriningPage> {
       'pertanyaan':
           'Saya sering merasakan sakit kepala atau nyeri tubuh tanpa sebab',
       'subjudul': 'Pilih jawaban yang paling sesuai dengan kondisi Anda.',
-      'pilihan': ['Tidak', 'Jarang', 'Iya', 'Sering'],
+      'pilihan': ['Not at all', 'Sometimes', 'Yes'],
     },
 
     {
       'kategori': 'Kesejahteraan Emosional',
       'pertanyaan': 'Saya merasa tidak mampu menjadi ibu yang baik',
       'subjudul': 'Pilih jawaban yang paling sesuai dengan perasaan Anda.',
-      'pilihan': ['Tidak', 'Jarang', 'Iya', 'Sering'],
+      'pilihan': ['Not at all', 'Sometimes', 'Yes'],
+    },
+    {
+      'kategori': 'Kesejahteraan Emosional',
+      'pertanyaan': 'Saya pernah berpikir menyakiti diri sendiri',
+      'subjudul': 'Pilih jawaban yang paling sesuai dengan kondisi Anda.',
+      'pilihan': ['No', 'Yes'],
     },
   ];
 
@@ -193,16 +199,17 @@ class _TahapSkriningPageState extends State<TahapSkriningPage> {
         _isLoading = true;
       });
 
-      final hasilML = await MLService.predict(_jawaban);
+      final hasil = await LaravelService.saveScreening(jawaban: _jawaban);
 
       if (!mounted) return;
 
+
+      final result = hasil['prediction']['result'];
+
       Navigator.push(
         context,
-
         MaterialPageRoute(
-          builder: (_) =>
-              HasilSkriningPage(berisiko: hasilML.isRisk, jawaban: _jawaban),
+          builder: (_) => HasilSkriningPage(result: result, jawaban: _jawaban),
         ),
       );
     } catch (e) {

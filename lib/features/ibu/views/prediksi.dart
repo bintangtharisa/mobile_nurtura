@@ -17,7 +17,6 @@ class PrediksiPage extends StatefulWidget {
 class _PrediksiPageState extends State<PrediksiPage> {
   Map<String, dynamic>? _hasilTerakhir;
 
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(

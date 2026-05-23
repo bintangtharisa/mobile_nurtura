@@ -7,7 +7,6 @@ import '../../../core/theme/warna_utama.dart';
 import '../views/lihat_tips_page.dart';
 import '../views/tahap_skrining.dart';
 
-
 class BerandaPage extends StatefulWidget {
   const BerandaPage({super.key});
 
@@ -19,32 +18,31 @@ class _BerandaPageState extends State<BerandaPage> {
   Map<String, dynamic>? _statusTerakhir;
   List<Map<String, dynamic>> _tipsList = [];
 
-
   IconData _getIcon(String kategori) {
-  switch (kategori.toLowerCase()) {
-    case 'mental_health':
-      return Icons.psychology_outlined;
-    case 'nutrisi':
-      return Icons.restaurant_outlined;
-    case 'self-care':
-      return Icons.spa_outlined;
-    default:
-      return Icons.tips_and_updates_outlined;
+    switch (kategori.toLowerCase()) {
+      case 'mental_health':
+        return Icons.psychology_outlined;
+      case 'nutrisi':
+        return Icons.restaurant_outlined;
+      case 'self-care':
+        return Icons.spa_outlined;
+      default:
+        return Icons.tips_and_updates_outlined;
+    }
   }
-}
 
-String _formatKategori(String kategori) {
-  switch (kategori.toLowerCase()) {
-    case 'mental_health':
-      return 'Mental Health';
-    case 'nutrisi':
-      return 'Nutrisi';
-    case 'self-care':
-      return 'Self Care';
-    default:
-      return kategori;
+  String _formatKategori(String kategori) {
+    switch (kategori.toLowerCase()) {
+      case 'mental_health':
+        return 'Mental Health';
+      case 'nutrisi':
+        return 'Nutrisi';
+      case 'self-care':
+        return 'Self Care';
+      default:
+        return kategori;
+    }
   }
-}
 
   @override
   Widget build(BuildContext context) {
@@ -56,7 +54,10 @@ String _formatKategori(String kategori) {
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
               Padding(
-                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                padding: const EdgeInsets.symmetric(
+                  horizontal: 20,
+                  vertical: 16,
+                ),
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
@@ -158,7 +159,8 @@ String _formatKategori(String kategori) {
                               Navigator.push(
                                 context,
                                 MaterialPageRoute(
-                                  builder: (context) => const TahapSkriningPage(),
+                                  builder: (context) =>
+                                      const TahapSkriningPage(),
                                 ),
                               );
                             },

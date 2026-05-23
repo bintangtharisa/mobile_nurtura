@@ -30,35 +30,51 @@ class _LoginPageState extends State<LoginPage> {
   }
 
   Future<void> handleLogin() async {
-    setState(() => isLoading = true);
+    try {
+      setState(() => isLoading = true);
 
-    var res = await AuthService.login(
-      emailController.text,
-      passwordController.text,
-    );
+      var res = await AuthService.login(
+        emailController.text.trim(),
+        passwordController.text.trim(),
+      );
 
-    setState(() => isLoading = false);
+      print("LOGIN RESULT: $res");
 
-    if (res['success']) {
-      final data = res['data'];
-      final user = data['user'];
-      final role = user['role'];
+      setState(() => isLoading = false);
 
-      if (role == "mother") {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const MainPageIbu()),
-        );
-      } else if (role == "father") {
-        Navigator.pushReplacement(
-          context,
-          MaterialPageRoute(builder: (_) => const MainPageAyah()),
-        );
+      if (res['success'] == true) {
+        final data = res['data'];
+        final user = data['user'];
+        final role = user['role'];
+
+        if (role == "mother") {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const MainPageIbu()),
+          );
+        } else if (role == "father") {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (_) => const MainPageAyah()),
+          );
+        } else {
+          ScaffoldMessenger.of(
+            context,
+          ).showSnackBar(const SnackBar(content: Text("Role tidak dikenali")));
+        }
       } else {
         ScaffoldMessenger.of(
           context,
-        ).showSnackBar(const SnackBar(content: Text("Role tidak dikenali")));
+        ).showSnackBar(SnackBar(content: Text(res['message'].toString())));
       }
+    } catch (e) {
+      setState(() => isLoading = false);
+
+      print("HANDLE LOGIN ERROR: $e");
+
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text("ERROR: $e")));
     }
   }
 
@@ -93,13 +109,14 @@ class _LoginPageState extends State<LoginPage> {
                     color: WarnaUtama.primary,
                     borderRadius: BorderRadius.circular(20),
                   ),
-                    child: Center(
-                      child: Image.asset('assets/images/logo_nurtura.png',
+                  child: Center(
+                    child: Image.asset(
+                      'assets/images/logo_nurtura.png',
                       height: 80,
                       fit: BoxFit.contain,
-                      ),
                     ),
                   ),
+                ),
 
                 const SizedBox(height: 20),
 

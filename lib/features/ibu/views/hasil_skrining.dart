@@ -5,14 +5,16 @@ import '../widgets/status_skrining.dart';
 import '../widgets/rekomendasi_list.dart';
 
 class HasilSkriningPage extends StatelessWidget {
-  final bool berisiko;
+  final String result;
   final List<int?> jawaban;
 
   const HasilSkriningPage({
     super.key,
-    required this.berisiko,
+    required this.result,
     required this.jawaban,
   });
+
+  bool get berisiko => result.toLowerCase().trim() == "beresiko";
 
   static const List<String> _rekomendasiBerisiko = [
     'Utamakan istirahat setiap kali bayi Anda tidur.',
@@ -25,7 +27,6 @@ class HasilSkriningPage extends StatelessWidget {
     'Bicaralah secara terbuka kepada pasangan Anda tentang perasaan Anda.',
     'Tetap terhidrasi dan jaga keseimbangan nutrisi.',
   ];
-
 
   @override
   Widget build(BuildContext context) {
@@ -40,7 +41,8 @@ class HasilSkriningPage extends StatelessWidget {
               child: CardHeader(
                 title: 'Hasil Skrining',
                 leftIcon: Icons.chevron_left,
-                onLeftTap: () => Navigator.popUntil(context, (route) => route.isFirst),
+                onLeftTap: () =>
+                    Navigator.popUntil(context, (route) => route.isFirst),
               ),
             ),
 
@@ -55,7 +57,9 @@ class HasilSkriningPage extends StatelessWidget {
                     // Status visual
                     StatusSkrining(
                       berisiko: berisiko,
-                      statusLabel: berisiko ? 'Berisiko Depresi' : 'Tidak Berisiko Depresi',
+                      statusLabel: berisiko
+                          ? 'Berisiko Depresi'
+                          : 'Tidak Berisiko Depresi',
                       deskripsi: berisiko
                           ? 'Ada beberapa tanda yang perlu dipentingkan. Hasil ini bukan diagnosis medis, tetapi indikasi awal yang perlu ditindaklanjuti.'
                           : 'Kondisi anda saat ini stabil, tetap jaga kesehatan mental anda yaaa! 🤩',
@@ -65,7 +69,9 @@ class HasilSkriningPage extends StatelessWidget {
 
                     // Rekomendasi + tombol
                     RekomendasiList(
-                      rekomendasi: berisiko ? _rekomendasiBerisiko : _rekomendasiAman,
+                      rekomendasi: berisiko
+                          ? _rekomendasiBerisiko
+                          : _rekomendasiAman,
                       onKembali: () {
                         Navigator.popUntil(context, (route) => route.isFirst);
                       },

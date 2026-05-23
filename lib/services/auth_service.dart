@@ -65,22 +65,29 @@ class AuthService {
     String name,
     String email,
     String password,
-    String role,
-  ) async {
+    String role, [
+    String? connectionCode,
+  ]) async {
     try {
+      final body = {
+        "name": name,
+        "email": email,
+        "password": password,
+        "password_confirmation": password,
+        "role": role,
+      };
+
+      if (connectionCode != null && connectionCode.isNotEmpty) {
+        body["connection_code"] = connectionCode;
+      }
+
       final response = await http.post(
         Uri.parse("${Api.baseUrl}/auth/register"),
         headers: {
           "Accept": "application/json",
           "Content-Type": "application/json",
         },
-        body: jsonEncode({
-          "name": name,
-          "email": email,
-          "password": password,
-          "password_confirmation": password,
-          "role": role,
-        }),
+        body: jsonEncode(body),
       );
 
       print("REGISTER STATUS: ${response.statusCode}");
@@ -305,37 +312,50 @@ class AuthService {
     required String passwordBaru,
   }) async {
     try {
+      print("CHANGE PASSWORD SERVICE: Memulai");
       final token = await Session.getToken();
+      print("CHANGE PASSWORD SERVICE: Token retrieved: ${token != null ? 'YES' : 'NO'}");
+
+      final url = "${Api.baseUrl}/change-password";
+      print("CHANGE PASSWORD SERVICE: URL: $url");
+
       final response = await http.put(
-        Uri.parse("${Api.baseUrl}/change-password"),
+        Uri.parse(url),
         headers: {
           "Authorization": "Bearer $token",
           "Accept": "application/json",
           "Content-Type": "application/json",
         },
         body: jsonEncode({
-          "current_password": passwordLama,
+          "old_password": passwordLama,
           "new_password": passwordBaru,
           "new_password_confirmation": passwordBaru,
         }),
       );
 
+      print("CHANGE PASSWORD SERVICE: Status: ${response.statusCode}");
+      print("CHANGE PASSWORD SERVICE: Body: ${response.body}");
+
       dynamic data;
       try {
         data = jsonDecode(response.body);
       } catch (_) {
+        print("CHANGE PASSWORD SERVICE: Response bukan JSON");
         return {"success": false, "message": "Response bukan JSON"};
       }
 
       if (response.statusCode == 200) {
+        print("CHANGE PASSWORD SERVICE: Success");
         return {"success": true, "data": data};
       } else {
+        print("CHANGE PASSWORD SERVICE: Failed - ${data['message']}");
         return {
           "success": false,
           "message": data['message'] ?? "Gagal ubah sandi",
         };
       }
     } catch (e) {
+      print("CHANGE PASSWORD SERVICE: Exception - $e");
       return {"success": false, "message": "Error: $e"};
     }
   }

@@ -20,6 +20,7 @@ class _RegisterPageState extends State<RegisterPage> {
   final TextEditingController nameController = TextEditingController();
   final TextEditingController emailController = TextEditingController();
   final TextEditingController passwordController = TextEditingController();
+  final TextEditingController connectionCodeController = TextEditingController();
 
   bool isLoading = false;
 
@@ -28,6 +29,7 @@ class _RegisterPageState extends State<RegisterPage> {
     nameController.dispose();
     emailController.dispose();
     passwordController.dispose();
+    connectionCodeController.dispose();
     super.dispose();
   }
 
@@ -55,11 +57,22 @@ class _RegisterPageState extends State<RegisterPage> {
 
     setState(() => isLoading = true);
 
+    final connectionCode = selectedRole.toLowerCase() == 'ayah' ? connectionCodeController.text.trim() : null;
+
+    if (selectedRole.toLowerCase() == 'ayah' && (connectionCode == null || connectionCode.isEmpty)) {
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(const SnackBar(content: Text("Connection code harus diisi untuk role Ayah")));
+      setState(() => isLoading = false);
+      return;
+    }
+
     final res = await AuthService.register(
       name,
       email,
       password,
       selectedRole.toLowerCase(),
+      connectionCode,
     );
 
     if (!mounted) return;
@@ -254,6 +267,33 @@ class _RegisterPageState extends State<RegisterPage> {
                   icon: Icons.lock,
                   controller: passwordController,
                 ),
+
+                const SizedBox(height: 12),
+
+                // CONNECTION CODE (Hanya untuk Ayah)
+                if (selectedRole.toLowerCase() == 'ayah')
+                  Column(
+                    children: [
+                      Align(
+                        alignment: Alignment.centerLeft,
+                        child: Text(
+                          "Kode Koneksi",
+                          style: TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 15,
+                            fontWeight: FontWeight.w600,
+                            color: WarnaUtama.text1,
+                          ),
+                        ),
+                      ),
+                      const SizedBox(height: 5),
+                      CustomTextField(
+                        hint: "Masukkan kode koneksi",
+                        icon: Icons.link,
+                        controller: connectionCodeController,
+                      ),
+                    ],
+                  ),
 
                 const SizedBox(height: 20),
 

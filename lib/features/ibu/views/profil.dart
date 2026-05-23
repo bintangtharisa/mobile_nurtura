@@ -6,6 +6,7 @@ import '../widgets/kode_koneksi_card.dart';
 import '../widgets/koneksi_pasangan_card.dart';
 import '../../shared/widgets/pengaturan_list.dart';
 import '../../shared/views/edit_profil.dart';
+import '../../shared/views/login.dart';
 import '../../../services/auth_service.dart';
 
 class ProfilPage extends StatefulWidget {
@@ -101,7 +102,7 @@ class _ProfilPageState extends State<ProfilPage> {
                     ),
                     const SizedBox(height: 12),
                     KodeKoneksiCard(
-                      kode: _koneksi?['kode'] ?? '------',
+                      kode: _user?['connection_code'] ?? '------',
                     ),
                     const SizedBox(height: 24),
                     KoneksiPasanganCard(
@@ -145,10 +146,15 @@ class _ProfilPageState extends State<ProfilPage> {
                           ),
                         );
                         if (konfirmasi == true) {
-                          await AuthService.logout();
+                          debugPrint('🚪 [ProfilPage] User confirmed logout');
+                          final result = await AuthService.logout();
+                          debugPrint('🚪 [ProfilPage] Logout result: $result');
                           if (mounted) {
-                            Navigator.of(context).pushNamedAndRemoveUntil(
-                                '/login', (route) => false);
+                            debugPrint('🚪 [ProfilPage] Navigating to login screen');
+                            Navigator.of(context).pushAndRemoveUntil(
+                              MaterialPageRoute(builder: (_) => LoginPage()),
+                              (route) => false,
+                            );
                           }
                         }
                       },

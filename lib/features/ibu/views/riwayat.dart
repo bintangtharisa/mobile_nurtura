@@ -26,8 +26,6 @@ class _RiwayatPageState extends State<RiwayatPage> {
 
   Future<void> _fetchScreeningHistory() async {
     try {
-      debugPrint('🔄 Fetching screening history...');
-
       setState(() {
         _isLoading = true;
         _errorMessage = null;
@@ -35,22 +33,15 @@ class _RiwayatPageState extends State<RiwayatPage> {
 
       final screenings = await ScreeningService.getScreeningHistory();
 
-      debugPrint('📊 Data received: ${screenings.length}');
-
-      // ❗ JANGAN FORMAT ULANG LAGI (sudah diformat di service)
       setState(() {
         _riwayatList = screenings;
         _isLoading = false;
       });
-
-      debugPrint('✅ Loaded: ${_riwayatList.length}');
     } catch (e) {
       setState(() {
         _isLoading = false;
         _errorMessage = e.toString();
       });
-
-      debugPrint('❌ Error: $e');
     }
   }
 
@@ -75,14 +66,16 @@ class _RiwayatPageState extends State<RiwayatPage> {
             Expanded(
               child: _isLoading
                   ? const Center(child: CircularProgressIndicator())
-
                   : _errorMessage != null
                       ? Center(
                           child: Column(
                             mainAxisAlignment: MainAxisAlignment.center,
                             children: [
-                              const Icon(Icons.error_outline,
-                                  color: Colors.red, size: 48),
+                              const Icon(
+                                Icons.error_outline,
+                                color: Colors.red,
+                                size: 48,
+                              ),
                               const SizedBox(height: 12),
                               Text(
                                 'Gagal memuat riwayat\n$_errorMessage',
@@ -92,28 +85,33 @@ class _RiwayatPageState extends State<RiwayatPage> {
                               ElevatedButton(
                                 onPressed: _fetchScreeningHistory,
                                 child: const Text('Coba Lagi'),
-                              )
+                              ),
                             ],
                           ),
                         )
-
                       : SingleChildScrollView(
                           padding: const EdgeInsets.symmetric(horizontal: 20),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
                             children: [
+
+                              /// 🔥 GRAFIK (FIX FINAL)
                               if (_riwayatList.isNotEmpty)
                                 GrafikSkrining(
-                                  nilaiPerMinggu: _riwayatList
-                                      .reversed
-                                      .map((e) => (e['berisiko'] == true ? 1.0 : 0.0))
-                                      .toList(),
+                                  nilaiPerPeriode: _riwayatList.reversed
+                                      .map<double>((e) {
+                                    final r = e['berisiko'];
+                                    return (r == true || r == 1 || r == 'true')
+                                        ? 1.0
+                                        : 0.0;
+                                  }).toList(),
                                 ),
 
                               const SizedBox(height: 24),
 
                               Row(
-                                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                mainAxisAlignment:
+                                    MainAxisAlignment.spaceBetween,
                                 children: [
                                   const Text(
                                     'Skrining Sebelumnya',
@@ -138,12 +136,14 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                   ? const Padding(
                                       padding: EdgeInsets.all(32),
                                       child: Center(
-                                        child: Text('Belum ada riwayat skrining'),
+                                        child: Text(
+                                            'Belum ada riwayat skrining'),
                                       ),
                                     )
                                   : ListView.separated(
                                       shrinkWrap: true,
-                                      physics: const NeverScrollableScrollPhysics(),
+                                      physics:
+                                          const NeverScrollableScrollPhysics(),
                                       itemCount: _riwayatList.length,
                                       separatorBuilder: (_, __) =>
                                           const SizedBox(height: 10),
@@ -153,7 +153,8 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                         return RiwayatCard(
                                           tanggal: item['tanggal'] ?? '-',
                                           status: item['status'] ?? '-',
-                                          berisiko: item['berisiko'] ?? false,
+                                          berisiko:
+                                              item['berisiko'] ?? false,
                                           onTap: () {},
                                         );
                                       },

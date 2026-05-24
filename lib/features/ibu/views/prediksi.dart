@@ -28,10 +28,6 @@ class _PrediksiPageState extends State<PrediksiPage> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
               child: CardHeader(
                 title: 'Prediksi',
-                leftIcon: Icons.chevron_left,
-                rightIcon: Icons.calendar_today_outlined,
-                onLeftTap: () => widget.onBack?.call(),
-                onRightTap: () {},
               ),
             ),
             Expanded(

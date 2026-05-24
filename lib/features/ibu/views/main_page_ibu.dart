@@ -15,17 +15,23 @@ class MainPageIbu extends StatefulWidget {
 class _MainPageState extends State<MainPageIbu> {
   int _selectedIndex = 0;
 
-  late final List<Widget> _pages = [
-    const BerandaPage(),
-    PrediksiPage(onBack: () => setState(() => _selectedIndex = 0)),
-    RiwayatPage(onBack: () => setState(() => _selectedIndex = 0)),
-    ProfilPage(onBack: () => setState(() => _selectedIndex = 0)),
-  ];
-
   @override
   Widget build(BuildContext context) {
+    final List<Widget> pages = [
+      BerandaPage(
+        onKoneksiTap: () {
+          setState(() {
+            _selectedIndex = 3;
+          });
+        },
+      ),
+      PrediksiPage(),
+      RiwayatPage(),
+      ProfilPage(),
+    ];
+
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: pages[_selectedIndex],
       bottomNavigationBar: BottomNav(
         selectedIndex: _selectedIndex,
         onTap: (index) => setState(() => _selectedIndex = index),

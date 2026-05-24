@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/warna_utama.dart';
 import '../widgets/header_profil.dart';
-import '../widgets/dukungan_card.dart';
 import '../widgets/status_card.dart';
 import '../../shared/widgets/artikel_card.dart';
 import '../../../services/father_service.dart';
+import '../../shared/widgets/chatbot_card.dart';
 
 class BerandaAyahPage extends StatefulWidget {
   const BerandaAyahPage({super.key});
@@ -107,27 +107,26 @@ class _BerandaAyahPageState extends State<BerandaAyahPage> {
                     ),
                   )
                 else ...[
-                  DukunganCard(
-                    title: 'Dukunganmu Berarti',
-                    deskripsi: dashboardData != null &&
-                            dashboardData!['is_connected'] == true
-                        ? 'Kehadiran Ayah membuat Ibu merasa lebih tenang dan bahagia.'
-                        : 'Hubungkan akun dengan pasangan untuk mulai memberikan dukungan.',
-                    image: const NetworkImage('https://picsum.photos/id/64/200/200'),
-                  ),
+                StatusSkriningCard(
+                  statusLabel: dashboardData?['statusRisiko'] ?? 'Belum Ada Data',
+                  deskripsi: dashboardData != null &&
+                          dashboardData!['is_connected'] == true
+                      ? (dashboardData!['statusRisiko'] == 'Beresiko Depresi'
+                          ? 'Kondisi istri memerlukan perhatian lebih. Tetap berikan dukungan!'
+                          : 'Kondisi istri saat ini terpantau stabil. Tetap berikan dukungan yaaa!')
+                      : 'Hubungkan akun dengan pasangan untuk melihat status screening.',
+                  berisiko: dashboardData?['statusRisiko'] == 'Beresiko Depresi',
+                ),
 
-                  const SizedBox(height: 16),
+                const SizedBox(height: 16),
 
-                  StatusSkriningCard(
-                    statusLabel: dashboardData?['statusRisiko'] ?? 'Belum Ada Data',
-                    deskripsi: dashboardData != null &&
-                            dashboardData!['is_connected'] == true
-                        ? (dashboardData!['statusRisiko'] == 'Beresiko Depresi'
-                            ? 'Kondisi istri memerlukan perhatian lebih. Tetap berikan dukungan!'
-                            : 'Kondisi istri saat ini terpantau stabil. Tetap berikan dukungan yaaa!')
-                        : 'Hubungkan akun dengan pasangan untuk melihat status screening.',
-                    berisiko: dashboardData?['statusRisiko'] == 'Beresiko Depresi',
-                  ),
+                ChatbotCard(
+                  namaBot: 'Nurtura AI',
+                  pesanAwal: 'Halo Ayah! 👋 Ada yang bisa aku bantu hari ini?',
+                  onOpenChat: () {
+                    // TODO: navigasi ke halaman chatbot
+                  },
+                ),
 
                   const SizedBox(height: 28),
 

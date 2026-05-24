@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/warna_utama.dart';
-import '../../shared/widgets/header.dart';
+import '../widgets/header.dart';
 import '../../ibu/widgets/filter_tips.dart';
-import '../../ibu/widgets/tips_populer.dart';
-import '../../shared/widgets/artikel_card.dart';
-import '../services/article_service.dart';
-import '../services/article_category_service.dart';
+import '../widgets/tips_populer.dart';
+import '../widgets/artikel_card.dart';
+import '../../ibu/services/article_service.dart';
+import '../../ibu/services/article_category_service.dart';
 
 class LihatTipsPage extends StatefulWidget {
   const LihatTipsPage({super.key});

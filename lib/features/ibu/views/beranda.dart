@@ -4,10 +4,11 @@ import '../../ibu/widgets/tips_card.dart';
 import '../../ibu/widgets/status_card.dart';
 import '../../ibu/widgets/header_profil.dart';
 import '../../../core/theme/warna_utama.dart';
-import '../views/lihat_tips_page.dart';
+import '../../shared/views/lihat_tips_page.dart';
 import '../views/tahap_skrining.dart';
 import '../services/article_service.dart';
 import '../../shared/widgets/chatbot_card.dart';
+import '../../ibu/views/profil.dart';
 
 class BerandaPage extends StatefulWidget {
   const BerandaPage({super.key});
@@ -248,7 +249,14 @@ class _BerandaPageState extends State<BerandaPage> {
                     ),
                     const SizedBox(height: 12),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: () {
+                        Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (context) => const ProfilPage(),
+                          ),
+                        );
+                      },
                       child: AksiCard(
                         title: "Koneksi",
                         icon: Icons.hub_outlined,

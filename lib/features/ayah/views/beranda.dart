@@ -5,6 +5,7 @@ import '../widgets/status_card.dart';
 import '../../shared/widgets/artikel_card.dart';
 import '../../../services/father_service.dart';
 import '../../shared/widgets/chatbot_card.dart';
+import '../../shared/views/lihat_tips_page.dart';
 
 class BerandaAyahPage extends StatefulWidget {
   const BerandaAyahPage({super.key});
@@ -144,7 +145,12 @@ class _BerandaAyahPageState extends State<BerandaAyahPage> {
                       ),
                       GestureDetector(
                         onTap: () {
-                          // TODO: navigasi ke lihat semua artikel
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => const LihatTipsPage(),
+                            ),
+                          );
                         },
                         child: const Text(
                           'Lihat Semua',
@@ -162,10 +168,13 @@ class _BerandaAyahPageState extends State<BerandaAyahPage> {
                   const SizedBox(height: 12),
 
                   if (articles.isEmpty)
-                    const Card(
-                      child: Padding(
-                        padding: EdgeInsets.all(16.0),
-                        child: Text('Belum ada artikel tersedia'),
+                    const Center(
+                      child: Text(
+                        'Belum ada artikel tersedia',
+                        style: TextStyle(
+                          color: WarnaUtama.text1,
+                          fontSize: 14,
+                        ),
                       ),
                     )
                   else

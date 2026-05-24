@@ -7,6 +7,7 @@ import '../../../core/theme/warna_utama.dart';
 import '../views/lihat_tips_page.dart';
 import '../views/tahap_skrining.dart';
 import '../services/article_service.dart';
+import '../../shared/widgets/chatbot_card.dart';
 
 class BerandaPage extends StatefulWidget {
   const BerandaPage({super.key});
@@ -110,6 +111,14 @@ class _BerandaPageState extends State<BerandaPage> {
                             tanggal: _statusTerakhir!['tanggal'],
                             berisiko: _statusTerakhir!['berisiko'],
                           ),
+                    const SizedBox(height: 16),
+                    ChatbotCard(
+                      namaBot: 'Nurtura AI',
+                      pesanAwal: 'Halo Bunda! 👋 Bagaimana perasaanmu hari ini? Aku siap mendengarkan.',
+                      onOpenChat: () {
+                        // TODO: navigasi ke halaman chatbot
+                      },
+                    ),
                     const SizedBox(height: 28),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

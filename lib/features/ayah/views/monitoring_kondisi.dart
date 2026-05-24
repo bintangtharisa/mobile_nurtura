@@ -230,7 +230,7 @@ class _MonitoringKondisiPageState extends State<MonitoringKondisiPage> {
                                     )
                                   else
                                     GrafikSkrining(
-                                      nilaiPerMinggu: dataGrafik,
+                                      nilaiPerPeriode: dataGrafik,
                                       periode: _periodeIndex == 0 ? 'minggu' : 'bulan',
                                     ),
 

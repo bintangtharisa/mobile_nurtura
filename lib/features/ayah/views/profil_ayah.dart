@@ -5,8 +5,9 @@ import '../../shared/widgets/profil_avatar.dart';
 import '../widgets/koneksi_pasangan_ayah.dart';
 import '../../shared/widgets/pengaturan_list.dart';
 import '../../shared/views/edit_profil.dart';
-import '../../shared/views/login.dart';
 import '../../../services/auth_service.dart';
+import '../../shared/widgets/ubah_sandi.dart';
+import '../../shared/widgets/keluar_akun.dart';
 
 class ProfilAyahPage extends StatefulWidget {
   final VoidCallback? onBack;
@@ -55,146 +56,16 @@ class _ProfilAyahPageState extends State<ProfilAyahPage> {
   }
 
   void _showChangePasswordDialog() {
-    final currentPasswordController = TextEditingController();
-    final newPasswordController = TextEditingController();
-    bool isSaving = false;
-
-    showDialog(
+    showModalBottomSheet(
       context: context,
-      builder: (context) => StatefulBuilder(
-        builder: (context, setDialogState) => AlertDialog(
-          title: const Text('Ubah Sandi'),
-          content: Column(
-            mainAxisSize: MainAxisSize.min,
-            children: [
-              TextField(
-                controller: currentPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Sandi Lama',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-              const SizedBox(height: 16),
-              TextField(
-                controller: newPasswordController,
-                obscureText: true,
-                decoration: const InputDecoration(
-                  labelText: 'Sandi Baru',
-                  border: OutlineInputBorder(),
-                ),
-              ),
-            ],
-          ),
-          actions: [
-            TextButton(
-              onPressed: isSaving ? null : () => Navigator.pop(context),
-              child: const Text('Batal'),
-            ),
-            ElevatedButton(
-              onPressed: isSaving
-                  ? null
-                  : () async {
-                      if (currentPasswordController.text.isEmpty ||
-                          newPasswordController.text.isEmpty) {
-                        ScaffoldMessenger.of(context).showSnackBar(
-                          const SnackBar(content: Text('Semua field wajib diisi')),
-                        );
-                        return;
-                      }
-
-                      setDialogState(() {
-                        isSaving = true;
-                      });
-
-                      try {
-                        print('CHANGE PASSWORD: Memulai proses ubah sandi');
-                        print('CHANGE PASSWORD: Sandi lama length: ${currentPasswordController.text.length}');
-                        print('CHANGE PASSWORD: Sandi baru length: ${newPasswordController.text.length}');
-
-                        final result = await AuthService.changePassword(
-                          passwordLama: currentPasswordController.text,
-                          passwordBaru: newPasswordController.text,
-                        );
-
-                        print('CHANGE PASSWORD RESULT: $result');
-
-                        if (result['success'] == true) {
-                          if (context.mounted) {
-                            Navigator.pop(context);
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              const SnackBar(content: Text('Sandi berhasil diubah')),
-                            );
-                          }
-                        } else {
-                          if (context.mounted) {
-                            ScaffoldMessenger.of(context).showSnackBar(
-                              SnackBar(
-                                  content: Text(
-                                      result['message'] ?? 'Gagal mengubah sandi')),
-                            );
-                          }
-                        }
-                      } catch (e) {
-                        print('CHANGE PASSWORD ERROR: $e');
-                        if (context.mounted) {
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            SnackBar(content: Text('Error: $e')),
-                          );
-                        }
-                      } finally {
-                        if (context.mounted) {
-                          setDialogState(() {
-                            isSaving = false;
-                          });
-                        }
-                      }
-                    },
-              child: isSaving
-                  ? const SizedBox(
-                      width: 16,
-                      height: 16,
-                      child: CircularProgressIndicator(strokeWidth: 2),
-                    )
-                  : const Text('Simpan'),
-            ),
-          ],
-        ),
-      ),
+      isScrollControlled: true,
+      backgroundColor: Colors.transparent,
+      builder: (_) => const UbahSandiSheet(),
     );
   }
 
   void _showLogoutDialog() {
-    showDialog(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: const Text('Keluar Akun'),
-        content: const Text('Apakah Anda yakin ingin keluar?'),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-            child: const Text('Batal'),
-          ),
-          ElevatedButton(
-            onPressed: () async {
-              await AuthService.logout();
-              if (context.mounted) {
-                Navigator.pop(context);
-                Navigator.pushAndRemoveUntil(
-                  context,
-                  MaterialPageRoute(builder: (context) => const LoginPage()),
-                  (route) => false,
-                );
-              }
-            },
-            style: ElevatedButton.styleFrom(
-              backgroundColor: WarnaUtama.beresiko,
-            ),
-            child: const Text('Keluar'),
-          ),
-        ],
-      ),
-    );
+    KeluarAkun.show(context);
   }
 
   @override
@@ -208,8 +79,6 @@ class _ProfilAyahPageState extends State<ProfilAyahPage> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
               child: CardHeader(
                 title: 'Profil & Koneksi',
-                leftIcon: Icons.chevron_left,
-                onLeftTap: () => widget.onBack?.call(),
               ),
             ),
             Expanded(
@@ -237,14 +106,14 @@ class _ProfilAyahPageState extends State<ProfilAyahPage> {
                         ),
                       )
                     else ...[
-                      // Avatar
                       Center(
                         child: ProfilAvatar(
                           nama: userData?['name'] ?? 'Nama tidak tersedia',
                           email: userData?['email'] ?? 'Email tidak tersedia',
                           foto: userData?['photo'] != null
                               ? NetworkImage(userData!['photo'])
-                              : const NetworkImage('https://picsum.photos/id/91/200/200'),
+                              : const NetworkImage(
+                                  'https://picsum.photos/id/91/200/200'),
                           onEdit: () {
                             Navigator.push(
                               context,
@@ -261,7 +130,6 @@ class _ProfilAyahPageState extends State<ProfilAyahPage> {
 
                       const SizedBox(height: 28),
 
-                      // Kelola Koneksi Pasangan
                       const Text(
                         'Kelola Koneksi Pasangan',
                         style: TextStyle(
@@ -279,20 +147,25 @@ class _ProfilAyahPageState extends State<ProfilAyahPage> {
                           userData!['connection']['is_connected'] == true &&
                           userData!['connection']['mother'] != null)
                         KoneksiPasanganCard(
-                          namaPasangan: userData!['connection']['mother']['username'] ?? 'Pasangan tidak tersedia',
-                          fotoPasangan: const NetworkImage('https://picsum.photos/id/64/200/200'),
+                          namaPasangan: userData!['connection']['mother']
+                                  ['username'] ??
+                              'Pasangan tidak tersedia',
+                          fotoPasangan: const NetworkImage(
+                              'https://picsum.photos/id/64/200/200'),
                         )
                       else
-                        const Card(
-                          child: Padding(
-                            padding: EdgeInsets.all(16.0),
-                            child: Text('Belum ada koneksi pasangan'),
+                        const Center(
+                          child: Text(
+                            'Belum ada koneksi pasangan',
+                            style: TextStyle(
+                              color: WarnaUtama.text1,
+                              fontSize: 14,
+                            ),
                           ),
                         ),
 
                       const SizedBox(height: 24),
 
-                      // Pengaturan
                       PengaturanList(
                         showNotifikasi: false,
                         onUbahSandi: _showChangePasswordDialog,

@@ -89,10 +89,6 @@ class _MonitoringKondisiPageState extends State<MonitoringKondisiPage> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
               child: CardHeader(
                 title: 'Monitoring Kondisi',
-                leftIcon: Icons.chevron_left,
-                rightIcon: Icons.calendar_today_outlined,
-                onLeftTap: () => widget.onBack?.call(),
-                onRightTap: () {},
               ),
             ),
 

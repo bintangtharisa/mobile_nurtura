@@ -57,29 +57,38 @@ class _PrediksiPageState extends State<PrediksiPage> {
                     const SizedBox(height: 12),
 
                     _hasilTerakhir == null
-                      ? const Text(
-                          'Belum ada hasil skrining',
-                          style: TextStyle(
-                            fontFamily: 'Manrope',
-                            color: WarnaUtama.text1,
+                        ? const Text(
+                            'Belum ada hasil skrining',
+                            style: TextStyle(
+                              fontFamily: 'Manrope',
+                              color: WarnaUtama.text1,
+                            ),
+                          )
+                        : HasilTerakhirCard(
+                            statusLabel: _hasilTerakhir!['status'],
+                            tanggal: _hasilTerakhir!['tanggal'],
+                            onLihatDetail: () {},
                           ),
-                        )
-                      : HasilTerakhirCard(
-                          statusLabel: _hasilTerakhir!['status'],
-                          tanggal: _hasilTerakhir!['tanggal'],
-                          onLihatDetail: () {},
-                        ),
 
                     const SizedBox(height: 16),
 
                     MulaiSkriningCard(
-                      onMulai: () {
-                        Navigator.push(
+                      onMulai: () async {
+                        final result = await Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => const TahapSkriningPage(),
                           ),
                         );
+
+                        if (result != null) {
+                          setState(() {
+                            _hasilTerakhir = {
+                              'status': result.toString(),
+                              'tanggal': DateTime.now().toString(),
+                            };
+                          });
+                        }
                       },
                     ),
 

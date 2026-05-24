@@ -41,8 +41,9 @@ class HasilSkriningPage extends StatelessWidget {
               child: CardHeader(
                 title: 'Hasil Skrining',
                 leftIcon: Icons.chevron_left,
-                onLeftTap: () =>
-                    Navigator.popUntil(context, (route) => route.isFirst),
+                onLeftTap: () {
+                  Navigator.pop(context);
+                },
               ),
             ),
 
@@ -73,7 +74,10 @@ class HasilSkriningPage extends StatelessWidget {
                           ? _rekomendasiBerisiko
                           : _rekomendasiAman,
                       onKembali: () {
-                        Navigator.popUntil(context, (route) => route.isFirst);
+                        Navigator.pop(context, {
+                          'status': result,
+                          'tanggal': DateTime.now().toString(),
+                        });
                       },
                     ),
 

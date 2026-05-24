@@ -41,14 +41,13 @@ class _TahapSkriningPageState extends State<TahapSkriningPage> {
       'kategori': 'Pola Tidur',
       'pertanyaan': 'Saya mengalami kesulitan tidur meskipun bayi sedang tidur',
       'subjudul': 'Pilih jawaban yang paling sesuai dengan kondisi Anda.',
-      'pilihan': ['Not at all', 'Sometimes', 'Yes'],
+      'pilihan': ['Not at all', 'Often', 'Yes'],
     },
-
     {
       'kategori': 'Pola Tidur',
       'pertanyaan': 'Saya merasa sangat lelah meskipun sudah beristirahat',
       'subjudul': 'Pilih jawaban yang paling sesuai dengan kondisi Anda.',
-      'pilihan': ['Not at all', 'Sometimes', 'Yes'],
+      'pilihan': ['Not at all', 'Often', 'Yes'],
     },
 
     {
@@ -76,8 +75,9 @@ class _TahapSkriningPageState extends State<TahapSkriningPage> {
       'kategori': 'Kesejahteraan Emosional',
       'pertanyaan': 'Saya merasa tidak mampu menjadi ibu yang baik',
       'subjudul': 'Pilih jawaban yang paling sesuai dengan perasaan Anda.',
-      'pilihan': ['Not at all', 'Sometimes', 'Yes'],
+      'pilihan': ['Not at all', 'Maybe', 'Yes'], // ✅ Sometimes → Maybe
     },
+
     {
       'kategori': 'Kesejahteraan Emosional',
       'pertanyaan': 'Saya pernah berpikir menyakiti diri sendiri',
@@ -195,20 +195,21 @@ class _TahapSkriningPageState extends State<TahapSkriningPage> {
 
       if (!mounted) return;
 
-      final result = hasil['prediction']?['result'] ?? 'unknown';
+      final result = hasil['result'];
 
-      final resultData = await Navigator.push(
+      if (result == null) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Data hasil prediksi tidak ditemukan')),
+        );
+        return;
+      }
+
+      Navigator.push(
         context,
         MaterialPageRoute(
           builder: (_) => HasilSkriningPage(result: result, jawaban: _jawaban),
         ),
       );
-
-      if (!mounted) return;
-
-      if (resultData != null) {
-        Navigator.pop(context, resultData);
-      }
     } catch (e) {
       if (!mounted) return;
 

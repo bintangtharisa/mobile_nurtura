@@ -1,16 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../ibu/widgets/aksi_card.dart';
 import '../../ibu/widgets/tips_card.dart';
-import '../../ibu/widgets/status_card.dart';
 import '../../ibu/widgets/header_profil.dart';
 import '../../../core/theme/warna_utama.dart';
-import '../views/lihat_tips_page.dart';
+import '../../shared/views/lihat_tips_page.dart';
 import '../views/tahap_skrining.dart';
 import '../services/article_service.dart';
 import '../../shared/widgets/chatbot_card.dart';
 
 class BerandaPage extends StatefulWidget {
-  const BerandaPage({super.key});
+  final VoidCallback? onKoneksiTap;
+  const BerandaPage({super.key, this.onKoneksiTap});
 
   @override
   State<BerandaPage> createState() => _BerandaPageState();
@@ -100,18 +100,6 @@ class _BerandaPageState extends State<BerandaPage> {
                   children: [
                     const HeaderProfil(),
                     const SizedBox(height: 20),
-                    _statusTerakhir == null
-                        ? const StatusCard(
-                            status: 'Belum ada data',
-                            tanggal: '-',
-                            berisiko: false,
-                          )
-                        : StatusCard(
-                            status: _statusTerakhir!['status'],
-                            tanggal: _statusTerakhir!['tanggal'],
-                            berisiko: _statusTerakhir!['berisiko'],
-                          ),
-                    const SizedBox(height: 16),
                     ChatbotCard(
                       namaBot: 'Nurtura AI',
                       pesanAwal: 'Halo Bunda! 👋 Bagaimana perasaanmu hari ini? Aku siap mendengarkan.',
@@ -248,7 +236,7 @@ class _BerandaPageState extends State<BerandaPage> {
                     ),
                     const SizedBox(height: 12),
                     GestureDetector(
-                      onTap: () {},
+                      onTap: widget.onKoneksiTap,
                       child: AksiCard(
                         title: "Koneksi",
                         icon: Icons.hub_outlined,

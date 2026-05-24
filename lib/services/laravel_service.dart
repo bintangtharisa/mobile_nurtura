@@ -44,37 +44,37 @@ class LaravelService {
     final payload = {
       'mother_id': motherId,
 
-      // 1
+      // 1 - perasaan sedih
       'perasaan_sedih_atau_mudah_menangis':
           pilihanUmum[((jawaban[0] ?? 1).clamp(1, 3)) - 1],
 
-      // 2
+      // 2 - cemas
       'merasa_cemas': pilihanUmum[((jawaban[1] ?? 1).clamp(1, 3)) - 1],
 
-      // 3
+      // 3 - kesulitan tidur
       'kesulitan_tidur_di_malam_hari':
           pilihanTidurKonsentrasi[((jawaban[2] ?? 1).clamp(1, 3)) - 1],
 
-      // 4
+      // 4 - lelah (pakai pilihanTidurKonsentrasi karena pilihan = Often)
       'kesulitan_konsentrasi_atau_mengambil_keputusan':
           pilihanTidurKonsentrasi[((jawaban[3] ?? 1).clamp(1, 3)) - 1],
 
-      // 5
+      // 5 - ikatan dengan bayi
       'kesulitan_membangun_ikatan_dengan_bayi':
           pilihanUmum[((jawaban[4] ?? 1).clamp(1, 3)) - 1],
 
-      // 6
+      // 6 - dukungan orang sekitar
       'mudah_marah_terhadap_bayi_dan_pasangan':
           pilihanUmum[((jawaban[5] ?? 1).clamp(1, 3)) - 1],
 
-      // 7
+      // 7 - nafsu makan
       'makan_berlebihan_atau_kehilangan_nafsu_makan':
           pilihanUmum[((jawaban[6] ?? 1).clamp(1, 3)) - 1],
 
-      // 8
+      // 8 - tidak mampu jadi ibu (pilihan = Maybe)
       'perasaan_bersalah': pilihanBersalah[((jawaban[7] ?? 1).clamp(1, 3)) - 1],
 
-      // 9
+      // 9 - menyakiti diri sendiri
       'percobaan_bunuh_diri':
           pilihanBunuhDiri[((jawaban[8] ?? 1).clamp(1, 2)) - 1],
     };

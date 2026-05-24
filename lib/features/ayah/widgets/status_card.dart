@@ -85,13 +85,11 @@ class StatusSkriningCard extends StatelessWidget {
 
           const SizedBox(height: 12),
 
-          ClipRRect(
-            borderRadius: BorderRadius.circular(8),
-            child: LinearProgressIndicator(
-              value: null,
-              backgroundColor: WarnaUtama.text2.withOpacity(0.2),
-              valueColor: AlwaysStoppedAnimation<Color>(WarnaUtama.text2),
-              minHeight: 5,
+          Container(
+            height: 5,
+            decoration: BoxDecoration(
+              color: Colors.white.withOpacity(0.2),
+              borderRadius: BorderRadius.circular(8),
             ),
           ),
 

@@ -14,7 +14,7 @@ class HasilSkriningPage extends StatelessWidget {
     required this.jawaban,
   });
 
-  bool get berisiko => result.toLowerCase().trim() == "beresiko";
+  bool get berisiko => result.toLowerCase().trim().startsWith("beresiko");
 
   static const List<String> _rekomendasiBerisiko = [
     'Utamakan istirahat setiap kali bayi Anda tidur.',
@@ -41,9 +41,8 @@ class HasilSkriningPage extends StatelessWidget {
               child: CardHeader(
                 title: 'Hasil Skrining',
                 leftIcon: Icons.chevron_left,
-                onLeftTap: () {
-                  Navigator.pop(context);
-                },
+                onLeftTap: () =>
+                    Navigator.popUntil(context, (route) => route.isFirst),
               ),
             ),
 
@@ -74,10 +73,7 @@ class HasilSkriningPage extends StatelessWidget {
                           ? _rekomendasiBerisiko
                           : _rekomendasiAman,
                       onKembali: () {
-                        Navigator.pop(context, {
-                          'status': result,
-                          'tanggal': DateTime.now().toString(),
-                        });
+                        Navigator.popUntil(context, (route) => route.isFirst);
                       },
                     ),
 

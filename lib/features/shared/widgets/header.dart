@@ -3,7 +3,7 @@ import '../../../core/theme/warna_utama.dart';
 
 class CardHeader extends StatelessWidget {
   final String title;
-  final IconData leftIcon;
+  final IconData? leftIcon;
   final IconData? rightIcon;
   final VoidCallback? onLeftTap;
   final VoidCallback? onRightTap;
@@ -11,7 +11,7 @@ class CardHeader extends StatelessWidget {
   const CardHeader({
     super.key,
     required this.title,
-    required this.leftIcon,
+    this.leftIcon,
     this.rightIcon,
     this.onLeftTap,
     this.onRightTap,
@@ -51,7 +51,10 @@ class CardHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     return Row(
       children: [
-        _iconButton(leftIcon, onLeftTap),
+        if (leftIcon != null)
+          _iconButton(leftIcon!, onLeftTap) 
+        else 
+          const SizedBox(width: 44),
         Expanded(
           child: Text(
             title,

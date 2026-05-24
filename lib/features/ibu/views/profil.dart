@@ -6,8 +6,9 @@ import '../widgets/kode_koneksi_card.dart';
 import '../widgets/koneksi_pasangan_card.dart';
 import '../../shared/widgets/pengaturan_list.dart';
 import '../../shared/views/edit_profil.dart';
-import '../../shared/views/login.dart';
 import '../../../services/auth_service.dart';
+import '../../shared/widgets/ubah_sandi.dart';
+import '../../shared/widgets/keluar_akun.dart';
 
 class ProfilPage extends StatefulWidget {
   final VoidCallback? onBack;
@@ -60,10 +61,6 @@ class _ProfilPageState extends State<ProfilPage> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
               child: CardHeader(
                 title: 'Profil & Koneksi',
-                leftIcon: Icons.chevron_left,
-                rightIcon: Icons.notifications_outlined,
-                onLeftTap: () => widget.onBack?.call(),
-                onRightTap: () {},
               ),
             ),
             Expanded(
@@ -120,139 +117,20 @@ class _ProfilPageState extends State<ProfilPage> {
                     PengaturanList(
                       onUbahSandi: () {
                         showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          builder: (_) => _UbahSandiSheet(),
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) => const UbahSandiSheet(),
                         );
                       },
-                      onKeluarAkun: () async {
-                        final konfirmasi = await showDialog<bool>(
-                          context: context,
-                          builder: (ctx) => AlertDialog(
-                            title: const Text('Keluar Akun'),
-                            content: const Text('Apakah kamu yakin ingin keluar?'),
-                            actions: [
-                              TextButton(
-                                onPressed: () => Navigator.pop(ctx, false),
-                                child: const Text('Batal'),
-                              ),
-                              TextButton(
-                                onPressed: () => Navigator.pop(ctx, true),
-                                child: const Text('Keluar',
-                                    style: TextStyle(color: Colors.red)),
-                              ),
-                            ],
-                          ),
-                        );
-                        if (konfirmasi == true) {
-                          debugPrint('🚪 [ProfilPage] User confirmed logout');
-                          final result = await AuthService.logout();
-                          debugPrint('🚪 [ProfilPage] Logout result: $result');
-                          if (mounted) {
-                            debugPrint('🚪 [ProfilPage] Navigating to login screen');
-                            Navigator.of(context).pushAndRemoveUntil(
-                              MaterialPageRoute(builder: (_) => LoginPage()),
-                              (route) => false,
-                            );
-                          }
-                        }
-                      },
+                      onKeluarAkun: () => KeluarAkun.show(context),
                     ),
                     const SizedBox(height: 24),
                   ],
                 ),
               ),
             ),
-          ],
-        ),
-      ),
-    );
-  }
-}
-
-// ===== UBAH SANDI SHEET =====
-class _UbahSandiSheet extends StatefulWidget {
-  @override
-  State<_UbahSandiSheet> createState() => _UbahSandiSheetState();
-}
-
-class _UbahSandiSheetState extends State<_UbahSandiSheet> {
-  final _lamaCon = TextEditingController();
-  final _baruCon = TextEditingController();
-  bool _isLoading = false;
-  String? _error;
-
-  @override
-  Widget build(BuildContext context) {
-    return Padding(
-      padding: EdgeInsets.only(bottom: MediaQuery.of(context).viewInsets.bottom),
-      child: Container(
-        padding: const EdgeInsets.all(24),
-        decoration: const BoxDecoration(
-          color: Colors.white,
-          borderRadius: BorderRadius.vertical(top: Radius.circular(24)),
-        ),
-        child: Column(
-          mainAxisSize: MainAxisSize.min,
-          crossAxisAlignment: CrossAxisAlignment.start,
-          children: [
-            const Text('Ubah Sandi',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
-            const SizedBox(height: 16),
-            TextField(
-              controller: _lamaCon,
-              obscureText: true,
-              decoration: const InputDecoration(
-                  labelText: 'Sandi Lama', border: OutlineInputBorder()),
-            ),
-            const SizedBox(height: 12),
-            TextField(
-              controller: _baruCon,
-              obscureText: true,
-              decoration: const InputDecoration(
-                  labelText: 'Sandi Baru', border: OutlineInputBorder()),
-            ),
-            if (_error != null) ...[
-              const SizedBox(height: 8),
-              Text(_error!,
-                  style: const TextStyle(color: Colors.red, fontSize: 12)),
-            ],
-            const SizedBox(height: 16),
-            SizedBox(
-              width: double.infinity,
-              child: ElevatedButton(
-                style: ElevatedButton.styleFrom(
-                    backgroundColor: WarnaUtama.secondary),
-                onPressed: _isLoading
-                    ? null
-                    : () async {
-                        setState(() {
-                          _isLoading = true;
-                          _error = null;
-                        });
-                        final res = await AuthService.changePassword(
-                          passwordLama: _lamaCon.text,
-                          passwordBaru: _baruCon.text,
-                        );
-                        setState(() => _isLoading = false);
-                        if (res['success']) {
-                          Navigator.pop(context);
-                          ScaffoldMessenger.of(context).showSnackBar(
-                            const SnackBar(
-                                content: Text('Sandi berhasil diubah!')),
-                          );
-                        } else {
-                          setState(() => _error = res['message']);
-                        }
-                      },
-                child: _isLoading
-                    ? const CircularProgressIndicator(color: Colors.white)
-                    : const Text('Simpan',
-                        style: TextStyle(color: Colors.white)),
-              ),
-            ),
-          ],
+          ], 
         ),
       ),
     );

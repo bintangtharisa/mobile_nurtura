@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:mobile_nurtura/features/shared/views/login.dart';
- import 'features/ibu/views/main_page_ibu.dart';
+import 'features/ibu/views/main_page_ibu.dart';
 
 void main() {
   runApp(const MyApp());

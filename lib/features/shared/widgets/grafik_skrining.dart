@@ -3,13 +3,13 @@ import 'package:fl_chart/fl_chart.dart';
 import '../../../core/theme/warna_utama.dart';
 
 class GrafikSkrining extends StatelessWidget {
-  final List<double> nilaiPerMinggu;
+  final List<double> nilaiPerPeriode;
   final String periode;
 
   const GrafikSkrining({
     super.key,
-    required this.nilaiPerMinggu,
-    this.periode = 'Minggu',
+    required this.nilaiPerPeriode,
+    this.periode = 'minggu',
   });
 
   @override
@@ -42,7 +42,7 @@ class GrafikSkrining extends StatelessWidget {
           ),
           const SizedBox(height: 4),
           Text(
-            'Berdasarkan ${nilaiPerMinggu.length} kali hasil skrining milikmu',
+            'Frekuensi skrining ${periode == 'minggu' ? 'per hari' : 'per minggu'}',
             style: TextStyle(
               fontFamily: 'Manrope',
               fontSize: 12,
@@ -50,7 +50,7 @@ class GrafikSkrining extends StatelessWidget {
             ),
           ),
           const SizedBox(height: 20),
-          nilaiPerMinggu.isEmpty
+          nilaiPerPeriode.isEmpty
               ? Container(
                   height: 150,
                   alignment: Alignment.center,
@@ -62,7 +62,7 @@ class GrafikSkrining extends StatelessWidget {
                     mainAxisAlignment: MainAxisAlignment.center,
                     children: [
                       Icon(
-                        Icons.show_chart_rounded,
+                        Icons.bar_chart_rounded,
                         size: 40,
                         color: WarnaUtama.secondary.withOpacity(0.4),
                       ),
@@ -79,58 +79,90 @@ class GrafikSkrining extends StatelessWidget {
                   ),
                 )
               : SizedBox(
-                  height: 150,
-                  child: LineChart(
-                    LineChartData(
-                      gridData: const FlGridData(show: false),
-                      borderData: FlBorderData(show: false),
+                  height: 180,
+                  child: BarChart(
+                    BarChartData(
+                      alignment: BarChartAlignment.spaceAround,
+                      maxY: (nilaiPerPeriode.reduce((a, b) => a > b ? a : b) + 1),
+                      barTouchData: BarTouchData(
+                        touchTooltipData: BarTouchTooltipData(
+                          getTooltipItem: (group, groupIndex, rod, rodIndex) {
+                            return BarTooltipItem(
+                              '${rod.toY.toInt()} skrining',
+                              const TextStyle(
+                                fontFamily: 'Manrope',
+                                color: Colors.white,
+                                fontSize: 12,
+                              ),
+                            );
+                          },
+                        ),
+                      ),
                       titlesData: FlTitlesData(
-                        leftTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        rightTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
-                        topTitles: const AxisTitles(sideTitles: SideTitles(showTitles: false)),
+                        leftTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        rightTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
+                        topTitles: const AxisTitles(
+                          sideTitles: SideTitles(showTitles: false),
+                        ),
                         bottomTitles: AxisTitles(
                           sideTitles: SideTitles(
                             showTitles: true,
+                            reservedSize: 28,
                             getTitlesWidget: (value, meta) {
                               final index = value.toInt();
-                              if (index < 0 || index >= nilaiPerMinggu.length) return const SizedBox();
-                              final label = periode == 'bulan' ? 'Bulan ${index + 1}' : 'Minggu ${index + 1}';
-                              return Text(
-                                label,
-                                style: TextStyle(
-                                  fontFamily: 'Manrope',
-                                  fontSize: 11,
-                                  color: WarnaUtama.text1.withOpacity(0.5),
+                              if (index < 0 || index >= nilaiPerPeriode.length) {
+                                return const SizedBox();
+                              }
+                              final label = periode == 'minggu'
+                                  ? 'Sen ${index + 1}'
+                                  : 'Minggu ${index + 1}';
+                              return Padding(
+                                padding: const EdgeInsets.only(top: 6),
+                                child: Text(
+                                  label,
+                                  style: TextStyle(
+                                    fontFamily: 'Manrope',
+                                    fontSize: 10,
+                                    color: WarnaUtama.text1.withOpacity(0.5),
+                                  ),
                                 ),
                               );
                             },
                           ),
                         ),
                       ),
-                      lineBarsData: [
-                        LineChartBarData(
-                          spots: List.generate(
-                            nilaiPerMinggu.length,
-                            (i) => FlSpot(i.toDouble(), nilaiPerMinggu[i]),
-                          ),
-                          isCurved: true,
-                          color: WarnaUtama.secondary,
-                          barWidth: 2.5,
-                          dotData: FlDotData(
-                            show: true,
-                            getDotPainter: (spot, percent, bar, index) => FlDotCirclePainter(
-                              radius: 5,
-                              color: WarnaUtama.text2,
-                              strokeWidth: 2.5,
-                              strokeColor: WarnaUtama.secondary,
-                            ),
-                          ),
-                          belowBarData: BarAreaData(
-                            show: true,
-                            color: WarnaUtama.secondary.withOpacity(0.08),
-                          ),
+                      gridData: FlGridData(
+                        show: true,
+                        drawVerticalLine: false,
+                        horizontalInterval: 1,
+                        getDrawingHorizontalLine: (value) => FlLine(
+                          color: WarnaUtama.primary.withOpacity(0.2),
+                          strokeWidth: 1,
                         ),
-                      ],
+                      ),
+                      borderData: FlBorderData(show: false),
+                      barGroups: List.generate(
+                        nilaiPerPeriode.length,
+                        (i) => BarChartGroupData(
+                          x: i,
+                          barRods: [
+                            BarChartRodData(
+                              toY: nilaiPerPeriode[i],
+                              color: nilaiPerPeriode[i] > 0
+                                  ? WarnaUtama.secondary
+                                  : WarnaUtama.primary.withOpacity(0.3),
+                              width: 20,
+                              borderRadius: const BorderRadius.vertical(
+                                top: Radius.circular(6),
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
                     ),
                   ),
                 ),

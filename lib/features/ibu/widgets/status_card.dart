@@ -92,13 +92,11 @@ class StatusCard extends StatelessWidget {
 
               const SizedBox(height: 12),
 
-              ClipRRect(
-                borderRadius: BorderRadius.circular(8),
-                child: LinearProgressIndicator(
-                  value: berisiko ? 0.8 : 0.2,
-                  backgroundColor: WarnaUtama.text1.withOpacity(0.2),
-                  valueColor: const AlwaysStoppedAnimation<Color>(Colors.white),
-                  minHeight: 5,
+              Container(
+                height: 5,
+                decoration: BoxDecoration(
+                  color: Colors.white.withOpacity(0.2),
+                  borderRadius: BorderRadius.circular(8),
                 ),
               ),
 

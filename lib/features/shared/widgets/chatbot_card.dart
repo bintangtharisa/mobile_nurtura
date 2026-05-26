@@ -5,12 +5,14 @@ class ChatbotCard extends StatefulWidget {
   final VoidCallback? onOpenChat;
   final String namaBot;
   final String pesanAwal;
+  final Function(String)? onKirimPesan;
 
   const ChatbotCard({
     super.key,
     this.onOpenChat,
     this.namaBot = 'Nurtura AI',
     this.pesanAwal = 'Halo! 👋 Ada yang bisa aku bantu hari ini?',
+    this.onKirimPesan,
   });
 
   @override
@@ -24,6 +26,16 @@ class _ChatbotCardState extends State<ChatbotCard> {
   void dispose() {
     _controller.dispose();
     super.dispose();
+  }
+
+  void _kirim() {
+    final teks = _controller.text.trim();
+    if (teks.isNotEmpty) {
+      widget.onKirimPesan?.call(teks);
+      _controller.clear();
+    } else {
+      widget.onOpenChat?.call();
+    }
   }
 
   @override
@@ -85,7 +97,7 @@ class _ChatbotCardState extends State<ChatbotCard> {
                           width: 7,
                           height: 7,
                           decoration: const BoxDecoration(
-                            color: Color(0xFF4CAF50),
+                            color: WarnaUtama.secondary,
                             shape: BoxShape.circle,
                           ),
                         ),
@@ -106,7 +118,8 @@ class _ChatbotCardState extends State<ChatbotCard> {
                 GestureDetector(
                   onTap: widget.onOpenChat,
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 6),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 12, vertical: 6),
                     decoration: BoxDecoration(
                       color: WarnaUtama.text2.withOpacity(0.2),
                       borderRadius: BorderRadius.circular(20),
@@ -128,7 +141,7 @@ class _ChatbotCardState extends State<ChatbotCard> {
 
           // Preview pesan
           Padding(
-            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8), // kurangi bawah
+            padding: const EdgeInsets.fromLTRB(16, 16, 16, 8),
             child: Row(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -148,7 +161,8 @@ class _ChatbotCardState extends State<ChatbotCard> {
                 const SizedBox(width: 10),
                 Expanded(
                   child: Container(
-                    padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 16, vertical: 12),
                     decoration: BoxDecoration(
                       color: WarnaUtama.form,
                       borderRadius: const BorderRadius.only(
@@ -180,38 +194,49 @@ class _ChatbotCardState extends State<ChatbotCard> {
           ),
 
           // Input area
-          GestureDetector(
-            onTap: widget.onOpenChat,
-            child: Container(
-              margin: const EdgeInsets.fromLTRB(16, 4, 16, 16),
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 12),
-              decoration: BoxDecoration(
-                color: WarnaUtama.text2,
-                borderRadius: BorderRadius.circular(30),
-                border: Border.all(
-                  color: WarnaUtama.primary.withOpacity(0.7),
-                ),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.04),
-                    blurRadius: 6,
-                    offset: const Offset(0, 2),
-                  ),
-                ],
+          Container(
+            margin: const EdgeInsets.fromLTRB(16, 4, 16, 16),
+            padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
+            decoration: BoxDecoration(
+              color: WarnaUtama.text2,
+              borderRadius: BorderRadius.circular(30),
+              border: Border.all(
+                color: WarnaUtama.primary.withOpacity(0.4),
               ),
-              child: Row(
-                children: [
-                  Expanded(
-                    child: Text(
-                      'Tanyakan sesuatu...',
-                      style: TextStyle(
+              boxShadow: [
+                BoxShadow(
+                  color: Colors.black.withOpacity(0.04),
+                  blurRadius: 6,
+                  offset: const Offset(0, 2),
+                ),
+              ],
+            ),
+            child: Row(
+              children: [
+                Expanded(
+                  child: TextField(
+                    controller: _controller,
+                    decoration: InputDecoration(
+                      hintText: 'Tanyakan sesuatu...',
+                      hintStyle: TextStyle(
                         fontFamily: 'Manrope',
                         fontSize: 13,
                         color: WarnaUtama.text1.withOpacity(0.35),
                       ),
+                      border: InputBorder.none,
+                      isDense: true,
                     ),
+                    style: const TextStyle(
+                      fontFamily: 'Manrope',
+                      fontSize: 13,
+                      color: WarnaUtama.text1,
+                    ),
+                    onSubmitted: (_) => _kirim(),
                   ),
-                  Container(
+                ),
+                GestureDetector(
+                  onTap: _kirim,
+                  child: Container(
                     width: 34,
                     height: 34,
                     decoration: BoxDecoration(
@@ -231,8 +256,8 @@ class _ChatbotCardState extends State<ChatbotCard> {
                       size: 16,
                     ),
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ],

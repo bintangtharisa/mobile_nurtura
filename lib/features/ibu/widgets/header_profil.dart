@@ -3,7 +3,8 @@ import '../../../core/theme/warna_utama.dart';
 import '../../../services/auth_service.dart';
 
 class HeaderProfil extends StatefulWidget {
-  const HeaderProfil({super.key});
+  final VoidCallback? onNotifikasiTap;
+  const HeaderProfil({super.key, this.onNotifikasiTap});
 
   @override
   State<HeaderProfil> createState() => _HeaderProfilState();
@@ -83,7 +84,9 @@ class _HeaderProfilState extends State<HeaderProfil> {
               ],
             ),
           ),
-          Container(
+          GestureDetector(
+          onTap: widget.onNotifikasiTap,
+          child: Container(
             width: 44,
             height: 44,
             decoration: BoxDecoration(
@@ -102,6 +105,7 @@ class _HeaderProfilState extends State<HeaderProfil> {
               Icons.notifications_outlined,
               size: 24,
               color: WarnaUtama.text1,
+              ),
             ),
           ),
         ],

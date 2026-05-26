@@ -87,9 +87,7 @@ class _LihatTipsPageState extends State<LihatTipsPage> {
               child: CardHeader(
                 title: 'Lihat Tips',
                 leftIcon: Icons.chevron_left,
-                rightIcon: Icons.notifications_none,
                 onLeftTap: () => Navigator.pop(context),
-                onRightTap: () {},
               ),
             ),
 

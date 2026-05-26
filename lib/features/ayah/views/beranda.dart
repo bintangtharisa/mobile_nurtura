@@ -6,6 +6,7 @@ import '../../shared/widgets/artikel_card.dart';
 import '../../../services/father_service.dart';
 import '../../shared/widgets/chatbot_card.dart';
 import '../../shared/views/lihat_tips_page.dart';
+import 'notifikasi_ayah_page.dart';
 
 class BerandaAyahPage extends StatefulWidget {
   const BerandaAyahPage({super.key});
@@ -87,8 +88,11 @@ class _BerandaAyahPageState extends State<BerandaAyahPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const HeaderProfil(),
-
+                HeaderProfil(
+                  onNotifikasiTap: () => Navigator.push(
+                    context, MaterialPageRoute(builder: (_) => const NotifikasiAyahPage()),
+                    ),
+                ),
                 const SizedBox(height: 20),
 
                 if (isLoading)

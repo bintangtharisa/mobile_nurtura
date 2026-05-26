@@ -8,6 +8,7 @@ import '../views/tahap_skrining.dart';
 import '../services/article_service.dart';
 import '../../shared/widgets/chatbot_card.dart';
 import 'notifikasi_ibu_page.dart';
+import '../../shared/views/chatbot_page.dart';
 
 class BerandaPage extends StatefulWidget {
   final VoidCallback? onKoneksiTap;
@@ -107,10 +108,27 @@ class _BerandaPageState extends State<BerandaPage> {
                     ChatbotCard(
                       namaBot: 'Nurtura AI',
                       pesanAwal: 'Halo Bunda! 👋 Bagaimana perasaanmu hari ini? Aku siap mendengarkan.',
-                      onOpenChat: () {
-                        // TODO: navigasi ke halaman chatbot
-                      },
-                    ),
+                      onOpenChat: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ChatbotPage(
+                            pesanAwal: 'Halo Bunda! 👋 Bagaimana perasaanmu hari ini? Aku siap mendengarkan.',
+                            quickReplies: ['Saya merasa lelah', 'Tips menyusui', 'Jadwal imunisasi'],
+                          ),
+                        ),
+                      ),
+                        onKirimPesan: (teks) => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChatbotPage(
+                              pesanAwal: 'Halo Bunda! 👋 Bagaimana perasaanmu hari ini? Aku siap mendengarkan.',
+                              quickReplies: ['Saya merasa lelah', 'Tips menyusui', 'Jadwal imunisasi'],
+                              pesanPertama: teks,
+                            ),
+                          ),
+                        ),
+                      ),
+
                     const SizedBox(height: 28),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,

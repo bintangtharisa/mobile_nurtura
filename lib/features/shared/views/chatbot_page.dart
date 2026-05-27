@@ -3,6 +3,7 @@ import '../../../core/theme/warna_utama.dart';
 import '../widgets/chatbot_header.dart';
 import '../widgets/chatbot_bubble.dart';
 import '../widgets/chatbot_input.dart';
+import '../../../services/chatbot_service.dart';
 
 class ChatbotPage extends StatefulWidget {
   final String namaBot;
@@ -28,6 +29,7 @@ class _ChatbotPageState extends State<ChatbotPage> {
 
   List<Map<String, dynamic>> _messages = [];
   bool _isLoading = false;
+  String? _sessionId;
 
   @override
   void initState() {
@@ -95,19 +97,40 @@ class _ChatbotPageState extends State<ChatbotPage> {
 
     _scrollToBottom();
 
-    // TODO: ganti dengan API call ke service
-    await Future.delayed(const Duration(milliseconds: 1500));
+    try {
+      final hasil = await ChatbotService.sendMessage(
+        message: teks,
+        sessionId: _sessionId,
+      );
 
-    if (mounted) {
-      setState(() {
-        _isLoading = false;
-        _messages.add({
-          'pesan': 'Terima kasih sudah berbagi. Aku di sini untuk mendukungmu. 💚',
-          'isBot': true,
-          'waktu': _formatWaktu(DateTime.now()),
+      if (mounted) {
+        _sessionId ??= hasil['session']?['id'] as String?;
+
+        final reply = hasil['message']?['message'] as String?
+            ?? 'Maaf, saya belum bisa menjawab saat ini.';
+
+        setState(() {
+          _isLoading = false;
+          _messages.add({
+            'pesan': reply,
+            'isBot': true,
+            'waktu': _formatWaktu(DateTime.now()),
+          });
         });
-      });
-      _scrollToBottom();
+        _scrollToBottom();
+      }
+    } catch (e) {
+      if (mounted) {
+        setState(() {
+          _isLoading = false;
+          _messages.add({
+            'pesan': 'Maaf, terjadi kesalahan. Coba lagi ya. 🙏',
+            'isBot': true,
+            'waktu': _formatWaktu(DateTime.now()),
+          });
+        });
+        _scrollToBottom();
+      }
     }
   }
 

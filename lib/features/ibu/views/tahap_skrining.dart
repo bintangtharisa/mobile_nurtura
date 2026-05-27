@@ -195,19 +195,45 @@ class _TahapSkriningPageState extends State<TahapSkriningPage> {
 
       if (!mounted) return;
 
-      final result = hasil['result'];
-
-      if (result == null) {
+      final result = (hasil['result'] as String?) ?? '';
+      debugPrint('🔍 RESULT: $result');
+      if (result.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(content: Text('Data hasil prediksi tidak ditemukan')),
         );
         return;
       }
 
+      final recommendation = hasil['recommendation'] as Map<String, dynamic>?;
+      final List<String> rekomendasi = [];
+
+      if (recommendation != null) {
+        final emergencyNote = recommendation['emergency_note'] as String?;
+        if (emergencyNote != null && emergencyNote.isNotEmpty) {
+          rekomendasi.add('⚠️ $emergencyNote');
+        }
+        final summary = recommendation['summary'] as String?;
+        if (summary != null && summary.isNotEmpty) rekomendasi.add(summary);
+        final actionSteps = recommendation['action_steps'] as List<dynamic>?;
+        if (actionSteps != null)
+          rekomendasi.addAll(actionSteps.map((e) => e.toString()));
+        final partnerSupport =
+            recommendation['partner_support'] as List<dynamic>?;
+        if (partnerSupport != null)
+          rekomendasi.addAll(partnerSupport.map((e) => e.toString()));
+        final professionalHelp = recommendation['professional_help'] as String?;
+        if (professionalHelp != null && professionalHelp.isNotEmpty)
+          rekomendasi.add(professionalHelp);
+      }
+
       Navigator.push(
         context,
         MaterialPageRoute(
-          builder: (_) => HasilSkriningPage(result: result, jawaban: _jawaban),
+          builder: (_) => HasilSkriningPage(
+            result: result,
+            jawaban: _jawaban,
+            rekomendasi: rekomendasi,
+          ),
         ),
       );
     } catch (e) {

@@ -14,7 +14,7 @@ class HasilSkriningPage extends StatelessWidget {
     required this.jawaban,
   });
 
-  bool get berisiko => result.toLowerCase().trim().startsWith("beresiko");
+  bool get berisiko => result.toLowerCase().trim() == "beresiko";
 
   static const List<String> _rekomendasiBerisiko = [
     'Utamakan istirahat setiap kali bayi Anda tidur.',

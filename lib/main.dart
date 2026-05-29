@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:mobile_nurtura/features/shared/views/login.dart';
-import 'features/ibu/views/main_page_ibu.dart';
+import 'features/shared/views/screen_loading.dart';
 
 void main() {
   runApp(const MyApp());
@@ -13,7 +12,7 @@ class MyApp extends StatelessWidget {
   Widget build(BuildContext context) {
     return MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: LoginPage(), 
+      home: const ScreenLoading(),
     );
   }
 }

@@ -7,6 +7,8 @@ import '../../shared/views/lihat_tips_page.dart';
 import '../views/tahap_skrining.dart';
 import '../services/article_service.dart';
 import '../../shared/widgets/chatbot_card.dart';
+import 'notifikasi_ibu_page.dart';
+import '../../shared/views/chatbot_page.dart';
 
 class BerandaPage extends StatefulWidget {
   final VoidCallback? onKoneksiTap;
@@ -17,7 +19,6 @@ class BerandaPage extends StatefulWidget {
 }
 
 class _BerandaPageState extends State<BerandaPage> {
-  Map<String, dynamic>? _statusTerakhir;
   List<Map<String, dynamic>> _tipsList = [];
   bool _isLoading = true;
 
@@ -98,15 +99,36 @@ class _BerandaPageState extends State<BerandaPage> {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    const HeaderProfil(),
+                    HeaderProfil(
+                      onNotifikasiTap: () => Navigator.push(
+                        context, MaterialPageRoute(builder: (_) => const NotifikasiIbuPage()),
+                      ),
+                    ),
                     const SizedBox(height: 20),
                     ChatbotCard(
                       namaBot: 'Nurtura AI',
                       pesanAwal: 'Halo Bunda! 👋 Bagaimana perasaanmu hari ini? Aku siap mendengarkan.',
-                      onOpenChat: () {
-                        // TODO: navigasi ke halaman chatbot
-                      },
-                    ),
+                      onOpenChat: () => Navigator.push(
+                        context,
+                        MaterialPageRoute(
+                          builder: (_) => const ChatbotPage(
+                            pesanAwal: 'Halo Bunda! 👋 Bagaimana perasaanmu hari ini? Aku siap mendengarkan.',
+                            quickReplies: ['Saya merasa lelah', 'Tips menyusui', 'Jadwal imunisasi'],
+                          ),
+                        ),
+                      ),
+                        onKirimPesan: (teks) => Navigator.push(
+                          context,
+                          MaterialPageRoute(
+                            builder: (_) => ChatbotPage(
+                              pesanAwal: 'Halo Bunda! 👋 Bagaimana perasaanmu hari ini? Aku siap mendengarkan.',
+                              quickReplies: ['Saya merasa lelah', 'Tips menyusui', 'Jadwal imunisasi'],
+                              pesanPertama: teks,
+                            ),
+                          ),
+                        ),
+                      ),
+
                     const SizedBox(height: 28),
                     Row(
                       mainAxisAlignment: MainAxisAlignment.spaceBetween,
@@ -154,7 +176,7 @@ class _BerandaPageState extends State<BerandaPage> {
                             child: Text(
                               'Belum ada tips tersedia',
                               style: TextStyle(
-                                color: WarnaUtama.text2,
+                                color: WarnaUtama.text1,
                                 fontSize: 14,
                               ),
                             ),

@@ -6,6 +6,8 @@ import '../../shared/widgets/artikel_card.dart';
 import '../../../services/father_service.dart';
 import '../../shared/widgets/chatbot_card.dart';
 import '../../shared/views/lihat_tips_page.dart';
+import 'notifikasi_ayah_page.dart';
+import '../../shared/views/chatbot_page.dart';
 
 class BerandaAyahPage extends StatefulWidget {
   const BerandaAyahPage({super.key});
@@ -87,8 +89,11 @@ class _BerandaAyahPageState extends State<BerandaAyahPage> {
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
-                const HeaderProfil(),
-
+                HeaderProfil(
+                  onNotifikasiTap: () => Navigator.push(
+                    context, MaterialPageRoute(builder: (_) => const NotifikasiAyahPage()),
+                    ),
+                ),
                 const SizedBox(height: 20),
 
                 if (isLoading)
@@ -124,9 +129,25 @@ class _BerandaAyahPageState extends State<BerandaAyahPage> {
                 ChatbotCard(
                   namaBot: 'Nurtura AI',
                   pesanAwal: 'Halo Ayah! 👋 Ada yang bisa aku bantu hari ini?',
-                  onOpenChat: () {
-                    // TODO: navigasi ke halaman chatbot
-                  },
+                  onOpenChat: () => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => const ChatbotPage(
+                        pesanAwal: 'Halo Ayah! 👋 Ada yang bisa aku bantu hari ini?',
+                        quickReplies: ['Saya merasa lelah', 'Tips menyusui', 'Jadwal imunisasi'],
+                      ),
+                    ),
+                  ),
+                  onKirimPesan: (teks) => Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (_) => ChatbotPage(
+                        pesanAwal: 'Halo Ayah! 👋 Ada yang bisa aku bantu hari ini?',
+                        quickReplies: ['Tips menangani mood swings', 'Cara mengatasi stres', 'Rekomendasi aktivitas bersama anak'],
+                        pesanPertama: teks,
+                      ),
+                    ),
+                  ),
                 ),
 
                   const SizedBox(height: 28),

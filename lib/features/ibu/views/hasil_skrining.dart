@@ -7,16 +7,28 @@ import '../widgets/rekomendasi_list.dart';
 class HasilSkriningPage extends StatelessWidget {
   final String result;
   final List<int?> jawaban;
-  final List<String> rekomendasi; // ✅ tambah parameter ini
+  final List<String> rekomendasi;
 
   const HasilSkriningPage({
     super.key,
     required this.result,
     required this.jawaban,
-    this.rekomendasi = const [], // ✅ default kosong
+    this.rekomendasi = const [],
   });
 
-  bool get berisiko => result.toLowerCase().trim().startsWith("beresiko");
+  bool get berisiko => result.toLowerCase().trim() == "beresiko depresi";
+
+  static const List<String> _rekomendasiBerisiko = [
+    'Utamakan istirahat setiap kali bayi Anda tidur.',
+    'Bicaralah secara terbuka kepada pasangan Anda tentang perasaan Anda.',
+    'Tetap terhidrasi dan jaga keseimbangan nutrisi.',
+  ];
+
+  static const List<String> _rekomendasiAman = [
+    'Utamakan istirahat setiap kali bayi Anda tidur.',
+    'Bicaralah secara terbuka kepada pasangan Anda tentang perasaan Anda.',
+    'Tetap terhidrasi dan jaga keseimbangan nutrisi.',
+  ];
 
   @override
   Widget build(BuildContext context) {
@@ -25,6 +37,7 @@ class HasilSkriningPage extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
+            // Header
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
               child: CardHeader(
@@ -35,6 +48,7 @@ class HasilSkriningPage extends StatelessWidget {
               ),
             ),
 
+            // Konten
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -42,6 +56,7 @@ class HasilSkriningPage extends StatelessWidget {
                   children: [
                     const SizedBox(height: 16),
 
+                    // Status visual
                     StatusSkrining(
                       berisiko: berisiko,
                       statusLabel: berisiko
@@ -54,8 +69,11 @@ class HasilSkriningPage extends StatelessWidget {
 
                     const SizedBox(height: 32),
 
+                    // Rekomendasi + tombol
                     RekomendasiList(
-                      rekomendasi: rekomendasi, // ✅ dari API, bukan hardcode
+                      rekomendasi: berisiko
+                          ? _rekomendasiBerisiko
+                          : _rekomendasiAman,
                       onKembali: () {
                         Navigator.popUntil(context, (route) => route.isFirst);
                       },

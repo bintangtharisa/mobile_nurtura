@@ -7,14 +7,16 @@ import '../widgets/rekomendasi_list.dart';
 class HasilSkriningPage extends StatelessWidget {
   final String result;
   final List<int?> jawaban;
+  final List<String> rekomendasi;
 
   const HasilSkriningPage({
     super.key,
     required this.result,
     required this.jawaban,
+    this.rekomendasi = const [],
   });
 
-  bool get berisiko => result.toLowerCase().trim() == "beresiko";
+  bool get berisiko => result.toLowerCase().trim() == "beresiko depresi";
 
   static const List<String> _rekomendasiBerisiko = [
     'Utamakan istirahat setiap kali bayi Anda tidur.',

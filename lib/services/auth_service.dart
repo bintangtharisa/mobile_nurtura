@@ -4,6 +4,20 @@ import '../utils/api.dart';
 import '../services/session.dart';
 
 class AuthService {
+  static Map<String, dynamic> _normalizeUser(
+    Map<String, dynamic> user, [
+    Map<String, dynamic>? fallback,
+  ]) {
+    return {
+      ...user,
+      'name': user['name'] ?? user['username'] ?? fallback?['name'] ?? fallback?['username'],
+      'connection_code': user['connection_code'] ??
+          user['anonymous_id'] ??
+          fallback?['connection_code'] ??
+          fallback?['anonymous_id'],
+    };
+  }
+
   static Future<Map<String, dynamic>> login(
     String email,
     String password,
@@ -44,6 +58,11 @@ class AuthService {
       if (response.statusCode == 200) {
         if (data['token'] != null) {
           await Session.saveToken(data['token']);
+        }
+        if (data['user'] is Map<String, dynamic>) {
+          final user = _normalizeUser(Map<String, dynamic>.from(data['user']));
+          data['user'] = user;
+          await Session.saveUser(user);
         }
         return {"success": true, "data": data};
       } else {
@@ -96,6 +115,11 @@ class AuthService {
       }
 
       if (response.statusCode >= 200 && response.statusCode < 300) {
+        if (data['data'] is Map<String, dynamic>) {
+          final user = _normalizeUser(Map<String, dynamic>.from(data['data']));
+          data['data'] = user;
+          await Session.saveUser(user);
+        }
         return {"success": true, "data": data};
       } else {
         return {
@@ -132,7 +156,13 @@ class AuthService {
       }
 
       if (response.statusCode == 200) {
-        return {"success": true, "data": data['data']};
+        final cachedUser = await Session.getUser();
+        final user = _normalizeUser(
+          Map<String, dynamic>.from(data['data']),
+          cachedUser,
+        );
+        await Session.saveUser(user);
+        return {"success": true, "data": user};
       } else {
         return {
           "success": false,
@@ -225,7 +255,7 @@ class AuthService {
       final token = await Session.getToken();
 
       final response = await http.get(
-        Uri.parse("${Api.baseUrl}/koneksi"),
+        Uri.parse("${Api.baseUrl}/mother/connection-requests"),
         headers: {
           "Authorization": "Bearer $token",
           "Accept": "application/json",
@@ -243,7 +273,37 @@ class AuthService {
       }
 
       if (response.statusCode == 200) {
-        return {"success": true, "data": data['data']};
+        final requests = data['data'] is List ? data['data'] as List : [];
+        final pending = requests.isNotEmpty
+            ? Map<String, dynamic>.from(requests.first as Map)
+            : null;
+        final activeConnection = data['active_connection'] is Map
+            ? Map<String, dynamic>.from(data['active_connection'] as Map)
+            : null;
+        final cachedFather = pending == null ? await Session.getConnectedFather() : null;
+        final connectedFather = activeConnection == null
+            ? cachedFather
+            : {
+                "id": activeConnection['father_id'],
+                "name": activeConnection['father_username'],
+                "email": activeConnection['father_email'],
+                "sejak": activeConnection['connected_at'],
+              };
+
+        return {
+          "success": true,
+          "data": {
+            "pending_request": pending == null
+                ? null
+                : {
+                    "id": pending['father_id'],
+                    "name": pending['father_username'],
+                    "email": pending['father_email'],
+                    "requested_at": pending['requested_at'],
+                  },
+            "pasangan": connectedFather,
+          },
+        };
       } else {
         return {
           "success": false,
@@ -366,7 +426,7 @@ class AuthService {
       final token = await Session.getToken();
 
       final response = await http.patch(
-        Uri.parse("${Api.baseUrl}/father/accept"),
+        Uri.parse("${Api.baseUrl}/mother/father/accept"),
         headers: {
           "Authorization": "Bearer $token",
           "Accept": "application/json",
@@ -400,16 +460,21 @@ class AuthService {
 
   // ================= TOLAK KONEKSI =================
   static Future<Map<String, dynamic>> tolakKoneksi() async {
+    return {"success": false, "message": "father_id tidak ditemukan"};
+  }
+
+  static Future<Map<String, dynamic>> tolakKoneksiByFatherId(String fatherId) async {
     try {
       final token = await Session.getToken();
 
       final response = await http.patch(
-        Uri.parse("${Api.baseUrl}/father/block"),
+        Uri.parse("${Api.baseUrl}/mother/father/reject"),
         headers: {
           "Authorization": "Bearer $token",
           "Accept": "application/json",
           "Content-Type": "application/json",
         },
+        body: jsonEncode({"father_id": fatherId}),
       );
 
       print("TOLAK KONEKSI STATUS: ${response.statusCode}");
@@ -428,6 +493,44 @@ class AuthService {
         return {
           "success": false,
           "message": data['message'] ?? "Gagal tolak koneksi",
+        };
+      }
+    } catch (e) {
+      return {"success": false, "message": "Error: $e"};
+    }
+  }
+
+  // ================= BLOCK KONEKSI AKTIF =================
+  static Future<Map<String, dynamic>> blockKoneksiByFatherId(String fatherId) async {
+    try {
+      final token = await Session.getToken();
+
+      final response = await http.patch(
+        Uri.parse("${Api.baseUrl}/mother/father/block"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({"father_id": fatherId}),
+      );
+
+      print("BLOCK KONEKSI STATUS: ${response.statusCode}");
+      print("BLOCK KONEKSI BODY: ${response.body}");
+
+      dynamic data;
+      try {
+        data = jsonDecode(response.body);
+      } catch (_) {
+        return {"success": false, "message": "Response bukan JSON"};
+      }
+
+      if (response.statusCode == 200) {
+        return {"success": true, "data": data};
+      } else {
+        return {
+          "success": false,
+          "message": data['message'] ?? "Gagal block koneksi",
         };
       }
     } catch (e) {

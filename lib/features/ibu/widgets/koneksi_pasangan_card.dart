@@ -26,6 +26,34 @@ class KoneksiPasanganCard extends StatelessWidget {
     this.onDisconnect,
   });
 
+  String _formatTanggalIndonesia(String? value) {
+    if (value == null || value.trim().isEmpty) return '-';
+
+    final date = DateTime.tryParse(value);
+    if (date == null) return value;
+
+    const bulan = [
+      'Januari',
+      'Februari',
+      'Maret',
+      'April',
+      'Mei',
+      'Juni',
+      'Juli',
+      'Agustus',
+      'September',
+      'Oktober',
+      'November',
+      'Desember',
+    ];
+
+    final localDate = date.toLocal();
+    final jam = localDate.hour.toString().padLeft(2, '0');
+    final menit = localDate.minute.toString().padLeft(2, '0');
+
+    return '${localDate.day} ${bulan[localDate.month - 1]} ${localDate.year}, $jam.$menit WIB';
+  }
+
   @override
   Widget build(BuildContext context) {
     return Column(
@@ -190,7 +218,7 @@ class KoneksiPasanganCard extends StatelessWidget {
                         ),
                       ),
                       Text(
-                        'Pasangan • Terhubung sejak $terhubungSejak',
+                        'Pasangan - Terhubung sejak ${_formatTanggalIndonesia(terhubungSejak)}',
                         style: TextStyle(
                           fontFamily: 'Manrope',
                           fontSize: 12,
@@ -203,7 +231,7 @@ class KoneksiPasanganCard extends StatelessWidget {
                 GestureDetector(
                   onTap: onDisconnect,
                   child: Text(
-                    'Disconnect',
+                    'Block',
                     style: TextStyle(
                       fontFamily: 'Manrope',
                       fontSize: 13,

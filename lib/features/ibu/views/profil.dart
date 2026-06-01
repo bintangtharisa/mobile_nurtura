@@ -7,6 +7,7 @@ import '../widgets/koneksi_pasangan_card.dart';
 import '../../shared/widgets/pengaturan_list.dart';
 import '../../shared/views/edit_profil.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/session.dart';
 import '../../shared/widgets/ubah_sandi.dart';
 import '../../shared/widgets/keluar_akun.dart';
 
@@ -51,12 +52,27 @@ class _ProfilPageState extends State<ProfilPage> {
   }
 
   Future<void> _terimaKoneksi() async {
-    final fatherId = _koneksi?['pending_request']?['id'];
+    final pendingRequest = _koneksi?['pending_request'];
+    final fatherId = pendingRequest?['id'];
     if (fatherId == null) return;
+
+    final confirmed = await _showConfirmDialog(
+      title: 'Terima koneksi?',
+      message:
+          'Father ini akan terhubung dengan akun Anda dan dapat melihat report yang dibagikan.',
+      confirmText: 'Terima',
+    );
+    if (!confirmed) return;
 
     final res = await AuthService.terimaKoneksi(fatherId);
     if (!mounted) return;
     if (res['success']) {
+      await Session.saveConnectedFather({
+        'id': fatherId,
+        'name': pendingRequest?['name'] ?? 'Father',
+        'email': pendingRequest?['email'],
+        'sejak': DateTime.now().toIso8601String(),
+      });
       await _loadData();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Koneksi berhasil diterima!')),
@@ -69,9 +85,22 @@ class _ProfilPageState extends State<ProfilPage> {
   }
 
   Future<void> _tolakKoneksi() async {
-    final res = await AuthService.tolakKoneksi();
+    final fatherId = _koneksi?['pending_request']?['id'];
+    if (fatherId == null) return;
+
+    final confirmed = await _showConfirmDialog(
+      title: 'Tolak request?',
+      message:
+          'Father ini akan diblock permanen dan tidak dapat menggunakan kode koneksi ini lagi.',
+      confirmText: 'Tolak',
+      isDanger: true,
+    );
+    if (!confirmed) return;
+
+    final res = await AuthService.tolakKoneksiByFatherId(fatherId);
     if (!mounted) return;
     if (res['success']) {
+      await Session.clearConnectedFather();
       await _loadData();
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(content: Text('Permintaan koneksi ditolak.')),
@@ -81,6 +110,67 @@ class _ProfilPageState extends State<ProfilPage> {
         SnackBar(content: Text(res['message'] ?? 'Gagal tolak koneksi')),
       );
     }
+  }
+
+  Future<void> _blockKoneksi() async {
+    final fatherId = _koneksi?['pasangan']?['id'];
+    if (fatherId == null) return;
+
+    final confirmed = await _showConfirmDialog(
+      title: 'Block koneksi?',
+      message:
+          'Anda akan block father ini selamanya. Setelah diblock, father tidak dapat mengakses report Anda lagi dan tidak dapat menggunakan koneksi ini kembali.',
+      confirmText: 'Block',
+      isDanger: true,
+    );
+    if (!confirmed) return;
+
+    final res = await AuthService.blockKoneksiByFatherId(fatherId);
+    if (!mounted) return;
+    if (res['success']) {
+      await Session.clearConnectedFather();
+      await _loadData();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Koneksi berhasil diblock.')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(res['message'] ?? 'Gagal block koneksi')),
+      );
+    }
+  }
+
+  Future<bool> _showConfirmDialog({
+    required String title,
+    required String message,
+    required String confirmText,
+    bool isDanger = false,
+  }) async {
+    final result = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text(title),
+        content: Text(message),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text(
+              confirmText,
+              style: TextStyle(
+                color: isDanger ? WarnaUtama.beresiko : WarnaUtama.secondary,
+                fontWeight: FontWeight.w700,
+              ),
+            ),
+          ),
+        ],
+      ),
+    );
+
+    return result ?? false;
   }
 
   StatusKoneksi _getStatusKoneksi() {
@@ -162,7 +252,7 @@ class _ProfilPageState extends State<ProfilPage> {
                       jumlahRequest: _koneksi?['pending_request'] != null ? 1 : 0,
                       onTerima: _terimaKoneksi,
                       onTolak: _tolakKoneksi,
-                      onDisconnect: () {},
+                      onDisconnect: _blockKoneksi,
                     ),
                     const SizedBox(height: 24),
                     PengaturanList(

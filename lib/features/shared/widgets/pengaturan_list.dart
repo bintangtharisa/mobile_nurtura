@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import '../../../core/theme/warna_utama.dart';
 
 class PengaturanList extends StatefulWidget {
@@ -19,6 +20,19 @@ class PengaturanList extends StatefulWidget {
 
 class _PengaturanListState extends State<PengaturanList> {
   bool _notifikasi = true;
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotifStatus();
+  }
+
+  Future<void> _loadNotifStatus() async {
+    final prefs = await SharedPreferences.getInstance();
+    setState(() {
+      _notifikasi = prefs.getBool('notif_enabled') ?? true;
+    });
+  }
 
   Widget _itemPengaturan({
     required IconData icon,
@@ -98,23 +112,33 @@ class _PengaturanListState extends State<PengaturanList> {
           ),
         ),
         const SizedBox(height: 12),
+
         Column(
           children: [
             if (widget.showNotifikasi) ...[
-            _itemPengaturan(
-              icon: Icons.notifications_outlined,
-              iconBg: WarnaUtama.secondary.withOpacity(0.15),
-              iconColor: WarnaUtama.secondary,
-              title: 'Notifikasi',
-              subtitle: 'Pengingat jadwal skrining',
-              trailing: Switch(
-                value: _notifikasi,
-                onChanged: (val) => setState(() => _notifikasi = val),
-                activeColor: WarnaUtama.secondary,
+              _itemPengaturan(
+                icon: Icons.notifications_outlined,
+                iconBg: WarnaUtama.secondary.withOpacity(0.15),
+                iconColor: WarnaUtama.secondary,
+                title: 'Notifikasi',
+                subtitle: 'Pengingat jadwal skrining',
+                trailing: Switch(
+                  value: _notifikasi,
+                  onChanged: (val) async {
+                    final prefs = await SharedPreferences.getInstance();
+                    await prefs.setBool('notif_enabled', val);
+
+                    setState(() {
+                      _notifikasi = val;
+                    });
+                  },
+                  activeColor: WarnaUtama.secondary,
+                ),
               ),
-            ),
             ],
+
             const SizedBox(height: 10),
+
             _itemPengaturan(
               icon: Icons.shield_outlined,
               iconBg: WarnaUtama.secondary.withOpacity(0.15),
@@ -126,7 +150,9 @@ class _PengaturanListState extends State<PengaturanList> {
               ),
               onTap: widget.onUbahSandi,
             ),
+
             const SizedBox(height: 10),
+
             _itemPengaturan(
               icon: Icons.logout_rounded,
               iconBg: WarnaUtama.beresiko.withOpacity(0.1),

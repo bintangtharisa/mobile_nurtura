@@ -12,6 +12,12 @@ dependencies:
     sdk: flutter
   url_launcher: ^6.3.0
   cupertino_icons: ^1.0.8
+<<<<<<< HEAD
+=======
+  # fl_chart: ^0.70.0
+  flutter_local_notifications: ^17.2.1
+  timezone: ^0.9.4
+>>>>>>> 386224e755861d04eb7d333014462b364fe972e1
   fl_chart: ^0.68.0
   http: ^1.6.0
   shared_preferences: ^2.5.5

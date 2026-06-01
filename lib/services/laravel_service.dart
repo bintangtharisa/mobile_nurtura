@@ -5,6 +5,81 @@ import '../services/auth_service.dart';
 import '../utils/api.dart';
 
 class LaravelService {
+  static Map<String, dynamic>? _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return null;
+  }
+
+  static List<String> extractRecommendationItems(Map<String, dynamic> data) {
+    final recommendation =
+        _asMap(data['recommendation']) ??
+        _asMap(_asMap(data['prediction'])?['recommendation']) ??
+        _asMap(_asMap(data['data'])?['recommendation']);
+
+    if (recommendation == null) return [];
+
+    final items = <String>[];
+
+    void addText(String label, dynamic value) {
+      final text = value?.toString().trim();
+      if (text != null && text.isNotEmpty) items.add('$label: $text');
+    }
+
+    void addList(String label, dynamic value) {
+      if (value is List) {
+        for (final item in value) {
+          if (item is Map) {
+            final areaLabel = item['label']?.toString().trim();
+            final answer = item['answer']?.toString().trim();
+            if (areaLabel != null && areaLabel.isNotEmpty) {
+              items.add(
+                answer != null && answer.isNotEmpty
+                    ? '$label: $areaLabel (jawaban: $answer)'
+                    : '$label: $areaLabel',
+              );
+            }
+          } else {
+            addText(label, item);
+          }
+        }
+      }
+    }
+
+    addText('Catatan darurat', recommendation['emergency_note']);
+    addText('Ringkasan', recommendation['summary']);
+    addList('Area perhatian', recommendation['focus_areas']);
+    addList('Langkah ibu', recommendation['action_steps']);
+    addList('Dukungan pasangan', recommendation['partner_support']);
+    addText('Bantuan profesional', recommendation['professional_help']);
+    addText('Catatan', recommendation['disclaimer']);
+
+    return items.take(5).toList();
+  }
+
+  static Map<String, dynamic> _normalizeScreeningResponse(
+    Map<String, dynamic> body,
+  ) {
+    final data = _asMap(body['data']) ?? body;
+    final prediction = _asMap(data['prediction']) ?? _asMap(body['prediction']);
+
+    final normalized = <String, dynamic>{
+      ...body,
+      ...data,
+      if (prediction != null) 'prediction': prediction,
+    };
+
+    normalized['result'] =
+        normalized['result'] ?? prediction?['result'] ?? data['hasil'];
+    normalized['recommendation'] =
+        _asMap(normalized['recommendation']) ??
+        _asMap(prediction?['recommendation']) ??
+        _asMap(data['recommendation']);
+    normalized['recommendation_items'] = extractRecommendationItems(normalized);
+
+    return normalized;
+  }
+
   static Future<Map<String, dynamic>> saveScreening({
     required List<int?> jawaban,
   }) async {
@@ -12,16 +87,22 @@ class LaravelService {
     final token = await Session.getToken();
 
     // ---------- Get user ----------
-    final userRes = await AuthService.getUser();
+    final cachedUser = await Session.getUser();
+    var motherId = cachedUser?['id'] ?? cachedUser?['_id'];
 
-    print('USER RESPONSE:');
-    print(userRes);
+    if (motherId == null || motherId.toString().isEmpty) {
+      final userRes = await AuthService.getUser();
 
-    if (userRes['success'] != true) {
-      throw Exception('Gagal mengambil data user');
+      print('USER RESPONSE:');
+      print(userRes);
+
+      if (userRes['success'] != true) {
+        throw Exception('Gagal mengambil data user');
+      }
+
+      final userData = userRes['data'];
+      motherId = userData?['id'] ?? userData?['_id'] ?? userData?['data']?['id'];
     }
-
-    final motherId = userRes['data']['id'] ?? userRes['data']['data']?['id'];
 
     if (motherId == null) {
       throw Exception('mother_id tidak ditemukan');
@@ -101,12 +182,15 @@ class LaravelService {
     print('STATUS: ${response.statusCode}');
     print('RESPONSE: ${response.body}');
 
-    final body = jsonDecode(response.body);
+    final decoded = jsonDecode(response.body);
+    final body = _asMap(decoded);
+
+    if (body == null) {
+      throw Exception('Response Laravel bukan object JSON');
+    }
 
     if (response.statusCode != 200) {
-      final message = body is Map<String, dynamic>
-          ? body['message'] ?? body['error'] ?? response.body
-          : response.body;
+      final message = body['message'] ?? body['error'] ?? response.body;
 
       throw Exception(
         'Gagal kirim ke Laravel: '
@@ -114,14 +198,6 @@ class LaravelService {
       );
     }
 
-    final data = Map<String, dynamic>.from(body as Map);
-    final prediction = data['prediction'];
-
-    if (prediction is Map<String, dynamic>) {
-      data['result'] = data['result'] ?? prediction['result'];
-      data['recommendation'] = data['recommendation'] ?? prediction['recommendation'];
-    }
-
-    return data;
+    return _normalizeScreeningResponse(body);
   }
 }

@@ -6,6 +6,7 @@ import '../../../../core/theme/warna_utama.dart';
 import '../widgets/text_field.dart';
 import '../widgets/button.dart';
 import '../../../services/auth_service.dart';
+import '../../../services/notification_service.dart';
 import '../../ibu/views/main_page_ibu.dart';
 import '../../ayah/views/main_page_ayah.dart';
 
@@ -46,6 +47,8 @@ class _LoginPageState extends State<LoginPage> {
         final data = res['data'];
         final user = data['user'];
         final role = user['role'];
+
+        await NotificationService.syncFcmToken();
 
         if (role == "mother") {
           Navigator.pushReplacement(

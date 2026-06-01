@@ -1,58 +1,102 @@
 import 'package:flutter/material.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
 import '../../../core/theme/warna_utama.dart';
 import '../../shared/widgets/header.dart';
 import '../../shared/widgets/notifikasi_section.dart';
+import '../../../services/notif_storage.dart';
+import '../../../services/session.dart';
+import '../../../utils/api.dart';
 
-class NotifikasiAyahPage extends StatelessWidget {
+class NotifikasiAyahPage extends StatefulWidget {
   const NotifikasiAyahPage({super.key});
 
-  static const List<Map<String, dynamic>> _notifikasiList = [
-    {
-      'section': 'HARI INI',
-      'isNew': true,
-      'items': [
-        {
-          'judul': 'Kondisi Istri Berisiko Mengalami Kecemasan',
-          'deskripsi': 'Pastikan ibu mendapatkan waktu istirahat yang cukup dan dukungan emosional dari keluarga.',
-          'tipe': 'peringatan',
-          'berisiko': true,
+  @override
+  State<NotifikasiAyahPage> createState() => _NotifikasiAyahPageState();
+}
+
+class _NotifikasiAyahPageState extends State<NotifikasiAyahPage> {
+  List<Map<String, dynamic>> data = [];
+
+  @override
+  void initState() {
+    super.initState();
+    _loadNotif();
+  }
+
+  Future<void> _loadNotif() async {
+    final result = await _fetchBackendNotifications();
+    if (!mounted) return;
+    setState(() => data = result.reversed.toList());
+  }
+
+  Future<List<Map<String, dynamic>>> _fetchBackendNotifications() async {
+    final token = await Session.getToken();
+    if (token == null || token.isEmpty) {
+      return NotifStorage.getAllFather();
+    }
+
+    try {
+      final response = await http.get(
+        Uri.parse('${Api.baseUrl}/notifications?limit=50'),
+        headers: {
+          'Authorization': 'Bearer $token',
+          'Accept': 'application/json',
         },
-      ],
-    },
-    {
-      'section': 'KEMARIN',
-      'isNew': false,
-      'items': [
-        {
-          'judul': 'Kondisi Istri Terpantau Stabil',
-          'deskripsi': 'Pemantauan terakhir menunjukkan kondisi emosional ibu dalam keadaan baik.',
-          'tipe': 'stabil',
-          'berisiko': false,
-        },
-      ],
-    },
-    {
-      'section': '26 MEI 2026',
-      'isNew': false,
-      'items': [
-        {
-          'judul': 'Kondisi Istri Terpantau Stabil',
-          'deskripsi': 'Pemantauan terakhir menunjukkan kondisi emosional ibu dalam keadaan baik.',
-          'tipe': 'stabil',
-          'berisiko': false,
-        },
-        {
-          'judul': 'Koneksi Berhasil Terhubung',
-          'deskripsi': 'Akun anda sekarang telah terhubung dengan istri anda.',
-          'tipe': 'koneksi',
-          'berisiko': false,
-        },
-      ],
-    },
-  ];
+      );
+
+      if (response.statusCode != 200) {
+        return NotifStorage.getAllFather();
+      }
+
+      final body = jsonDecode(response.body) as Map<String, dynamic>;
+      final items = body['data']?['items'] as List? ?? [];
+
+      return items.map<Map<String, dynamic>>((item) {
+        final map = Map<String, dynamic>.from(item as Map);
+        return {
+          'title': map['title'] ?? '',
+          'body': map['message'] ?? '',
+          'type': map['type'] ?? 'stabil',
+          'berisiko': map['type'] == 'peringatan',
+          'time': map['created_at'] ?? DateTime.now().toIso8601String(),
+        };
+      }).toList();
+    } catch (_) {
+      return NotifStorage.getAllFather();
+    }
+  }
+
+  Map<String, List<Map<String, dynamic>>> _groupData() {
+    final grouped = <String, List<Map<String, dynamic>>>{};
+    final now = DateTime.now();
+    final yesterday = now.subtract(const Duration(days: 1));
+
+    for (final item in data) {
+      final date = DateTime.tryParse(item['time']?.toString() ?? '')?.toLocal();
+      if (date == null) continue;
+
+      final key = date.year == now.year &&
+              date.month == now.month &&
+              date.day == now.day
+          ? 'HARI INI'
+          : date.year == yesterday.year &&
+                  date.month == yesterday.month &&
+                  date.day == yesterday.day
+              ? 'KEMARIN'
+              : '${date.day}-${date.month}-${date.year}';
+
+      grouped.putIfAbsent(key, () => []);
+      grouped[key]!.add(item);
+    }
+
+    return grouped;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final grouped = _groupData();
+
     return Scaffold(
       backgroundColor: WarnaUtama.background,
       body: SafeArea(
@@ -72,11 +116,26 @@ class NotifikasiAyahPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ..._notifikasiList.map((section) => NotifikasiSection(
-                          label: section['section'] as String,
-                          isNew: section['isNew'] as bool,
-                          items: List<Map<String, dynamic>>.from(section['items']),
-                        )),
+                    if (data.isEmpty)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 50),
+                          child: Text("Belum ada notifikasi"),
+                        ),
+                      )
+                    else
+                      ...grouped.entries.map((entry) => NotifikasiSection(
+                            label: entry.key,
+                            isNew: entry.key == 'HARI INI',
+                            items: entry.value.map((e) {
+                              return {
+                                'judul': e['title'] ?? '',
+                                'deskripsi': e['body'] ?? '',
+                                'tipe': e['type'] ?? 'stabil',
+                                'berisiko': e['berisiko'] ?? false,
+                              };
+                            }).toList(),
+                          )),
 
                     // Footer
                     const SizedBox(height: 32),

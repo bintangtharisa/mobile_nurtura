@@ -208,19 +208,30 @@ class _BerandaAyahPageState extends State<BerandaAyahPage> {
                       itemBuilder: (context, index) {
                         final artikel = articles[index];
                         final category = artikel['category']?['name'] ?? 'Umum';
+                        final articleId =
+                            (artikel['_id'] ?? artikel['id'] ?? '').toString();
+                        final description =
+                            (artikel['description'] ?? artikel['content'] ?? '')
+                                .toString();
                         return ArtikelCard(
                           kategori: category,
                           title: artikel['title'] ?? 'Tanpa Judul',
-                          durasi: '${artikel['description']?.length ?? 0} karakter',
+                          durasi:
+                              '${(description.split(RegExp(r'\s+')).length / 200).ceil()} menit baca',
                           icon: _getIconForCategory(category),
                           onTap: () => Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => ArtikelDetailPage(
-                                artikelId: artikel['id'].toString(),
+                                artikelId: articleId,
                                 judul: artikel['title'] ?? 'Tanpa Judul',
                                 kategori: category,
-                                durasi: '${artikel['description']?.length ?? 0} karakter',
+                                durasi:
+                                    '${(description.split(RegExp(r'\s+')).length / 200).ceil()} menit baca',
+                                initialContent: description,
+                                initialThumbnail:
+                                    (artikel['thumbnail'] ?? artikel['image'])
+                                        ?.toString(),
                               ),
                             ),
                           ),

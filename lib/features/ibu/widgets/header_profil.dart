@@ -54,9 +54,13 @@ class _HeaderProfilState extends State<HeaderProfil> {
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.center,
         children: [
-          const CircleAvatar(
+          CircleAvatar(
             radius: 24,
-            backgroundImage: AssetImage('assets/profile.jpg'),
+            backgroundColor: WarnaUtama.primary.withOpacity(0.3),
+            child: const Icon(
+              Icons.person,
+              color: WarnaUtama.secondary,
+            ),
           ),
           const SizedBox(width: 12),
           Expanded(

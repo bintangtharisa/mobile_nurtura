@@ -39,20 +39,9 @@ class ArtikelHorizontal extends StatelessWidget {
                           width: 180,
                           height: 160,
                           fit: BoxFit.cover,
+                          errorBuilder: (_, __, ___) => _placeholder(),
                         )
-                      : Container(
-                          width: 180,
-                          height: 160,
-                          decoration: BoxDecoration(
-                            color: WarnaUtama.primary.withOpacity(0.3),
-                            borderRadius: BorderRadius.circular(16),
-                          ),
-                          child: Icon(
-                            Icons.image_outlined,
-                            size: 48,
-                            color: WarnaUtama.secondary,
-                          ),
-                        ),
+                      : _placeholder(),
                 ),
                 // Badge kategori
                 Positioned(
@@ -108,6 +97,22 @@ class ArtikelHorizontal extends StatelessWidget {
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _placeholder() {
+    return Container(
+      width: 180,
+      height: 160,
+      decoration: BoxDecoration(
+        color: WarnaUtama.primary.withOpacity(0.3),
+        borderRadius: BorderRadius.circular(16),
+      ),
+      child: Icon(
+        Icons.image_outlined,
+        size: 48,
+        color: WarnaUtama.secondary,
       ),
     );
   }

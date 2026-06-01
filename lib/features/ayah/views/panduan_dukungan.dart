@@ -159,7 +159,23 @@ class _PanduanDukunganPageState extends State<PanduanDukunganPage> {
                                             judul: item['judul'] as String,
                                             subjudul: item['subjudul'] as String,
                                             warnaKategori: item['warnaKategori'] as Color,
-                                            onTap: () {},
+                                            gambar: item['thumbnail'] != null &&
+                                                    item['thumbnail'].toString().isNotEmpty
+                                                ? NetworkImage(item['thumbnail'].toString())
+                                                : null,
+                                            onTap: () => Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) => ArtikelDetailPage(
+                                                  artikelId: item['id'].toString(),
+                                                  judul: item['judul'] ?? 'Tanpa Judul',
+                                                  kategori: item['kategori'] ?? 'Lainnya',
+                                                  durasi: '1 menit baca',
+                                                  initialContent: item['description'],
+                                                  initialThumbnail: item['thumbnail'],
+                                                ),
+                                              ),
+                                            ),
                                           );
                                         },
                                       ),
@@ -224,6 +240,8 @@ class _PanduanDukunganPageState extends State<PanduanDukunganPage> {
                                                   judul: artikel['title'] ?? 'Tanpa Judul',
                                                   kategori: artikel['kategori'] ?? 'Lainnya',
                                                   durasi: artikel['durasi'] ?? '0 menit',
+                                                  initialContent: artikel['description'],
+                                                  initialThumbnail: artikel['thumbnail'],
                                                 ),
                                               ),
                                             ),

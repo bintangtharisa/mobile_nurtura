@@ -1,12 +1,16 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/warna_utama.dart';
 import '../widgets/header.dart';
+import '../../ibu/services/article_service.dart';
+import '../../../utils/api.dart';
 
 class ArtikelDetailPage extends StatelessWidget {
   final String artikelId;
   final String judul;
   final String kategori;
   final String durasi;
+  final String? initialContent;
+  final String? initialThumbnail;
 
   const ArtikelDetailPage({
     super.key,
@@ -14,7 +18,39 @@ class ArtikelDetailPage extends StatelessWidget {
     required this.judul,
     required this.kategori,
     required this.durasi,
+    this.initialContent,
+    this.initialThumbnail,
   });
+
+  String _categoryName(dynamic category) {
+    if (category is Map) return (category['name'] ?? kategori).toString();
+    return (category ?? kategori).toString();
+  }
+
+  String _content(Map<String, dynamic>? article) {
+    return (article?['content'] ??
+            article?['description'] ??
+            article?['excerpt'] ??
+            initialContent ??
+            'Konten artikel belum tersedia.')
+        .toString();
+  }
+
+  String? _thumbnail(Map<String, dynamic>? article) {
+    final raw = article?['thumbnail'] ?? article?['image'] ?? initialThumbnail;
+    if (raw == null || raw.toString().isEmpty) return null;
+    final value = raw.toString();
+    if (value.startsWith('http://') || value.startsWith('https://')) {
+      return value;
+    }
+    final origin = Api.baseUrl.replaceFirst('/api', '');
+    return value.startsWith('/') ? '$origin$value' : '$origin/storage/$value';
+  }
+
+  Future<Map<String, dynamic>?> _loadArticle() async {
+    if (artikelId.isEmpty || artikelId == 'null') return null;
+    return ArticleService.getArticle(artikelId);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,107 +68,126 @@ class ArtikelDetailPage extends StatelessWidget {
               ),
             ),
             Expanded(
-              child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-                child: Column(
-                  crossAxisAlignment: CrossAxisAlignment.start,
-                  children: [
-                    // Thumbnail
-                    Container(
-                      width: double.infinity,
-                      height: 200,
-                      decoration: BoxDecoration(
-                        color: WarnaUtama.primary.withOpacity(0.2),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Icon(
-                        Icons.article_outlined,
-                        size: 64,
-                        color: WarnaUtama.secondary.withOpacity(0.5),
-                      ),
-                    ),
+              child: FutureBuilder<Map<String, dynamic>?>(
+                future: _loadArticle(),
+                builder: (context, snapshot) {
+                  final article = snapshot.data;
+                  final title = (article?['title'] ?? judul).toString();
+                  final category = _categoryName(article?['category']);
+                  final content = _content(article);
+                  final thumbnail = _thumbnail(article);
+                  final readingTime = durasi.isNotEmpty
+                      ? durasi
+                      : '${(content.split(RegExp(r'\s+')).length / 200).ceil()} menit baca';
 
-                    const SizedBox(height: 20),
+                  if (snapshot.connectionState == ConnectionState.waiting &&
+                      initialContent == null) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
 
-                    // Badge kategori
-                    Container(
-                      padding: const EdgeInsets.symmetric(
-                          horizontal: 12, vertical: 4),
-                      decoration: BoxDecoration(
-                        color: WarnaUtama.secondary.withOpacity(0.15),
-                        borderRadius: BorderRadius.circular(20),
-                      ),
-                      child: Text(
-                        kategori.toUpperCase(),
-                        style: TextStyle(
-                          fontFamily: 'Manrope',
-                          fontSize: 11,
-                          fontWeight: FontWeight.w600,
-                          color: WarnaUtama.secondary,
-                          letterSpacing: 0.8,
-                        ),
-                      ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Judul
-                    Text(
-                      judul,
-                      style: const TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 22,
-                        fontWeight: FontWeight.bold,
-                        color: WarnaUtama.text1,
-                        height: 1.4,
-                      ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    // Durasi baca
-                    Row(
+                  return SingleChildScrollView(
+                    padding: const EdgeInsets.symmetric(horizontal: 20),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        Icon(
-                          Icons.access_time,
-                          size: 14,
-                          color: WarnaUtama.text1.withOpacity(0.4),
+                        ClipRRect(
+                          borderRadius: BorderRadius.circular(20),
+                          child: thumbnail != null
+                              ? Image.network(
+                                  thumbnail,
+                                  width: double.infinity,
+                                  height: 220,
+                                  fit: BoxFit.cover,
+                                  errorBuilder: (_, __, ___) => _placeholder(),
+                                )
+                              : _placeholder(),
                         ),
-                        const SizedBox(width: 4),
-                        Text(
-                          durasi,
-                          style: TextStyle(
-                            fontFamily: 'Manrope',
-                            fontSize: 13,
-                            color: WarnaUtama.text1.withOpacity(0.4),
+                        const SizedBox(height: 20),
+                        Container(
+                          padding: const EdgeInsets.symmetric(
+                              horizontal: 12, vertical: 4),
+                          decoration: BoxDecoration(
+                            color: WarnaUtama.secondary.withOpacity(0.15),
+                            borderRadius: BorderRadius.circular(20),
+                          ),
+                          child: Text(
+                            category.toUpperCase(),
+                            style: TextStyle(
+                              fontFamily: 'Manrope',
+                              fontSize: 11,
+                              fontWeight: FontWeight.w600,
+                              color: WarnaUtama.secondary,
+                              letterSpacing: 0.8,
+                            ),
                           ),
                         ),
+                        const SizedBox(height: 12),
+                        Text(
+                          title,
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 22,
+                            fontWeight: FontWeight.bold,
+                            color: WarnaUtama.text1,
+                            height: 1.4,
+                          ),
+                        ),
+                        const SizedBox(height: 12),
+                        Row(
+                          children: [
+                            Icon(
+                              Icons.access_time,
+                              size: 14,
+                              color: WarnaUtama.text1.withOpacity(0.4),
+                            ),
+                            const SizedBox(width: 4),
+                            Text(
+                              readingTime,
+                              style: TextStyle(
+                                fontFamily: 'Manrope',
+                                fontSize: 13,
+                                color: WarnaUtama.text1.withOpacity(0.4),
+                              ),
+                            ),
+                          ],
+                        ),
+                        const SizedBox(height: 20),
+                        Divider(color: WarnaUtama.primary.withOpacity(0.3)),
+                        const SizedBox(height: 20),
+                        Text(
+                          content,
+                          style: const TextStyle(
+                            fontFamily: 'Manrope',
+                            fontSize: 15,
+                            color: WarnaUtama.text1,
+                            height: 1.8,
+                          ),
+                        ),
+                        const SizedBox(height: 32),
                       ],
                     ),
-
-                    const SizedBox(height: 20),
-
-                    Divider(color: WarnaUtama.primary.withOpacity(0.3)),
-
-                    const SizedBox(height: 20),
-
-                    const Text(
-                      'Lorem ipsum dolor sit amet, consectetur adipiscing elit. Sed do eiusmod tempor incididunt ut labore et dolore magna aliqua. Ut enim ad minim veniam, quis nostrud exercitation ullamco laboris.\n\nDuis aute irure dolor in reprehenderit in voluptate velit esse cillum dolore eu fugiat nulla pariatur. Excepteur sint occaecat cupidatat non proident, sunt in culpa qui officia deserunt mollit anim id est laborum.\n\nSed ut perspiciatis unde omnis iste natus error sit voluptatem accusantium doloremque laudantium, totam rem aperiam, eaque ipsa quae ab illo inventore veritatis.',
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 15,
-                        color: WarnaUtama.text1,
-                        height: 1.8,
-                      ),
-                    ),
-
-                    const SizedBox(height: 32),
-                  ],
-                ),
+                  );
+                },
               ),
             ),
           ],
         ),
+      ),
+    );
+  }
+
+  Widget _placeholder() {
+    return Container(
+      width: double.infinity,
+      height: 220,
+      decoration: BoxDecoration(
+        color: WarnaUtama.primary.withOpacity(0.2),
+        borderRadius: BorderRadius.circular(20),
+      ),
+      child: Icon(
+        Icons.article_outlined,
+        size: 64,
+        color: WarnaUtama.secondary.withOpacity(0.5),
       ),
     );
   }

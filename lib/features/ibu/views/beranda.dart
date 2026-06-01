@@ -203,8 +203,11 @@ class _BerandaPageState extends State<BerandaPage> {
                                         artikelId: tips['id'].toString(),
                                         judul: tips['judul'],
                                         kategori: tips['kategori'],
-                                        durasi: '${tips['deskripsi']?.length ?? 0} karakter',
-                                ),
+                                        durasi:
+                                            '${((tips['deskripsi'] ?? '').toString().split(RegExp(r'\s+')).length / 200).ceil()} menit baca',
+                                        initialContent: tips['deskripsi'],
+                                        initialThumbnail: tips['thumbnail'],
+                                      ),
                                     ),
                                   ),
                                 ),

@@ -16,7 +16,6 @@ class AuthService {
         "Content-Type": "application/json",
       };
 
-      // hanya kirim token jika ada
       if (token != null && token.isNotEmpty) {
         headers["Authorization"] = "Bearer $token";
       }
@@ -32,7 +31,6 @@ class AuthService {
       print("LOGIN BODY: ${response.body}");
 
       dynamic data;
-
       try {
         data = jsonDecode(response.body);
       } catch (_) {
@@ -44,18 +42,15 @@ class AuthService {
       }
 
       if (response.statusCode == 200) {
-        // simpan token baru dari Laravel
         if (data['token'] != null) {
           await Session.saveToken(data['token']);
         }
-
         return {"success": true, "data": data};
       } else {
         return {"success": false, "message": data['message'] ?? "Login gagal"};
       }
     } catch (e) {
       print("LOGIN ERROR: $e");
-
       return {"success": false, "message": "Error: $e"};
     }
   }
@@ -130,7 +125,6 @@ class AuthService {
       print("USER BODY: ${response.body}");
 
       dynamic data;
-
       try {
         data = jsonDecode(response.body);
       } catch (_) {
@@ -238,6 +232,9 @@ class AuthService {
         },
       );
 
+      print("KONEKSI STATUS: ${response.statusCode}");
+      print("KONEKSI BODY: ${response.body}");
+
       dynamic data;
       try {
         data = jsonDecode(response.body);
@@ -267,14 +264,17 @@ class AuthService {
       final token = await Session.getToken();
 
       final response = await http.put(
-        Uri.parse("${Api.baseUrl}/user/update"),
+        Uri.parse("${Api.baseUrl}/profile"),
         headers: {
           "Authorization": "Bearer $token",
           "Accept": "application/json",
           "Content-Type": "application/json",
         },
-        body: jsonEncode({"name": nama, "email": email}),
+        body: jsonEncode({"username": nama}),
       );
+
+      print("UPDATE PROFIL STATUS: ${response.statusCode}");
+      print("UPDATE PROFIL BODY: ${response.body}");
 
       dynamic data;
       try {
@@ -356,6 +356,81 @@ class AuthService {
       }
     } catch (e) {
       print("CHANGE PASSWORD SERVICE: Exception - $e");
+      return {"success": false, "message": "Error: $e"};
+    }
+  }
+
+  // ================= TERIMA KONEKSI =================
+  static Future<Map<String, dynamic>> terimaKoneksi(String fatherId) async {
+    try {
+      final token = await Session.getToken();
+
+      final response = await http.patch(
+        Uri.parse("${Api.baseUrl}/father/accept"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+        body: jsonEncode({"father_id": fatherId}),
+      );
+
+      print("TERIMA KONEKSI STATUS: ${response.statusCode}");
+      print("TERIMA KONEKSI BODY: ${response.body}");
+
+      dynamic data;
+      try {
+        data = jsonDecode(response.body);
+      } catch (_) {
+        return {"success": false, "message": "Response bukan JSON"};
+      }
+
+      if (response.statusCode == 200) {
+        return {"success": true, "data": data};
+      } else {
+        return {
+          "success": false,
+          "message": data['message'] ?? "Gagal terima koneksi",
+        };
+      }
+    } catch (e) {
+      return {"success": false, "message": "Error: $e"};
+    }
+  }
+
+  // ================= TOLAK KONEKSI =================
+  static Future<Map<String, dynamic>> tolakKoneksi() async {
+    try {
+      final token = await Session.getToken();
+
+      final response = await http.patch(
+        Uri.parse("${Api.baseUrl}/father/block"),
+        headers: {
+          "Authorization": "Bearer $token",
+          "Accept": "application/json",
+          "Content-Type": "application/json",
+        },
+      );
+
+      print("TOLAK KONEKSI STATUS: ${response.statusCode}");
+      print("TOLAK KONEKSI BODY: ${response.body}");
+
+      dynamic data;
+      try {
+        data = jsonDecode(response.body);
+      } catch (_) {
+        return {"success": false, "message": "Response bukan JSON"};
+      }
+
+      if (response.statusCode == 200) {
+        return {"success": true, "data": data};
+      } else {
+        return {
+          "success": false,
+          "message": data['message'] ?? "Gagal tolak koneksi",
+        };
+      }
+    } catch (e) {
       return {"success": false, "message": "Error: $e"};
     }
   }

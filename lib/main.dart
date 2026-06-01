@@ -1,7 +1,12 @@
 import 'package:flutter/material.dart';
 import 'features/shared/views/screen_loading.dart';
+import 'services/notification_service.dart';
 
-void main() {
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+
+  await NotificationService.init();
+
   runApp(const MyApp());
 }
 
@@ -10,9 +15,9 @@ class MyApp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return MaterialApp(
+    return const MaterialApp(
       debugShowCheckedModeBanner: false,
-      home: const ScreenLoading(),
+      home: ScreenLoading(),
     );
   }
 }

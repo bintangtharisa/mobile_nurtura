@@ -2,10 +2,9 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../services/session.dart';
 import '../services/auth_service.dart';
+import '../utils/api.dart';
 
 class LaravelService {
-  static const String _baseUrl = 'http://127.0.0.1:8000/api';
-
   static Future<Map<String, dynamic>> saveScreening({
     required List<int?> jawaban,
   }) async {
@@ -84,26 +83,45 @@ class LaravelService {
 
     // ----------------------------------------------------
     // REQUEST
-    final response = await http.post(
-      Uri.parse('$_baseUrl/mother/screening'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(payload),
-    );
+    final response = await http
+        .post(
+          Uri.parse('${Api.baseUrl}/mother/screening'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(payload),
+        )
+        .timeout(
+          const Duration(seconds: 45),
+          onTimeout: () => throw Exception('Request timeout ke Laravel'),
+        );
 
     print('STATUS: ${response.statusCode}');
     print('RESPONSE: ${response.body}');
 
+    final body = jsonDecode(response.body);
+
     if (response.statusCode != 200) {
+      final message = body is Map<String, dynamic>
+          ? body['message'] ?? body['error'] ?? response.body
+          : response.body;
+
       throw Exception(
         'Gagal kirim ke Laravel: '
-        '${response.statusCode} ${response.body}',
+        '${response.statusCode} $message',
       );
     }
 
-    return jsonDecode(response.body);
+    final data = Map<String, dynamic>.from(body as Map);
+    final prediction = data['prediction'];
+
+    if (prediction is Map<String, dynamic>) {
+      data['result'] = data['result'] ?? prediction['result'];
+      data['recommendation'] = data['recommendation'] ?? prediction['recommendation'];
+    }
+
+    return data;
   }
 }

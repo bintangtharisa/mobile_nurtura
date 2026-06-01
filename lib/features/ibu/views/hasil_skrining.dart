@@ -16,19 +16,15 @@ class HasilSkriningPage extends StatelessWidget {
     this.rekomendasi = const [],
   });
 
-  bool get berisiko => result.toLowerCase().trim() == "beresiko depresi";
+  bool get berisiko => result.toLowerCase().contains("beresiko");
 
-  static const List<String> _rekomendasiBerisiko = [
-    'Utamakan istirahat setiap kali bayi Anda tidur.',
-    'Bicaralah secara terbuka kepada pasangan Anda tentang perasaan Anda.',
-    'Tetap terhidrasi dan jaga keseimbangan nutrisi.',
-  ];
+  List<String> get _rekomendasiTampil {
+    if (rekomendasi.isNotEmpty) return rekomendasi;
 
-  static const List<String> _rekomendasiAman = [
-    'Utamakan istirahat setiap kali bayi Anda tidur.',
-    'Bicaralah secara terbuka kepada pasangan Anda tentang perasaan Anda.',
-    'Tetap terhidrasi dan jaga keseimbangan nutrisi.',
-  ];
+    return [
+      'Rekomendasi AI belum tersedia untuk hasil ini. Silakan coba ulangi skrining atau periksa koneksi ML API.',
+    ];
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -71,9 +67,7 @@ class HasilSkriningPage extends StatelessWidget {
 
                     // Rekomendasi + tombol
                     RekomendasiList(
-                      rekomendasi: berisiko
-                          ? _rekomendasiBerisiko
-                          : _rekomendasiAman,
+                      rekomendasi: _rekomendasiTampil,
                       onKembali: () {
                         Navigator.popUntil(context, (route) => route.isFirst);
                       },

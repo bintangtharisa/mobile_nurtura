@@ -5,7 +5,7 @@ import '../widgets/status_card.dart';
 import '../../shared/widgets/artikel_card.dart';
 import '../../../services/father_service.dart';
 import '../../shared/widgets/chatbot_card.dart';
-import '../../shared/views/lihat_tips_page.dart';
+import '../../shared/views/lihat_artikel_page.dart';
 import 'notifikasi_ayah_page.dart';
 import '../../shared/views/chatbot_page.dart';
 import '../../shared/views/artikel_detail_page.dart';

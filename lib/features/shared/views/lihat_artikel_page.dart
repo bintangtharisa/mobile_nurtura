@@ -86,7 +86,7 @@ class _LihatTipsPageState extends State<LihatTipsPage> {
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
               child: CardHeader(
-                title: 'Lihat Tips',
+                title: 'Lihat Artikel',
                 leftIcon: Icons.chevron_left,
                 onLeftTap: () => Navigator.pop(context),
               ),

@@ -5,12 +5,14 @@ class TipsCard extends StatelessWidget {
   final String title;
   final String duration;
   final IconData icon;
+  final VoidCallback? onTap;
 
   const TipsCard({
     super.key,
     required this.title,
     required this.duration,
     required this.icon,
+    this.onTap,
   });
 
   @override

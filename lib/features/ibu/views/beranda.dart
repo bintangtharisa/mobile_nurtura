@@ -9,6 +9,7 @@ import '../services/article_service.dart';
 import '../../shared/widgets/chatbot_card.dart';
 import 'notifikasi_ibu_page.dart';
 import '../../shared/views/chatbot_page.dart';
+import '../../shared/views/artikel_detail_page.dart';
 
 class BerandaPage extends StatefulWidget {
   final VoidCallback? onKoneksiTap;
@@ -195,6 +196,17 @@ class _BerandaPageState extends State<BerandaPage> {
                                   title: tips['judul'] ?? '',
                                   duration: _formatKategori(tips['kategori'] ?? ''),
                                   icon: _getIcon(tips['kategori'] ?? ''),
+                                  onTap: () => Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => ArtikelDetailPage(
+                                        artikelId: tips['id'].toString(),
+                                        judul: tips['judul'],
+                                        kategori: tips['kategori'],
+                                        durasi: '${tips['deskripsi']?.length ?? 0} karakter',
+                                ),
+                                    ),
+                                  ),
                                 ),
                               );
                             },

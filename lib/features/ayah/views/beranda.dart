@@ -8,6 +8,7 @@ import '../../shared/widgets/chatbot_card.dart';
 import '../../shared/views/lihat_tips_page.dart';
 import 'notifikasi_ayah_page.dart';
 import '../../shared/views/chatbot_page.dart';
+import '../../shared/views/artikel_detail_page.dart';
 
 class BerandaAyahPage extends StatefulWidget {
   const BerandaAyahPage({super.key});
@@ -212,7 +213,17 @@ class _BerandaAyahPageState extends State<BerandaAyahPage> {
                           title: artikel['title'] ?? 'Tanpa Judul',
                           durasi: '${artikel['description']?.length ?? 0} karakter',
                           icon: _getIconForCategory(category),
-                          onTap: () {},
+                          onTap: () => Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => ArtikelDetailPage(
+                                artikelId: artikel['id'].toString(),
+                                judul: artikel['title'] ?? 'Tanpa Judul',
+                                kategori: category,
+                                durasi: '${artikel['description']?.length ?? 0} karakter',
+                              ),
+                            ),
+                          ),
                         );
                       },
                     ),

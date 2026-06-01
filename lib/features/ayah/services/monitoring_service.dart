@@ -1,13 +1,14 @@
 import 'dart:convert';
 import 'package:flutter/foundation.dart';
-import 'package:flutter/material.dart';
 import 'package:http/http.dart' as http;
+
 import '../../../utils/api.dart';
 import '../../../services/session.dart';
 
 class MonitoringServiceAyah {
   static Future<Map<String, String>> _buildHeaders() async {
     final token = await Session.getToken();
+
     return {
       'Content-Type': 'application/json',
       'Accept': 'application/json',
@@ -15,136 +16,111 @@ class MonitoringServiceAyah {
     };
   }
 
-  /// Fetch monitoring data from backend
   static Future<Map<String, dynamic>> getMonitoringData({
     String? chartPeriod,
     String? anonymousId,
     int? sinceDays,
   }) async {
-    try {
-      debugPrint('🔍 [MonitoringServiceAyah] Fetching monitoring data...');
-      
-      final headers = await _buildHeaders();
-      
-      final queryParams = <String, String>{};
-      if (chartPeriod != null) {
-        queryParams['chart_period'] = chartPeriod;
-      }
-      if (anonymousId != null && anonymousId.isNotEmpty) {
-        queryParams['anonymous_id'] = anonymousId;
-      }
-      if (sinceDays != null && sinceDays > 0) {
-        queryParams['since_days'] = sinceDays.toString();
-      }
+    final headers = await _buildHeaders();
 
-      final uri = Uri.parse('${Api.baseUrl}/father/monitoring')
-          .replace(queryParameters: queryParams.isNotEmpty ? queryParams : null);
-      
-      debugPrint('🌐 [MonitoringServiceAyah] Request URL: $uri');
+    final queryParams = <String, String>{};
 
-      final response = await http.get(
-        uri,
-        headers: headers,
-      ).timeout(
-        const Duration(seconds: 10),
-        onTimeout: () => throw Exception('Request timeout'),
-      );
-
-      debugPrint('📡 [MonitoringServiceAyah] Response status: ${response.statusCode}');
-      debugPrint('📄 [MonitoringServiceAyah] Response body: ${response.body}');
-
-      if (response.statusCode == 200) {
-        final data = jsonDecode(response.body) as Map<String, dynamic>;
-        debugPrint('✅ [MonitoringServiceAyah] Success!');
-        debugPrint('🔗 [MonitoringServiceAyah] is_connected: ${data['is_connected']}');
-        debugPrint('👥 [MonitoringServiceAyah] mothers count: ${data['mothers']?.length ?? 0}');
-        if (data['mothers'] != null && data['mothers'].isNotEmpty) {
-          debugPrint('👤 [MonitoringServiceAyah] First mother: ${data['mothers'][0]}');
-        }
-        return data;
-      } else if (response.statusCode == 401) {
-        debugPrint('❌ [MonitoringServiceAyah] Unauthorized error');
-        throw Exception('Unauthorized - silakan login ulang');
-      } else if (response.statusCode == 403) {
-        debugPrint('❌ [MonitoringServiceAyah] Forbidden error');
-        final errorData = jsonDecode(response.body);
-        throw Exception(errorData['message'] ?? 'Forbidden - anda tidak memiliki akses');
-      } else if (response.statusCode == 404) {
-        debugPrint('❌ [MonitoringServiceAyah] Not found error');
-        final errorData = jsonDecode(response.body);
-        throw Exception(errorData['message'] ?? 'Data tidak ditemukan');
-      } else {
-        debugPrint('❌ [MonitoringServiceAyah] HTTP error ${response.statusCode}');
-        throw Exception('Failed to load monitoring data (${response.statusCode})');
-      }
-    } catch (e) {
-      debugPrint('💥 [MonitoringServiceAyah] Exception caught: $e');
-      rethrow;
+    if (chartPeriod != null) queryParams['chart_period'] = chartPeriod;
+    if (anonymousId != null && anonymousId.isNotEmpty) {
+      queryParams['anonymous_id'] = anonymousId;
     }
+    if (sinceDays != null && sinceDays > 0) {
+      queryParams['since_days'] = sinceDays.toString();
+    }
+
+    final uri = Uri.parse('${Api.baseUrl}/father/monitoring')
+        .replace(queryParameters: queryParams.isNotEmpty ? queryParams : null);
+
+    final response = await http.get(uri, headers: headers).timeout(
+      const Duration(seconds: 10),
+      onTimeout: () => throw Exception('Request timeout'),
+    );
+
+    if (response.statusCode != 200) {
+      throw Exception('HTTP ${response.statusCode}');
+    }
+
+    return jsonDecode(response.body);
   }
 
-  /// Format chart data for UI
   static List<double> formatChartData(Map<String, dynamic>? chartData) {
     if (chartData == null) return [];
-    
+
     final values = chartData['values'] as List<dynamic>?;
+
     if (values == null) return [];
-    
-    return values.map((v) => (v as num).toDouble()).toList();
+
+    return values.map((e) => (e as num).toDouble()).toList();
   }
 
-  /// Format screening history for UI
+  /// 🔥 SINGLE SOURCE OF TRUTH
+  static bool isRisky(dynamic result, dynamic cluster) {
+    if (cluster != null) {
+      final c = int.tryParse(cluster.toString());
+      if (c != null) return c == 0;
+    }
+
+    final r = result.toString().toLowerCase().trim();
+
+    const risky = [
+      'berisiko depresi',
+      'high risk',
+      'risiko tinggi',
+    ];
+
+    const safe = [
+      'tidak berisiko depresi',
+      'low risk',
+      'aman',
+    ];
+
+    if (risky.contains(r)) return true;
+    if (safe.contains(r)) return false;
+
+    return false;
+  }
+
   static List<Map<String, dynamic>> formatHistoryList(List<dynamic>? data) {
     if (data == null) return [];
-    
+
     return data.map((item) {
-      final itemMap = item as Map<String, dynamic>;
-      final result = itemMap['result'] as String? ?? 'Tidak Diketahui';
-      final createdAt = itemMap['created_at'] as String?;
-      
+      final map = item as Map<String, dynamic>;
+
+      final result = map['result'] ?? '';
+      final cluster = map['cluster'];
+
       return {
-        'tanggal': _formatDate(createdAt),
+        'id': map['id']?.toString(),
+        'tanggal': _formatDate(map['created_at']),
         'status': _formatStatus(result),
-        'berisiko': _isRisky(result),
-        'id': itemMap['id'] as String?,
+        'cluster': cluster,
+        'berisiko': isRisky(result, cluster), // 🔥 ONLY SOURCE
       };
     }).toList();
   }
 
   static String _formatDate(String? dateStr) {
     if (dateStr == null || dateStr.isEmpty) return '-';
+
     try {
       final date = DateTime.parse(dateStr);
-      return '${date.day} ${_getMonthName(date.month)} ${date.year}';
-    } catch (e) {
+      return '${date.day}/${date.month}/${date.year}';
+    } catch (_) {
       return dateStr;
     }
   }
 
-  static String _getMonthName(int month) {
-    const months = [
-      'Januari', 'Februari', 'Maret', 'April', 'Mei', 'Juni',
-      'Juli', 'Agustus', 'September', 'Oktober', 'November', 'Desember'
-    ];
-    return months[month - 1];
-  }
+  static String _formatStatus(dynamic result) {
+    final r = result.toString().toLowerCase();
 
-  static String _formatStatus(String result) {
-    switch (result.toLowerCase()) {
-      case 'berisiko':
-      case 'high risk':
-        return 'Berisiko Depresi';
-      case 'tidak berisiko':
-      case 'low risk':
-      case 'normal':
-        return 'Tidak Berisiko Depresi';
-      default:
-        return result;
-    }
-  }
+    if (r.contains('tidak berisiko')) return 'Tidak Berisiko Depresi';
+    if (r.contains('berisiko')) return 'Berisiko Depresi';
 
-  static bool _isRisky(String result) {
-    return result.toLowerCase().contains('berisiko') || 
-           result.toLowerCase().contains('high risk');
+    return result.toString();
   }
 }

@@ -17,17 +17,22 @@ class RiwayatCard extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final Color warnaBg = berisiko
-        ? WarnaUtama.beresiko.withOpacity(0.6)
-        : WarnaUtama.button;
+    final Color baseColor =
+        berisiko ? Colors.red : Colors.green;
 
     return GestureDetector(
       onTap: onTap,
       child: Container(
-        padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 14),
+        padding: const EdgeInsets.symmetric(
+          horizontal: 16,
+          vertical: 14,
+        ),
         decoration: BoxDecoration(
-          color: WarnaUtama.form,
+          color: baseColor.withOpacity(0.05), // background card
           borderRadius: BorderRadius.circular(16),
+          border: Border.all(
+            color: baseColor.withOpacity(0.25),
+          ),
         ),
         child: Row(
           children: [
@@ -35,20 +40,14 @@ class RiwayatCard extends StatelessWidget {
               width: 44,
               height: 44,
               decoration: BoxDecoration(
-                color: warnaBg,
+                color: baseColor.withOpacity(0.15),
                 borderRadius: BorderRadius.circular(12),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 8,
-                    offset: const Offset(0, 3),
-                  ),
-                ],
               ),
               child: Icon(
-                berisiko ? Icons.priority_high_rounded : Icons.health_and_safety_outlined,
-                size: 22,
-                color: WarnaUtama.text2,
+                berisiko
+                    ? Icons.warning_amber_rounded
+                    : Icons.check_circle_outline,
+                color: baseColor,
               ),
             ),
 
@@ -60,21 +59,15 @@ class RiwayatCard extends StatelessWidget {
                 Text(
                   tanggal,
                   style: const TextStyle(
-                    fontFamily: 'Manrope',
-                    fontSize: 15,
                     fontWeight: FontWeight.bold,
-                    color: WarnaUtama.text1,
                   ),
                 ),
                 const SizedBox(height: 2),
                 Text(
-                  status.toUpperCase(),
+                  status,
                   style: TextStyle(
-                    fontFamily: 'Manrope',
                     fontSize: 11,
-                    fontWeight: FontWeight.w600,
-                    color: WarnaUtama.text1.withOpacity(0.5),
-                    letterSpacing: 0.5,
+                    color: Colors.black54,
                   ),
                 ),
               ],

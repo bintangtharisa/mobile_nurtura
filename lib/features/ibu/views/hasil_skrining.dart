@@ -6,23 +6,26 @@ import '../widgets/rekomendasi_list.dart';
 
 class HasilSkriningPage extends StatelessWidget {
   final String result;
+  final int? cluster; // 🔥 PENTING: dari backend ML
   final List<int?> jawaban;
   final List<String> rekomendasi;
 
   const HasilSkriningPage({
     super.key,
     required this.result,
+    required this.cluster,
     required this.jawaban,
     this.rekomendasi = const [],
   });
 
-  bool get berisiko => result.toLowerCase().contains("beresiko");
+  // 🔥 FIX UTAMA: tidak pakai string sama sekali
+  bool get berisiko => cluster == 0;
 
   List<String> get _rekomendasiTampil {
     if (rekomendasi.isNotEmpty) return rekomendasi;
 
     return [
-      'Rekomendasi AI belum tersedia untuk hasil ini. Silakan coba ulangi skrining atau periksa koneksi ML API.',
+      'Rekomendasi AI belum tersedia untuk hasil ini. Silakan ulangi skrining atau cek koneksi server.',
     ];
   }
 
@@ -33,7 +36,7 @@ class HasilSkriningPage extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            // Header
+            // HEADER
             Padding(
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
               child: CardHeader(
@@ -44,7 +47,7 @@ class HasilSkriningPage extends StatelessWidget {
               ),
             ),
 
-            // Konten
+            // BODY
             Expanded(
               child: SingleChildScrollView(
                 padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -52,24 +55,25 @@ class HasilSkriningPage extends StatelessWidget {
                   children: [
                     const SizedBox(height: 16),
 
-                    // Status visual
+                    // STATUS
                     StatusSkrining(
                       berisiko: berisiko,
                       statusLabel: berisiko
                           ? 'Berisiko Depresi'
                           : 'Tidak Berisiko Depresi',
                       deskripsi: berisiko
-                          ? 'Ada beberapa tanda yang perlu dipentingkan. Hasil ini bukan diagnosis medis, tetapi indikasi awal yang perlu ditindaklanjuti.'
-                          : 'Kondisi anda saat ini stabil, tetap jaga kesehatan mental anda yaaa! 🤩',
+                          ? 'Ada beberapa tanda yang perlu diperhatikan. Ini bukan diagnosis medis, hanya skrining awal.'
+                          : 'Kondisi Anda saat ini stabil. Tetap jaga kesehatan mental Anda.',
                     ),
 
                     const SizedBox(height: 32),
 
-                    // Rekomendasi + tombol
+                    // REKOMENDASI
                     RekomendasiList(
                       rekomendasi: _rekomendasiTampil,
                       onKembali: () {
-                        Navigator.popUntil(context, (route) => route.isFirst);
+                        Navigator.popUntil(
+                            context, (route) => route.isFirst);
                       },
                     ),
 

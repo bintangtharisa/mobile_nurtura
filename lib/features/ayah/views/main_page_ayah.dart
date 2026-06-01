@@ -9,26 +9,29 @@ class MainPageAyah extends StatefulWidget {
   const MainPageAyah({super.key});
 
   @override
-  State<MainPageAyah> createState() => _MainPageState();
+  State<MainPageAyah> createState() => _MainPageAyahState();
 }
 
-class _MainPageState extends State<MainPageAyah> {
+class _MainPageAyahState extends State<MainPageAyah> {
   int _selectedIndex = 0;
-
-  late final List<Widget> _pages = [
-    BerandaAyahPage(),
-    MonitoringKondisiPage(onBack: () => setState(() => _selectedIndex = 0)),
-    PanduanDukunganPage(onBack: () => setState(() => _selectedIndex = 0)),
-    ProfilAyahPage(onBack: () => setState(() => _selectedIndex = 0)),
-  ];
 
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      body: _pages[_selectedIndex],
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: [
+          BerandaAyahPage(),
+          MonitoringKondisiPage(),
+          PanduanDukunganPage(),
+          ProfilAyahPage(),
+        ],
+      ),
       bottomNavigationBar: BottomNav(
         selectedIndex: _selectedIndex,
-        onTap: (index) => setState(() => _selectedIndex = index),
+        onTap: (index) {
+          setState(() => _selectedIndex = index);
+        },
       ),
     );
   }

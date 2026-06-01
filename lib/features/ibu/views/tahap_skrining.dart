@@ -16,27 +16,21 @@ class TahapSkriningPage extends StatefulWidget {
 
 class _TahapSkriningPageState extends State<TahapSkriningPage> {
   int _currentIndex = 0;
-
   bool _isLoading = false;
 
   static const List<Map<String, dynamic>> _pertanyaanList = [
     {
       'kategori': 'Kesejahteraan Emosional',
-      'pertanyaan':
-          'Dalam 7 hari terakhir, saya sering merasakan sedih dan sering menangis',
-      'subjudul':
-          'Pilih jawaban yang paling sesuai dengan perasaan Anda akhir-akhir ini.',
+      'pertanyaan': 'Dalam 7 hari terakhir, saya sering merasakan sedih dan sering menangis',
+      'subjudul': 'Pilih jawaban yang paling sesuai dengan perasaan Anda akhir-akhir ini.',
       'pilihan': ['Not at all', 'Sometimes', 'Yes'],
     },
-
     {
       'kategori': 'Kesejahteraan Emosional',
       'pertanyaan': 'Saya merasa cemas atau khawatir tanpa alasan yang jelas',
-      'subjudul':
-          'Pilih jawaban yang paling sesuai dengan perasaan Anda akhir-akhir ini.',
+      'subjudul': 'Pilih jawaban yang paling sesuai dengan perasaan Anda akhir-akhir ini.',
       'pilihan': ['Not at all', 'Sometimes', 'Yes'],
     },
-
     {
       'kategori': 'Pola Tidur',
       'pertanyaan': 'Saya mengalami kesulitan tidur meskipun bayi sedang tidur',
@@ -49,35 +43,30 @@ class _TahapSkriningPageState extends State<TahapSkriningPage> {
       'subjudul': 'Pilih jawaban yang paling sesuai dengan kondisi Anda.',
       'pilihan': ['Not at all', 'Often', 'Yes'],
     },
-
     {
       'kategori': 'Hubungan Sosial',
       'pertanyaan': 'Saya merasa sulit untuk terhubung dengan bayi saya',
       'subjudul': 'Pilih jawaban yang paling sesuai dengan perasaan Anda.',
       'pilihan': ['Not at all', 'Sometimes', 'Yes'],
     },
-
     {
       'kategori': 'Hubungan Sosial',
       'pertanyaan': 'Saya merasa tidak mendapat dukungan dari orang sekitar',
       'subjudul': 'Pilih jawaban yang paling sesuai dengan perasaan Anda.',
       'pilihan': ['Not at all', 'Sometimes', 'Yes'],
     },
-
     {
       'kategori': 'Kesehatan Fisik',
       'pertanyaan': 'Saya kehilangan nafsu makan atau makan berlebihan',
       'subjudul': 'Pilih jawaban yang paling sesuai dengan kondisi Anda.',
       'pilihan': ['Not at all', 'Sometimes', 'Yes'],
     },
-
     {
       'kategori': 'Kesejahteraan Emosional',
       'pertanyaan': 'Saya merasa tidak mampu menjadi ibu yang baik',
       'subjudul': 'Pilih jawaban yang paling sesuai dengan perasaan Anda.',
-      'pilihan': ['Not at all', 'Maybe', 'Yes'], // ✅ Sometimes → Maybe
+      'pilihan': ['Not at all', 'Maybe', 'Yes'],
     },
-
     {
       'kategori': 'Kesejahteraan Emosional',
       'pertanyaan': 'Saya pernah berpikir menyakiti diri sendiri',
@@ -86,70 +75,8 @@ class _TahapSkriningPageState extends State<TahapSkriningPage> {
     },
   ];
 
-  late final List<int?> _jawaban = List.filled(_pertanyaanList.length, null);
-
-  void _showKonfirmasiKeluar() {
-    showDialog(
-      context: context,
-
-      builder: (context) => AlertDialog(
-        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
-
-        title: const Text(
-          'Kembali ke Prediksi?',
-          style: TextStyle(
-            fontFamily: 'Manrope',
-            fontWeight: FontWeight.bold,
-            color: WarnaUtama.text1,
-          ),
-        ),
-
-        content: const Text(
-          'Semua jawaban yang sudah diisi akan dihapus. Yakin ingin keluar?',
-          style: TextStyle(fontFamily: 'Manrope', color: WarnaUtama.text1),
-        ),
-
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context),
-
-            child: Text(
-              'Batal',
-              style: TextStyle(
-                fontFamily: 'Manrope',
-                color: WarnaUtama.text1.withOpacity(0.5),
-              ),
-            ),
-          ),
-
-          GestureDetector(
-            onTap: () {
-              Navigator.pop(context);
-              Navigator.pop(context);
-            },
-
-            child: Container(
-              padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
-
-              decoration: BoxDecoration(
-                color: WarnaUtama.secondary,
-                borderRadius: BorderRadius.circular(20),
-              ),
-
-              child: const Text(
-                'Keluar',
-                style: TextStyle(
-                  fontFamily: 'Manrope',
-                  fontWeight: FontWeight.w600,
-                  color: WarnaUtama.text2,
-                ),
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-  }
+  late final List<int?> _jawaban =
+      List.filled(_pertanyaanList.length, null);
 
   void _sebelumnya() {
     if (_currentIndex > 0) {
@@ -164,17 +91,9 @@ class _TahapSkriningPageState extends State<TahapSkriningPage> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           content: const Text('Pilih jawaban terlebih dahulu'),
-
           backgroundColor: WarnaUtama.secondary,
-
-          behavior: SnackBarBehavior.floating,
-
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(12),
-          ),
         ),
       );
-
       return;
     }
 
@@ -182,48 +101,72 @@ class _TahapSkriningPageState extends State<TahapSkriningPage> {
       setState(() {
         _currentIndex++;
       });
-
       return;
     }
 
     try {
-      setState(() {
-        _isLoading = true;
-      });
+      setState(() => _isLoading = true);
 
-      final hasil = await LaravelService.saveScreening(jawaban: _jawaban);
+      final hasil =
+          await LaravelService.saveScreening(jawaban: _jawaban);
 
       if (!mounted) return;
 
       final result = (hasil['result'] as String?) ?? '';
+      final prediction =
+          hasil['prediction'] as Map<String, dynamic>?;
+
+      final cluster = prediction?['cluster'];
+
       debugPrint('🔍 RESULT: $result');
+      debugPrint('🔍 CLUSTER: $cluster');
+
       if (result.isEmpty) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Data hasil prediksi tidak ditemukan')),
+          const SnackBar(
+            content: Text('Data hasil prediksi tidak ditemukan'),
+          ),
         );
         return;
       }
 
-      final recommendation = hasil['recommendation'] as Map<String, dynamic>?;
+      final recommendation =
+          prediction?['recommendation'] as Map<String, dynamic>?;
+
       final List<String> rekomendasi = [];
 
       if (recommendation != null) {
-        final emergencyNote = recommendation['emergency_note'] as String?;
+        final emergencyNote =
+            recommendation['emergency_note'] as String?;
         if (emergencyNote != null && emergencyNote.isNotEmpty) {
           rekomendasi.add('⚠️ $emergencyNote');
         }
+
         final summary = recommendation['summary'] as String?;
-        if (summary != null && summary.isNotEmpty) rekomendasi.add(summary);
-        final actionSteps = recommendation['action_steps'] as List<dynamic>?;
-        if (actionSteps != null)
-          rekomendasi.addAll(actionSteps.map((e) => e.toString()));
+        if (summary != null && summary.isNotEmpty) {
+          rekomendasi.add(summary);
+        }
+
+        final actionSteps =
+            recommendation['action_steps'] as List<dynamic>?;
+        if (actionSteps != null) {
+          rekomendasi
+              .addAll(actionSteps.map((e) => e.toString()));
+        }
+
         final partnerSupport =
             recommendation['partner_support'] as List<dynamic>?;
-        if (partnerSupport != null)
-          rekomendasi.addAll(partnerSupport.map((e) => e.toString()));
-        final professionalHelp = recommendation['professional_help'] as String?;
-        if (professionalHelp != null && professionalHelp.isNotEmpty)
+        if (partnerSupport != null) {
+          rekomendasi
+              .addAll(partnerSupport.map((e) => e.toString()));
+        }
+
+        final professionalHelp =
+            recommendation['professional_help'] as String?;
+        if (professionalHelp != null &&
+            professionalHelp.isNotEmpty) {
           rekomendasi.add(professionalHelp);
+        }
       }
 
       Navigator.push(
@@ -231,6 +174,7 @@ class _TahapSkriningPageState extends State<TahapSkriningPage> {
         MaterialPageRoute(
           builder: (_) => HasilSkriningPage(
             result: result,
+            cluster: cluster,
             jawaban: _jawaban,
             rekomendasi: rekomendasi,
           ),
@@ -239,16 +183,42 @@ class _TahapSkriningPageState extends State<TahapSkriningPage> {
     } catch (e) {
       if (!mounted) return;
 
-      ScaffoldMessenger.of(
-        context,
-      ).showSnackBar(SnackBar(content: Text('Gagal mengirim data: $e')));
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Gagal mengirim data: $e')),
+      );
     } finally {
       if (mounted) {
-        setState(() {
-          _isLoading = false;
-        });
+        setState(() => _isLoading = false);
       }
     }
+  }
+
+  void _showKonfirmasiKeluar() {
+    showDialog(
+      context: context,
+      builder: (context) => AlertDialog(
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(20),
+        ),
+        title: const Text('Kembali ke Prediksi?'),
+        content: const Text(
+          'Semua jawaban akan dihapus. Yakin ingin keluar?',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: const Text('Batal'),
+          ),
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+              Navigator.pop(context);
+            },
+            child: const Text('Keluar'),
+          ),
+        ],
+      ),
+    );
   }
 
   @override
@@ -257,80 +227,63 @@ class _TahapSkriningPageState extends State<TahapSkriningPage> {
 
     return Scaffold(
       backgroundColor: WarnaUtama.background,
-
       body: SafeArea(
         child: Column(
           children: [
             Padding(
-              padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
-
+              padding: const EdgeInsets.all(16),
               child: CardHeader(
                 title: 'Tahap Skrining',
-
                 leftIcon: Icons.chevron_left,
-
                 onLeftTap: _showKonfirmasiKeluar,
               ),
             ),
-
             Expanded(
               child: SingleChildScrollView(
-                padding: const EdgeInsets.symmetric(horizontal: 20),
-
+                padding:
+                    const EdgeInsets.symmetric(horizontal: 20),
                 child: Column(
                   children: [
                     KartuPertanyaan(
                       nomorSoal: _currentIndex + 1,
-
                       totalSoal: _pertanyaanList.length,
-
-                      kategori: soal['kategori'] as String,
-
-                      pertanyaan: soal['pertanyaan'] as String,
-
-                      subjudul: soal['subjudul'] as String,
+                      kategori: soal['kategori'],
+                      pertanyaan: soal['pertanyaan'],
+                      subjudul: soal['subjudul'],
                     ),
-
                     const SizedBox(height: 20),
-
                     PilihanJawaban(
-                      pilihan: soal['pilihan'] as List<String>,
-
-                      selectedIndex: _jawaban[_currentIndex] != null
-                          ? _jawaban[_currentIndex]! - 1
-                          : null,
-
+                      pilihan: soal['pilihan'],
+                      selectedIndex:
+                          _jawaban[_currentIndex] != null
+                              ? _jawaban[_currentIndex]! - 1
+                              : null,
                       onSelected: (index) {
                         setState(() {
-                          _jawaban[_currentIndex] = index + 1;
+                          _jawaban[_currentIndex] =
+                              index + 1;
                         });
                       },
                     ),
-
-                    const SizedBox(height: 24),
                   ],
                 ),
               ),
             ),
-
             if (_isLoading)
               const Padding(
                 padding: EdgeInsets.only(bottom: 16),
-
                 child: CircularProgressIndicator(),
               ),
-
             Padding(
-              padding: const EdgeInsets.fromLTRB(20, 0, 20, 20),
-
+              padding:
+                  const EdgeInsets.fromLTRB(20, 0, 20, 20),
               child: TombolNavigasiSkrining(
                 isFirst: _currentIndex == 0,
-
-                isLast: _currentIndex == _pertanyaanList.length - 1,
-
+                isLast: _currentIndex ==
+                    _pertanyaanList.length - 1,
                 onSebelumnya: _sebelumnya,
-
-                onSelanjutnya: _isLoading ? null : _selanjutnya,
+                onSelanjutnya:
+                    _isLoading ? null : _selanjutnya,
               ),
             ),
           ],

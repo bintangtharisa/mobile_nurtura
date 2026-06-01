@@ -161,7 +161,14 @@ class _RiwayatPageState extends State<RiwayatPage> {
                                   fontSize: 18,
                                   fontWeight: FontWeight.bold,
                                 ),
-                              )
+                              ),
+                              GestureDetector(
+                                onTap: _fetchScreeningHistory,
+                                child: const Text(
+                                  'Refresh',
+                                  style: TextStyle(color: WarnaUtama.secondary),
+                                ),
+                              ),
                             ],
                           ),
 

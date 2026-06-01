@@ -5,6 +5,8 @@ import '../services/auth_service.dart';
 import '../utils/api.dart';
 
 class LaravelService {
+  static const String _baseUrl = 'http://10.250.240.141:8000/api';
+
   static Future<Map<String, dynamic>> saveScreening({
     required List<int?> jawaban,
   }) async {

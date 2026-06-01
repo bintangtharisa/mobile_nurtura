@@ -106,7 +106,12 @@ class MonitoringServiceAyah {
         'tanggal': _formatDate(createdAt),
         'status': _formatStatus(result),
         'berisiko': _isRisky(result),
-        'id': itemMap['id'] as String?,
+        'id': (itemMap['id'] ??
+                itemMap['_id'] ??
+                itemMap['health_record_id'] ??
+                createdAt ??
+                result)
+            .toString(),
       };
     }).toList();
   }
@@ -144,7 +149,16 @@ class MonitoringServiceAyah {
   }
 
   static bool _isRisky(String result) {
-    return result.toLowerCase().contains('berisiko') || 
-           result.toLowerCase().contains('high risk');
+    final normalized = result.toLowerCase().trim();
+    if (normalized.contains('tidak berisiko') ||
+        normalized.contains('tidak beresiko') ||
+        normalized.contains('low risk') ||
+        normalized.contains('normal')) {
+      return false;
+    }
+
+    return normalized.contains('berisiko') ||
+        normalized.contains('beresiko') ||
+        normalized.contains('high risk');
   }
 }

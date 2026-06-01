@@ -1,4 +1,5 @@
 import 'package:flutter_local_notifications/flutter_local_notifications.dart';
+import 'package:flutter/foundation.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'package:firebase_messaging/firebase_messaging.dart';
 import 'package:shared_preferences/shared_preferences.dart';
@@ -10,13 +11,20 @@ import 'notif_storage.dart';
 
 @pragma('vm:entry-point')
 Future<void> firebaseMessagingBackgroundHandler(RemoteMessage message) async {
-  await Firebase.initializeApp();
+  if (Firebase.apps.isEmpty) {
+    await Firebase.initializeApp();
+  }
 }
 
 class NotificationService {
   static final FlutterLocalNotificationsPlugin plugin =
       FlutterLocalNotificationsPlugin();
-  static final FirebaseMessaging messaging = FirebaseMessaging.instance;
+  static bool _firebaseReady = false;
+
+  static FirebaseMessaging? get _messaging {
+    if (!_firebaseReady || Firebase.apps.isEmpty) return null;
+    return FirebaseMessaging.instance;
+  }
 
   static const fatherRiskOnlyKey = 'father_notif_risk_only';
   static const fatherAllChangesKey = 'father_notif_all_changes';
@@ -24,9 +32,16 @@ class NotificationService {
 
   static Future<void> init() async {
     try {
-      await Firebase.initializeApp();
-      FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+      if (Firebase.apps.isEmpty) {
+        await Firebase.initializeApp();
+      }
+      _firebaseReady = true;
+
+      if (!kIsWeb) {
+        FirebaseMessaging.onBackgroundMessage(firebaseMessagingBackgroundHandler);
+      }
     } catch (_) {
+      _firebaseReady = false;
       // Firebase config belum tersedia. Local notifications tetap berjalan.
     }
 
@@ -43,6 +58,9 @@ class NotificationService {
 
   static Future<void> _requestPermissions() async {
     try {
+      final messaging = _messaging;
+      if (messaging == null) return;
+
       await messaging.requestPermission(
         alert: true,
         badge: true,
@@ -57,6 +75,8 @@ class NotificationService {
   }
 
   static void _listenForegroundMessages() {
+    if (_messaging == null) return;
+
     FirebaseMessaging.onMessage.listen((message) async {
       final notification = message.notification;
       final title = notification?.title ?? message.data['title'] ?? 'Nurtura';
@@ -79,6 +99,9 @@ class NotificationService {
   }
 
   static void _listenTokenRefresh() {
+    final messaging = _messaging;
+    if (messaging == null) return;
+
     messaging.onTokenRefresh.listen((token) {
       syncFcmToken(token: token);
     });
@@ -88,6 +111,9 @@ class NotificationService {
     try {
       final bearerToken = await Session.getToken();
       if (bearerToken == null || bearerToken.isEmpty) return;
+
+      final messaging = _messaging;
+      if (messaging == null) return;
 
       final fcmToken = token ?? await messaging.getToken();
       if (fcmToken == null || fcmToken.isEmpty) return;

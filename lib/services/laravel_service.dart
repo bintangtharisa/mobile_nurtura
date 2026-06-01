@@ -4,7 +4,7 @@ import '../services/session.dart';
 import '../services/auth_service.dart';
 
 class LaravelService {
-  static const String _baseUrl = 'http://192.168.0.110:8000/api';
+  static const String _baseUrl = 'http://127.0.0.1:8000/api';
 
   static Future<Map<String, dynamic>> saveScreening({
     required List<int?> jawaban,

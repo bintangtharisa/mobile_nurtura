@@ -37,10 +37,19 @@ class _ProfilAyahPageState extends State<ProfilAyahPage> {
 
     try {
       final userResult = await AuthService.getUser();
+      print("=== PROFIL AYAH DEBUG ===");
+      print("USER RESULT: $userResult");
 
       if (userResult['success'] == true) {
+        final data = userResult['data'];
+        print("USER DATA: $data");
+        print("CONNECTION: ${data?['connection']}");
+        print("MOTHER: ${data?['connection']?['mother']}");
+        print("CONNECTION_CODE: ${data?['connection']?['mother']?['connection_code']}");
+        print("========================");
+        
         setState(() {
-          userData = userResult['data'];
+          userData = data;
         });
       }
 
@@ -48,6 +57,9 @@ class _ProfilAyahPageState extends State<ProfilAyahPage> {
         isLoading = false;
       });
     } catch (e) {
+      print("=== ERROR LOADING DATA ===");
+      print("Error: $e");
+      print("========================");
       setState(() {
         isLoading = false;
         errorMessage = 'Gagal memuat data: $e';
@@ -149,9 +161,19 @@ class _ProfilAyahPageState extends State<ProfilAyahPage> {
                         KoneksiPasanganCard(
                           namaPasangan: userData!['connection']['mother']
                                   ['username'] ??
+                              userData!['connection']['mother']['name'] ??
                               'Pasangan tidak tersedia',
-                          fotoPasangan: const NetworkImage(
-                              'https://picsum.photos/id/64/200/200'),
+                          anonymousIdPasangan: userData!['connection']['mother']
+                              ['anonymous_id'] ??
+                              '',
+                          kodePasangan: userData!['connection']['mother']
+                              ['connection_code'] ??
+                              userData!['connection']['mother']['code'] ??
+                              '',
+                          fotoPasangan: userData!['connection']['mother']['photo'] != null
+                              ? NetworkImage(userData!['connection']['mother']['photo'])
+                              : const NetworkImage(
+                                  'https://picsum.photos/id/64/200/200'),
                         )
                       else
                         const Center(

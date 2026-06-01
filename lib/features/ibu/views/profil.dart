@@ -50,6 +50,52 @@ class _ProfilPageState extends State<ProfilPage> {
     }
   }
 
+  Future<void> _terimaKoneksi() async {
+    final fatherId = _koneksi?['pending_request']?['id'];
+    if (fatherId == null) return;
+
+    final res = await AuthService.terimaKoneksi(fatherId);
+    if (!mounted) return;
+    if (res['success']) {
+      await _loadData();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Koneksi berhasil diterima!')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(res['message'] ?? 'Gagal terima koneksi')),
+      );
+    }
+  }
+
+  Future<void> _tolakKoneksi() async {
+    final res = await AuthService.tolakKoneksi();
+    if (!mounted) return;
+    if (res['success']) {
+      await _loadData();
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Permintaan koneksi ditolak.')),
+      );
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(res['message'] ?? 'Gagal tolak koneksi')),
+      );
+    }
+  }
+
+  StatusKoneksi _getStatusKoneksi() {
+    if (_koneksi?['pasangan'] != null) return StatusKoneksi.terkoneksi;
+    if (_koneksi?['pending_request'] != null) return StatusKoneksi.adaRequest;
+    return StatusKoneksi.belumAda;
+  }
+
+  ImageProvider _getFotoPasangan() {
+    final foto = _koneksi?['pasangan']?['photo']
+        ?? _koneksi?['pending_request']?['photo'];
+    if (foto != null) return NetworkImage(foto);
+    return const NetworkImage('https://picsum.photos/id/91/200/200');
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -77,13 +123,18 @@ class _ProfilPageState extends State<ProfilPage> {
                         foto: _user?['photo'] != null
                             ? NetworkImage(_user!['photo'])
                             : const NetworkImage('https://picsum.photos/id/64/200/200'),
-                        onEdit: () {
-                          Navigator.push(
+                        onEdit: () async {
+                          final result = await Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => const EditProfilPage(),
+                              builder: (_) => EditProfilPage(
+                                initialName: _user?['name'] ?? '',
+                                initialEmail: _user?['email'] ?? '',
+                                initialFoto: _user?['photo'],
+                              ),
                             ),
                           );
+                          if (result == true) _loadData();
                         },
                       ),
                     ),
@@ -103,24 +154,24 @@ class _ProfilPageState extends State<ProfilPage> {
                     ),
                     const SizedBox(height: 24),
                     KoneksiPasanganCard(
-                      status: _koneksi?['pasangan'] != null
-                          ? StatusKoneksi.terkoneksi
-                          : StatusKoneksi.belumAda,
-                      namaPasangan: _koneksi?['pasangan']?['name'] ?? '',
+                      status: _getStatusKoneksi(),
+                      namaPasangan: _koneksi?['pasangan']?['name']
+                          ?? _koneksi?['pending_request']?['name'] ?? '',
                       terhubungSejak: _koneksi?['pasangan']?['sejak'] ?? '',
-                      fotoPasangan: _koneksi?['pasangan']?['photo'] != null
-                          ? NetworkImage(_koneksi!['pasangan']['photo'])
-                          : const NetworkImage('https://picsum.photos/id/91/200/200'),
+                      fotoPasangan: _getFotoPasangan(),
+                      jumlahRequest: _koneksi?['pending_request'] != null ? 1 : 0,
+                      onTerima: _terimaKoneksi,
+                      onTolak: _tolakKoneksi,
                       onDisconnect: () {},
                     ),
                     const SizedBox(height: 24),
                     PengaturanList(
                       onUbahSandi: () {
                         showModalBottomSheet(
-                        context: context,
-                        isScrollControlled: true,
-                        backgroundColor: Colors.transparent,
-                        builder: (_) => const UbahSandiSheet(),
+                          context: context,
+                          isScrollControlled: true,
+                          backgroundColor: Colors.transparent,
+                          builder: (_) => const UbahSandiSheet(),
                         );
                       },
                       onKeluarAkun: () => KeluarAkun.show(context),
@@ -130,7 +181,7 @@ class _ProfilPageState extends State<ProfilPage> {
                 ),
               ),
             ),
-          ], 
+          ],
         ),
       ),
     );

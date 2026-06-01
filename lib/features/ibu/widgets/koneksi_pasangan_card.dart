@@ -12,6 +12,7 @@ class KoneksiPasanganCard extends StatelessWidget {
   final int jumlahRequest;
   final VoidCallback? onTerima;
   final VoidCallback? onTolak;
+  final VoidCallback? onBlock;
   final VoidCallback? onDisconnect;
 
   const KoneksiPasanganCard({
@@ -23,6 +24,7 @@ class KoneksiPasanganCard extends StatelessWidget {
     this.jumlahRequest = 0,
     this.onTerima,
     this.onTolak,
+    this.onBlock,
     this.onDisconnect,
   });
 
@@ -152,6 +154,19 @@ class KoneksiPasanganCard extends StatelessWidget {
                       shape: BoxShape.circle,
                     ),
                     child: const Icon(Icons.close, size: 18, color: WarnaUtama.beresiko),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                GestureDetector(
+                  onTap: onBlock,
+                  child: Container(
+                    width: 36,
+                    height: 36,
+                    decoration: BoxDecoration(
+                      color: WarnaUtama.text2,
+                      shape: BoxShape.circle,
+                    ),
+                    child: const Icon(Icons.block, size: 18, color: Colors.redAccent),
                   ),
                 ),
               ],

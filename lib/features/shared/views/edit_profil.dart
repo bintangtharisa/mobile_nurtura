@@ -7,16 +7,22 @@ import '../../../services/auth_service.dart';
 class EditProfilPage extends StatefulWidget {
   final String? initialName;
   final String? initialEmail;
+  final String? initialFoto;
 
-  const EditProfilPage({super.key, this.initialName, this.initialEmail});
+  const EditProfilPage({
+    super.key,
+    this.initialName,
+    this.initialEmail,
+    this.initialFoto,
+  });
 
   @override
   State<EditProfilPage> createState() => _EditProfilPageState();
 }
 
 class _EditProfilPageState extends State<EditProfilPage> {
-  late final _namaController;
-  late final _emailController;
+  late final TextEditingController _namaController;
+  late final TextEditingController _emailController;
   bool isSaving = false;
 
   @override
@@ -34,16 +40,14 @@ class _EditProfilPageState extends State<EditProfilPage> {
   }
 
   Future<void> _saveChanges() async {
-    if (_namaController.text.isEmpty || _emailController.text.isEmpty) {
+    if (_namaController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Nama dan email wajib diisi')),
+        const SnackBar(content: Text('Nama wajib diisi')),
       );
       return;
     }
 
-    setState(() {
-      isSaving = true;
-    });
+    setState(() => isSaving = true);
 
     try {
       final result = await AuthService.updateProfil(
@@ -51,19 +55,17 @@ class _EditProfilPageState extends State<EditProfilPage> {
         email: _emailController.text,
       );
 
+      if (!mounted) return;
+
       if (result['success'] == true) {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            const SnackBar(content: Text('Profil berhasil diperbarui')),
-          );
-          Navigator.pop(context);
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Profil berhasil diperbarui')),
+        );
+        Navigator.pop(context, true);
       } else {
-        if (mounted) {
-          ScaffoldMessenger.of(context).showSnackBar(
-            SnackBar(content: Text(result['message'] ?? 'Gagal memperbarui profil')),
-          );
-        }
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text(result['message'] ?? 'Gagal memperbarui profil')),
+        );
       }
     } catch (e) {
       if (mounted) {
@@ -72,16 +74,16 @@ class _EditProfilPageState extends State<EditProfilPage> {
         );
       }
     } finally {
-      if (mounted) {
-        setState(() {
-          isSaving = false;
-        });
-      }
+      if (mounted) setState(() => isSaving = false);
     }
   }
 
   @override
   Widget build(BuildContext context) {
+    final ImageProvider fotoProvider = widget.initialFoto != null
+        ? NetworkImage(widget.initialFoto!)
+        : const NetworkImage('https://picsum.photos/id/64/200/200');
+
     return Scaffold(
       backgroundColor: WarnaUtama.background,
       body: SafeArea(
@@ -104,7 +106,7 @@ class _EditProfilPageState extends State<EditProfilPage> {
                     EditProfilCard(
                       namaController: _namaController,
                       emailController: _emailController,
-                      foto: const NetworkImage('https://picsum.photos/id/64/200/200'),
+                      foto: fotoProvider,
                       onGantiFoto: () {
                         // TODO: image picker
                       },

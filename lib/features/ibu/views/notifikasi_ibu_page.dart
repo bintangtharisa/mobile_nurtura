@@ -2,57 +2,71 @@ import 'package:flutter/material.dart';
 import '../../../core/theme/warna_utama.dart';
 import '../../shared/widgets/header.dart';
 import '../../shared/widgets/notifikasi_section.dart';
+import '../../../services/notif_storage.dart';
 
-class NotifikasiIbuPage extends StatelessWidget {
+class NotifikasiIbuPage extends StatefulWidget {
   const NotifikasiIbuPage({super.key});
 
-  static const List<Map<String, dynamic>> _notifikasiList = [
-    {
-      'section': 'HARI INI',
-      'isNew': true,
-      'items': [
-        {
-          'judul': 'Waktunya Skrining Mingguan',
-          'deskripsi': 'Jangan lupa untuk tetap melakukan skrining mandiri supaya kami bisa tetap memantau keadaanmu ya.',
-          'tipe': 'skrining',
-          'berisiko': false,
-        },
-      ],
-    },
-    {
-      'section': 'KEMARIN',
-      'isNew': false,
-      'items': [
-        {
-          'judul': 'Waktunya Skrining Mingguan',
-          'deskripsi': 'Jangan lupa untuk tetap melakukan skrining mandiri supaya kami bisa tetap memantau keadaanmu ya.',
-          'tipe': 'skrining',
-          'berisiko': false,
-        },
-      ],
-    },
-    {
-      'section': '26 MEI 2026',
-      'isNew': false,
-      'items': [
-        {
-          'judul': 'Waktunya Skrining Mingguan',
-          'deskripsi': 'Jangan lupa untuk tetap melakukan skrining mandiri supaya kami bisa tetap memantau keadaanmu ya.',
-          'tipe': 'skrining',
-          'berisiko': false,
-        },
-        {
-          'judul': 'Koneksi Berhasil Terhubung',
-          'deskripsi': 'Akun anda sekarang telah terhubung dengan suami anda.',
-          'tipe': 'koneksi',
-          'berisiko': false,
-        },
-      ],
-    },
-  ];
+  @override
+  State<NotifikasiIbuPage> createState() => _NotifikasiIbuPageState();
+}
+
+class _NotifikasiIbuPageState extends State<NotifikasiIbuPage> {
+  List<Map<String, dynamic>> data = [];
+
+  @override
+  void initState() {
+    super.initState();
+    loadNotif();
+  }
+
+  Future<void> loadNotif() async {
+    final result = await NotifStorage.getAll();
+
+    setState(() {
+      data = result.reversed.toList(); // terbaru di atas
+    });
+  }
+
+  Map<String, List<Map<String, dynamic>>> groupData() {
+    final Map<String, List<Map<String, dynamic>>> grouped = {};
+
+    final now = DateTime.now();
+    final yesterday = now.subtract(const Duration(days: 1));
+
+    for (var item in data) {
+      final date = DateTime.parse(item['time']).toLocal();
+
+      String key;
+
+      // 🔥 HARI INI
+      if (date.year == now.year &&
+          date.month == now.month &&
+          date.day == now.day) {
+        key = "HARI INI";
+
+        // 🔥 KEMARIN (FIXED - tidak pakai day-1 lagi)
+      } else if (date.year == yesterday.year &&
+          date.month == yesterday.month &&
+          date.day == yesterday.day) {
+        key = "KEMARIN";
+
+        // 🔥 selain itu
+      } else {
+        key = "${date.day}-${date.month}-${date.year}";
+      }
+
+      grouped.putIfAbsent(key, () => []);
+      grouped[key]!.add(item);
+    }
+
+    return grouped;
+  }
 
   @override
   Widget build(BuildContext context) {
+    final grouped = groupData();
+
     return Scaffold(
       backgroundColor: WarnaUtama.background,
       body: SafeArea(
@@ -72,14 +86,31 @@ class NotifikasiIbuPage extends StatelessWidget {
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
                   children: [
-                    ..._notifikasiList.map((section) => NotifikasiSection(
-                          label: section['section'] as String,
-                          isNew: section['isNew'] as bool,
-                          items: List<Map<String, dynamic>>.from(section['items']),
-                        )),
+                    if (data.isEmpty)
+                      const Center(
+                        child: Padding(
+                          padding: EdgeInsets.only(top: 50),
+                          child: Text("Belum ada notifikasi"),
+                        ),
+                      )
+                    else
+                      ...grouped.entries.map((entry) {
+                        return NotifikasiSection(
+                          label: entry.key,
+                          isNew: entry.key == "HARI INI",
+                          items: entry.value.map((e) {
+                            return {
+                              'judul': e['title'],
+                              'deskripsi': e['body'],
+                              'tipe': 'skrining',
+                              'berisiko': false,
+                            };
+                          }).toList(),
+                        );
+                      }),
 
-                    // Footer
                     const SizedBox(height: 32),
+
                     Center(
                       child: Column(
                         children: [
@@ -110,6 +141,7 @@ class NotifikasiIbuPage extends StatelessWidget {
                         ],
                       ),
                     ),
+
                     const SizedBox(height: 24),
                   ],
                 ),

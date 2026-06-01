@@ -3,7 +3,7 @@ import '../../ibu/widgets/aksi_card.dart';
 import '../../ibu/widgets/tips_card.dart';
 import '../../ibu/widgets/header_profil.dart';
 import '../../../core/theme/warna_utama.dart';
-import '../../shared/views/lihat_tips_page.dart';
+import '../../shared/views/lihat_artikel_page.dart';
 import '../views/tahap_skrining.dart';
 import '../services/article_service.dart';
 import '../../shared/widgets/chatbot_card.dart';

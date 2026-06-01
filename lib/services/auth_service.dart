@@ -10,6 +10,7 @@ class AuthService {
   ]) {
     return {
       ...user,
+      'id': user['id'] ?? user['_id'] ?? fallback?['id'] ?? fallback?['_id'],
       'name': user['name'] ?? user['username'] ?? fallback?['name'] ?? fallback?['username'],
       'connection_code': user['connection_code'] ??
           user['anonymous_id'] ??

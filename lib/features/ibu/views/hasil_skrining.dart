@@ -16,7 +16,11 @@ class HasilSkriningPage extends StatelessWidget {
     this.rekomendasi = const [],
   });
 
-  bool get berisiko => result.toLowerCase().contains("beresiko");
+  bool get berisiko {
+    final normalized = result.toLowerCase();
+    return !normalized.contains('tidak') &&
+        (normalized.contains('beresiko') || normalized.contains('berisiko'));
+  }
 
   List<String> get _rekomendasiTampil {
     if (rekomendasi.isNotEmpty) return rekomendasi;

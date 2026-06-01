@@ -1,7 +1,6 @@
 import 'package:flutter/material.dart';
 import '../../../core/theme/warna_utama.dart';
 import '../widgets/prediksi_card.dart';
-import '../widgets/hasil_terakhir_skrining_card.dart';
 import '../widgets/mulai_skrining_card.dart';
 import '../../shared/widgets/header.dart';
 import '../views/tahap_skrining.dart';
@@ -15,8 +14,6 @@ class PrediksiPage extends StatefulWidget {
 }
 
 class _PrediksiPageState extends State<PrediksiPage> {
-  Map<String, dynamic>? _hasilTerakhir;
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -28,6 +25,8 @@ class _PrediksiPageState extends State<PrediksiPage> {
               padding: const EdgeInsets.fromLTRB(16, 16, 16, 12),
               child: CardHeader(
                 title: 'Prediksi',
+                leftIcon: Icons.chevron_left,
+                onLeftTap: () => widget.onBack?.call(),
               ),
             ),
             Expanded(
@@ -40,51 +39,14 @@ class _PrediksiPageState extends State<PrediksiPage> {
 
                     const SizedBox(height: 24),
 
-                    const Text(
-                      'Hasil Terakhir',
-                      style: TextStyle(
-                        fontFamily: 'Manrope',
-                        fontSize: 16,
-                        fontWeight: FontWeight.bold,
-                        color: WarnaUtama.text1,
-                      ),
-                    ),
-
-                    const SizedBox(height: 12),
-
-                    _hasilTerakhir == null
-                        ? const Text(
-                            'Belum ada hasil skrining',
-                            style: TextStyle(
-                              fontFamily: 'Manrope',
-                              color: WarnaUtama.text1,
-                            ),
-                          )
-                        : HasilTerakhirCard(
-                            statusLabel: _hasilTerakhir!['status'],
-                            tanggal: _hasilTerakhir!['tanggal'],
-                            onLihatDetail: () {},
-                          ),
-
-                    const SizedBox(height: 16),
-
                     MulaiSkriningCard(
-                      onMulai: () async {
-                        final result = await Navigator.push(
+                      onMulai: () {
+                        Navigator.push(
                           context,
                           MaterialPageRoute(
                             builder: (context) => const TahapSkriningPage(),
                           ),
                         );
-
-                        if (result != null) {
-                          setState(() {
-                            _hasilTerakhir = {
-                              'status': result.toString(),
-                              'tanggal': DateTime.now().toString(),
-                            };
-                          });
-                        }
                       },
                     ),
 

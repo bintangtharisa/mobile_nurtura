@@ -6,6 +6,7 @@ import '../widgets/tips_populer.dart';
 import '../widgets/artikel_card.dart';
 import '../../ibu/services/article_service.dart';
 import '../../ibu/services/article_category_service.dart';
+import '../../shared/views/artikel_detail_page.dart';
 
 class LihatTipsPage extends StatefulWidget {
   const LihatTipsPage({super.key});
@@ -198,7 +199,17 @@ class _LihatTipsPageState extends State<LihatTipsPage> {
                                     title: article['title'] ?? '',
                                     durasi: _getSubtitle(article),
                                     icon: Icons.tips_and_updates_outlined,
-                                    onTap: () {},
+                                      onTap: () => Navigator.push(
+                                      context,
+                                      MaterialPageRoute(
+                                        builder: (_) => ArtikelDetailPage(
+                                          artikelId: article['id'].toString(),
+                                          judul: article['judul'],
+                                          kategori: article['kategori'],
+                                          durasi: article['durasi'],
+                                        ),
+                                      ),
+                                    ),
                                   );
                                 },
                               ),

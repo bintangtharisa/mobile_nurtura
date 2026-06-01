@@ -4,6 +4,7 @@ import '../../shared/widgets/header.dart';
 import '../../shared/widgets/artikel_card.dart';
 import '../widgets/artikel_horizontal.dart';
 import '../services/article_service.dart';
+import '../../shared/views/artikel_detail_page.dart';
 
 class PanduanDukunganPage extends StatefulWidget {
   final VoidCallback? onBack;
@@ -181,18 +182,6 @@ class _PanduanDukunganPageState extends State<PanduanDukunganPage> {
                                         color: WarnaUtama.text1,
                                       ),
                                     ),
-                                    GestureDetector(
-                                      onTap: () {},
-                                      child: const Text(
-                                        'Lihat Semua',
-                                        style: TextStyle(
-                                          fontFamily: 'Manrope',
-                                          fontSize: 13,
-                                          fontWeight: FontWeight.w600,
-                                          color: WarnaUtama.secondary,
-                                        ),
-                                      ),
-                                    ),
                                   ],
                                 ),
                               ),
@@ -227,7 +216,17 @@ class _PanduanDukunganPageState extends State<PanduanDukunganPage> {
                                             title: artikel['title'] as String,
                                             durasi: artikel['durasi'] as String,
                                             icon: artikel['icon'] as IconData,
-                                            onTap: () {},
+                                            onTap: () => Navigator.push(
+                                              context,
+                                              MaterialPageRoute(
+                                                builder: (_) => ArtikelDetailPage(
+                                                  artikelId: artikel['id'].toString(),
+                                                  judul: artikel['title'] ?? 'Tanpa Judul',
+                                                  kategori: artikel['kategori'] ?? 'Lainnya',
+                                                  durasi: artikel['durasi'] ?? '0 menit',
+                                                ),
+                                              ),
+                                            ),
                                           );
                                         },
                                       ),

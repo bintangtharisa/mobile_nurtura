@@ -250,18 +250,6 @@ class _MonitoringKondisiPageState extends State<MonitoringKondisiPage> {
                                           color: WarnaUtama.text1,
                                         ),
                                       ),
-                                      GestureDetector(
-                                        onTap: () {},
-                                        child: const Text(
-                                          'Lihat Semua',
-                                          style: TextStyle(
-                                            fontFamily: 'Manrope',
-                                            fontSize: 13,
-                                            fontWeight: FontWeight.w600,
-                                            color: WarnaUtama.secondary,
-                                          ),
-                                        ),
-                                      ),
                                     ],
                                   ),
 

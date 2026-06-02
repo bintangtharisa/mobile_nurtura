@@ -184,7 +184,15 @@ class _ProfilPageState extends State<ProfilPage> {
     final foto = _koneksi?['pasangan']?['photo']
         ?? _koneksi?['pending_request']?['photo'];
     if (foto != null) return NetworkImage(foto);
-    return const NetworkImage('https://picsum.photos/id/91/200/200');
+    return const AssetImage('assets/images/logo_nurtura.png');
+  }
+
+  ImageProvider _getFotoProfil() {
+    final photo = _user?['photo'];
+    if (photo != null && photo.toString().isNotEmpty) {
+      return NetworkImage('${Api.storageUrl}/$photo');
+    }
+    return const AssetImage('assets/images/logo_nurtura.png');
   }
 
   @override
@@ -211,23 +219,25 @@ class _ProfilPageState extends State<ProfilPage> {
                       child: ProfilAvatar(
                         nama: _user?['name'] ?? 'Memuat...',
                         email: _user?['email'] ?? '',
-                        foto: _user?['photo'] != null
-                        ? NetworkImage('${Api.storageUrl}/${_user!['photo']}')
-                        : const NetworkImage('https://picsum.photos/id/64/200/200'),
+                        foto: _getFotoProfil(),
                         onEdit: () async {
+                          final photo = _user?['photo'];
+                          final initialFoto = photo != null && photo.toString().isNotEmpty
+                              ? '${Api.storageUrl}/$photo'
+                              : null;
                           final result = await Navigator.push(
                             context,
                             MaterialPageRoute(
                               builder: (_) => EditProfilPage(
                                 initialName: _user?['name'] ?? '',
                                 initialEmail: _user?['email'] ?? '',
-                                initialFoto: _user?['photo'],
+                                initialFoto: initialFoto,
                               ),
                             ),
                           );
                           if (result == true) {
-                              await _loadData();
-                            }
+                            await _loadData();
+                          }
                         },
                       ),
                     ),

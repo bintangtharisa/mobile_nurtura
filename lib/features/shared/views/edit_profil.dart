@@ -111,10 +111,10 @@ class _EditProfilPageState extends State<EditProfilPage> {
 
   @override
   Widget build(BuildContext context) {
-    final ImageProvider? fotoProvider =
-        widget.initialFoto != null && widget.initialFoto!.isNotEmpty
-            ? NetworkImage(widget.initialFoto!)
-            : null;
+    final ImageProvider fotoProvider =
+    widget.initialFoto != null && widget.initialFoto!.isNotEmpty
+        ? NetworkImage(widget.initialFoto!) as ImageProvider
+        : const AssetImage('assets/images/logo_nurtura.png');
 
     return Scaffold(
       backgroundColor: WarnaUtama.background,
@@ -138,7 +138,7 @@ class _EditProfilPageState extends State<EditProfilPage> {
                     EditProfilCard(
                       namaController: _namaController,
                       emailController: _emailController,
-                      foto: fotoProvider,
+                      foto: fotoProvider, // sudah tidak nullable
                       fotoFile: _fotoFile,
                       onGantiFoto: _pilihFoto,
                     ),

@@ -50,7 +50,7 @@ class ArticleService {
     };
   }
 
-  static Future<Map<String, dynamic>> getArticle(int id) async {
+  static Future<Map<String, dynamic>> getArticle(String id) async {
     final headers = await _buildHeaders();
     final response = await http.get(
       Uri.parse('${Api.baseUrl}/articles/$id'),

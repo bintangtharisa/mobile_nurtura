@@ -157,6 +157,36 @@ class _LihatTipsPageState extends State<LihatTipsPage> {
                           image: populerImage != null
                               ? NetworkImage(populerImage)
                               : const NetworkImage('https://picsum.photos/400/200'),
+                          onTap: populer == null
+                              ? null
+                              : () {
+                                  final description =
+                                      (populer['description'] ??
+                                              populer['content'] ??
+                                              populer['excerpt'] ??
+                                              '')
+                                          .toString();
+                                  Navigator.push(
+                                    context,
+                                    MaterialPageRoute(
+                                      builder: (_) => ArtikelDetailPage(
+                                        artikelId:
+                                            (populer['_id'] ?? populer['id'] ?? '')
+                                                .toString(),
+                                        judul: populer['title'] ?? 'Tips Populer',
+                                        kategori:
+                                            _formatKategori(populer['category']),
+                                        durasi:
+                                            '${(description.split(RegExp(r'\s+')).length / 200).ceil()} menit baca',
+                                        initialContent: description,
+                                        initialThumbnail:
+                                            (populer['thumbnail'] ??
+                                                    populer['image'])
+                                                ?.toString(),
+                                      ),
+                                    ),
+                                  );
+                                },
                         ),
 
                         const SizedBox(height: 24),
@@ -194,19 +224,36 @@ class _LihatTipsPageState extends State<LihatTipsPage> {
                                     const SizedBox(height: 12),
                                 itemBuilder: (context, index) {
                                   final article = filteredList[index];
+                                  final articleId =
+                                      (article['_id'] ?? article['id'] ?? '')
+                                          .toString();
+                                  final category =
+                                      _formatKategori(article['category']);
+                                  final description =
+                                      (article['description'] ??
+                                              article['content'] ??
+                                              article['excerpt'] ??
+                                              '')
+                                          .toString();
                                   return ArtikelCard(
-                                    kategori: _formatKategori(article['category']),
+                                    kategori: category,
                                     title: article['title'] ?? '',
                                     durasi: _getSubtitle(article),
                                     icon: Icons.tips_and_updates_outlined,
-                                      onTap: () => Navigator.push(
+                                    onTap: () => Navigator.push(
                                       context,
                                       MaterialPageRoute(
                                         builder: (_) => ArtikelDetailPage(
-                                          artikelId: article['id'].toString(),
-                                          judul: article['judul'],
-                                          kategori: article['kategori'],
-                                          durasi: article['durasi'],
+                                          artikelId: articleId,
+                                          judul: article['title'] ?? '',
+                                          kategori: category,
+                                          durasi:
+                                              '${(description.split(RegExp(r'\s+')).length / 200).ceil()} menit baca',
+                                          initialContent: description,
+                                          initialThumbnail:
+                                              (article['thumbnail'] ??
+                                                      article['image'])
+                                                  ?.toString(),
                                         ),
                                       ),
                                     ),

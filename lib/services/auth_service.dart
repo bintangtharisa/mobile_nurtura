@@ -1,7 +1,9 @@
 import 'dart:convert';
 import 'package:http/http.dart' as http;
+import 'package:image_picker/image_picker.dart';
 import '../utils/api.dart';
 import '../services/session.dart';
+import 'dart:io';
 
 class AuthService {
   static Map<String, dynamic> _normalizeUser(
@@ -10,6 +12,7 @@ class AuthService {
   ]) {
     return {
       ...user,
+      'id': user['id'] ?? user['_id'] ?? fallback?['id'] ?? fallback?['_id'],
       'name': user['name'] ?? user['username'] ?? fallback?['name'] ?? fallback?['username'],
       'connection_code': user['connection_code'] ??
           user['anonymous_id'] ??
@@ -352,6 +355,68 @@ class AuthService {
         };
       }
     } catch (e) {
+      return {"success": false, "message": "Error: $e"};
+    }
+  }
+
+  // ================= UPDATE PHOTO =================
+  static Future<Map<String, dynamic>> updatePhoto(XFile fotoFile) async {
+    try {
+      final token = await Session.getToken();
+
+      print("UPDATE PHOTO: Memulai upload - ${fotoFile.path}");
+
+      final request = http.MultipartRequest(
+        'POST',
+        Uri.parse("${Api.baseUrl}/profile/photo"),
+      );
+
+      request.headers.addAll({
+        "Authorization": "Bearer $token",
+        "Accept": "application/json",
+      });
+
+      // Pakai fromBytes agar support Flutter Web maupun Mobile
+      final bytes = await fotoFile.readAsBytes();
+      final fileName = fotoFile.name.isNotEmpty ? fotoFile.name : 'photo.jpg';
+      request.files.add(
+        http.MultipartFile.fromBytes(
+          'photo',
+          bytes,
+          filename: fileName,
+        ),
+      );
+
+      final streamed = await request.send();
+      final response = await http.Response.fromStream(streamed);
+
+      print("UPDATE PHOTO STATUS: ${response.statusCode}");
+      print("UPDATE PHOTO BODY: ${response.body}");
+
+      dynamic data;
+      try {
+        data = jsonDecode(response.body);
+      } catch (_) {
+        return {"success": false, "message": "Response bukan JSON"};
+      }
+
+      if (response.statusCode == 200) {
+        // Update cached user dengan photo_url baru
+        final photoUrl = data['data']?['photo_url'] ?? data['data']?['photo'];
+        if (photoUrl != null) {
+          final cachedUser = await Session.getUser() ?? {};
+          cachedUser['photo'] = photoUrl;
+          await Session.saveUser(cachedUser);
+        }
+        return {"success": true, "data": data};
+      } else {
+        return {
+          "success": false,
+          "message": data['message'] ?? "Gagal upload foto",
+        };
+      }
+    } catch (e) {
+      print("UPDATE PHOTO ERROR: $e");
       return {"success": false, "message": "Error: $e"};
     }
   }

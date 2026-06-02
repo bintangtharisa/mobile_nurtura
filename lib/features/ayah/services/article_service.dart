@@ -60,7 +60,9 @@ class ArticleServiceAyah {
       'subjudul': article['description'] as String? ?? '',
       'warnaKategori': _parseColor(categoryColor),
       'gambar': article['thumbnail'] as String?,
-      'id': article['_id'] as String?,
+      'id': (article['_id'] ?? article['id'])?.toString(),
+      'description': article['description'] as String? ?? '',
+      'thumbnail': article['thumbnail'] as String?,
     };
   }
 
@@ -74,7 +76,9 @@ class ArticleServiceAyah {
       'title': article['title'] as String? ?? 'Tanpa Judul',
       'durasi': _estimateReadingTime(article['description'] as String? ?? ''),
       'icon': _getIconForCategory(categoryName),
-      'id': article['_id'] as String?,
+      'id': (article['_id'] ?? article['id'])?.toString(),
+      'description': article['description'] as String? ?? '',
+      'thumbnail': article['thumbnail'] as String?,
     };
   }
 

@@ -6,6 +6,7 @@ import '../../shared/widgets/riwayat_card.dart';
 import '../../shared/widgets/toggle_periode.dart';
 import '../widgets/pengaturan_notifikasi.dart';
 import '../services/monitoring_service.dart';
+import '../../../services/notification_service.dart';
 
 class MonitoringKondisiPage extends StatefulWidget {
   final VoidCallback? onBack;
@@ -49,10 +50,18 @@ class _MonitoringKondisiPageState extends State<MonitoringKondisiPage> {
         chartPeriod: 'bulanan',
       );
 
+      final isConnected = mingguanData['is_connected'] as bool? ?? false;
+      final riwayatList = isConnected
+          ? MonitoringServiceAyah.formatHistoryList(
+              mingguanData['data'] as List<dynamic>?,
+            )
+          : <Map<String, dynamic>>[];
+
+      if (!mounted) return;
       setState(() {
-        _isConnected = mingguanData['is_connected'] as bool? ?? false;
+        _isConnected = isConnected;
         _connectionMessage = mingguanData['message'] as String?;
-        
+
         if (_isConnected) {
           _dataMingguan = MonitoringServiceAyah.formatChartData(
             mingguanData['chart'] as Map<String, dynamic>?,
@@ -60,19 +69,34 @@ class _MonitoringKondisiPageState extends State<MonitoringKondisiPage> {
           _dataBulanan = MonitoringServiceAyah.formatChartData(
             bulananData['chart'] as Map<String, dynamic>?,
           );
-          _riwayatList = MonitoringServiceAyah.formatHistoryList(
-            mingguanData['data'] as List<dynamic>?,
-          );
+          _riwayatList = riwayatList;
         }
-        
+
         _isLoading = false;
       });
+
+      if (isConnected) {
+        await _notifyLatestScreeningIfNeeded(riwayatList);
+      }
     } catch (e) {
       setState(() {
         _errorMessage = e.toString();
         _isLoading = false;
       });
     }
+  }
+
+  Future<void> _notifyLatestScreeningIfNeeded(
+    List<Map<String, dynamic>> history,
+  ) async {
+    if (history.isEmpty) return;
+
+    final latest = history.first;
+    await NotificationService.triggerFatherMonitoringNotification(
+      screeningId: latest['id']?.toString() ?? '',
+      status: latest['status']?.toString() ?? 'Tidak Diketahui',
+      berisiko: latest['berisiko'] == true,
+    );
   }
 
   @override

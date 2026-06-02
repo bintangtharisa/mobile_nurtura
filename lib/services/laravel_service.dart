@@ -2,9 +2,83 @@ import 'dart:convert';
 import 'package:http/http.dart' as http;
 import '../services/session.dart';
 import '../services/auth_service.dart';
+import '../utils/api.dart';
 
 class LaravelService {
-  static const String _baseUrl = 'http://127.0.0.1:8000/api';
+  static Map<String, dynamic>? _asMap(dynamic value) {
+    if (value is Map<String, dynamic>) return value;
+    if (value is Map) return Map<String, dynamic>.from(value);
+    return null;
+  }
+
+  static List<String> extractRecommendationItems(Map<String, dynamic> data) {
+    final recommendation =
+        _asMap(data['recommendation']) ??
+        _asMap(_asMap(data['prediction'])?['recommendation']) ??
+        _asMap(_asMap(data['data'])?['recommendation']);
+
+    if (recommendation == null) return [];
+
+    final items = <String>[];
+
+    void addText(String label, dynamic value) {
+      final text = value?.toString().trim();
+      if (text != null && text.isNotEmpty) items.add('$label: $text');
+    }
+
+    void addList(String label, dynamic value) {
+      if (value is List) {
+        for (final item in value) {
+          if (item is Map) {
+            final areaLabel = item['label']?.toString().trim();
+            final answer = item['answer']?.toString().trim();
+            if (areaLabel != null && areaLabel.isNotEmpty) {
+              items.add(
+                answer != null && answer.isNotEmpty
+                    ? '$label: $areaLabel (jawaban: $answer)'
+                    : '$label: $areaLabel',
+              );
+            }
+          } else {
+            addText(label, item);
+          }
+        }
+      }
+    }
+
+    addText('Catatan darurat', recommendation['emergency_note']);
+    addText('Ringkasan', recommendation['summary']);
+    addList('Area perhatian', recommendation['focus_areas']);
+    addList('Langkah ibu', recommendation['action_steps']);
+    addList('Dukungan pasangan', recommendation['partner_support']);
+    addText('Bantuan profesional', recommendation['professional_help']);
+    addText('Catatan', recommendation['disclaimer']);
+
+    return items.take(5).toList();
+  }
+
+  static Map<String, dynamic> _normalizeScreeningResponse(
+    Map<String, dynamic> body,
+  ) {
+    final data = _asMap(body['data']) ?? body;
+    final prediction = _asMap(data['prediction']) ?? _asMap(body['prediction']);
+
+    final normalized = <String, dynamic>{
+      ...body,
+      ...data,
+      if (prediction != null) 'prediction': prediction,
+    };
+
+    normalized['result'] =
+        normalized['result'] ?? prediction?['result'] ?? data['hasil'];
+    normalized['recommendation'] =
+        _asMap(normalized['recommendation']) ??
+        _asMap(prediction?['recommendation']) ??
+        _asMap(data['recommendation']);
+    normalized['recommendation_items'] = extractRecommendationItems(normalized);
+
+    return normalized;
+  }
 
   static Future<Map<String, dynamic>> saveScreening({
     required List<int?> jawaban,
@@ -13,16 +87,22 @@ class LaravelService {
     final token = await Session.getToken();
 
     // ---------- Get user ----------
-    final userRes = await AuthService.getUser();
+    final cachedUser = await Session.getUser();
+    var motherId = cachedUser?['id'] ?? cachedUser?['_id'];
 
-    print('USER RESPONSE:');
-    print(userRes);
+    if (motherId == null || motherId.toString().isEmpty) {
+      final userRes = await AuthService.getUser();
 
-    if (userRes['success'] != true) {
-      throw Exception('Gagal mengambil data user');
+      print('USER RESPONSE:');
+      print(userRes);
+
+      if (userRes['success'] != true) {
+        throw Exception('Gagal mengambil data user');
+      }
+
+      final userData = userRes['data'];
+      motherId = userData?['id'] ?? userData?['_id'] ?? userData?['data']?['id'];
     }
-
-    final motherId = userRes['data']['id'] ?? userRes['data']['data']?['id'];
 
     if (motherId == null) {
       throw Exception('mother_id tidak ditemukan');
@@ -84,26 +164,40 @@ class LaravelService {
 
     // ----------------------------------------------------
     // REQUEST
-    final response = await http.post(
-      Uri.parse('$_baseUrl/mother/screening'),
-      headers: {
-        'Authorization': 'Bearer $token',
-        'Accept': 'application/json',
-        'Content-Type': 'application/json',
-      },
-      body: jsonEncode(payload),
-    );
+    final response = await http
+        .post(
+          Uri.parse('${Api.baseUrl}/mother/screening'),
+          headers: {
+            'Authorization': 'Bearer $token',
+            'Accept': 'application/json',
+            'Content-Type': 'application/json',
+          },
+          body: jsonEncode(payload),
+        )
+        .timeout(
+          const Duration(seconds: 45),
+          onTimeout: () => throw Exception('Request timeout ke Laravel'),
+        );
 
     print('STATUS: ${response.statusCode}');
     print('RESPONSE: ${response.body}');
 
+    final decoded = jsonDecode(response.body);
+    final body = _asMap(decoded);
+
+    if (body == null) {
+      throw Exception('Response Laravel bukan object JSON');
+    }
+
     if (response.statusCode != 200) {
+      final message = body['message'] ?? body['error'] ?? response.body;
+
       throw Exception(
         'Gagal kirim ke Laravel: '
-        '${response.statusCode} ${response.body}',
+        '${response.statusCode} $message',
       );
     }
 
-    return jsonDecode(response.body);
+    return _normalizeScreeningResponse(body);
   }
 }

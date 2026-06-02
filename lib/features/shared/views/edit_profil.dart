@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
 import '../../../core/theme/warna_utama.dart';
 import '../widgets/header.dart';
 import '../widgets/edit_profil_card.dart';
@@ -23,6 +24,7 @@ class EditProfilPage extends StatefulWidget {
 class _EditProfilPageState extends State<EditProfilPage> {
   late final TextEditingController _namaController;
   late final TextEditingController _emailController;
+  XFile? _fotoFile;
   bool isSaving = false;
 
   @override
@@ -39,6 +41,17 @@ class _EditProfilPageState extends State<EditProfilPage> {
     super.dispose();
   }
 
+  Future<void> _pilihFoto() async {
+    final picker = ImagePicker();
+    final picked = await picker.pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 80,
+    );
+    if (picked != null) {
+      setState(() => _fotoFile = picked);
+    }
+  }
+
   Future<void> _saveChanges() async {
     if (_namaController.text.isEmpty) {
       ScaffoldMessenger.of(context).showSnackBar(
@@ -50,6 +63,22 @@ class _EditProfilPageState extends State<EditProfilPage> {
     setState(() => isSaving = true);
 
     try {
+      // Upload foto dulu jika user memilih foto baru
+      if (_fotoFile != null) {
+        final fotoResult = await AuthService.updatePhoto(_fotoFile!);
+        if (!mounted) return;
+        if (fotoResult['success'] != true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text(fotoResult['message'] ?? 'Gagal upload foto'),
+            ),
+          );
+          setState(() => isSaving = false);
+          return;
+        }
+      }
+
+      // Update nama
       final result = await AuthService.updateProfil(
         nama: _namaController.text,
         email: _emailController.text,
@@ -64,7 +93,9 @@ class _EditProfilPageState extends State<EditProfilPage> {
         Navigator.pop(context, true);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(content: Text(result['message'] ?? 'Gagal memperbarui profil')),
+          SnackBar(
+            content: Text(result['message'] ?? 'Gagal memperbarui profil'),
+          ),
         );
       }
     } catch (e) {
@@ -80,9 +111,10 @@ class _EditProfilPageState extends State<EditProfilPage> {
 
   @override
   Widget build(BuildContext context) {
-    final ImageProvider fotoProvider = widget.initialFoto != null
-        ? NetworkImage(widget.initialFoto!)
-        : const NetworkImage('https://picsum.photos/id/64/200/200');
+    final ImageProvider fotoProvider =
+    widget.initialFoto != null && widget.initialFoto!.isNotEmpty
+        ? NetworkImage(widget.initialFoto!) as ImageProvider
+        : const AssetImage('assets/images/logo_nurtura.png');
 
     return Scaffold(
       backgroundColor: WarnaUtama.background,
@@ -106,10 +138,9 @@ class _EditProfilPageState extends State<EditProfilPage> {
                     EditProfilCard(
                       namaController: _namaController,
                       emailController: _emailController,
-                      foto: fotoProvider,
-                      onGantiFoto: () {
-                        // TODO: image picker
-                      },
+                      foto: fotoProvider, // sudah tidak nullable
+                      fotoFile: _fotoFile,
+                      onGantiFoto: _pilihFoto,
                     ),
                     const SizedBox(height: 32),
                     GestureDetector(
@@ -128,7 +159,9 @@ class _EditProfilPageState extends State<EditProfilPage> {
                                   height: 20,
                                   child: CircularProgressIndicator(
                                     strokeWidth: 2,
-                                    valueColor: AlwaysStoppedAnimation<Color>(Colors.white),
+                                    valueColor: AlwaysStoppedAnimation<Color>(
+                                      Colors.white,
+                                    ),
                                   ),
                                 ),
                               )

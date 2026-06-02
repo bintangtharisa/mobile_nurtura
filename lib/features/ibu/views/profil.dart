@@ -7,10 +7,8 @@ import '../widgets/koneksi_pasangan_card.dart';
 import '../../shared/widgets/pengaturan_list.dart';
 import '../../shared/views/edit_profil.dart';
 import '../../../services/auth_service.dart';
-import '../../../services/session.dart';
 import '../../shared/widgets/ubah_sandi.dart';
 import '../../shared/widgets/keluar_akun.dart';
-import '../../../utils/api.dart';
 
 class ProfilPage extends StatefulWidget {
   final VoidCallback? onBack;
@@ -52,141 +50,6 @@ class _ProfilPageState extends State<ProfilPage> {
     }
   }
 
-  Future<void> _terimaKoneksi() async {
-    final pendingRequest = _koneksi?['pending_request'];
-    final fatherId = pendingRequest?['id'];
-    if (fatherId == null) return;
-
-    final confirmed = await _showConfirmDialog(
-      title: 'Terima koneksi?',
-      message:
-          'Father ini akan terhubung dengan akun Anda dan dapat melihat report yang dibagikan.',
-      confirmText: 'Terima',
-    );
-    if (!confirmed) return;
-
-    final res = await AuthService.terimaKoneksi(fatherId);
-    if (!mounted) return;
-    if (res['success']) {
-      await Session.saveConnectedFather({
-        'id': fatherId,
-        'name': pendingRequest?['name'] ?? 'Father',
-        'email': pendingRequest?['email'],
-        'sejak': DateTime.now().toIso8601String(),
-      });
-      await _loadData();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Koneksi berhasil diterima!')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(res['message'] ?? 'Gagal terima koneksi')),
-      );
-    }
-  }
-
-  Future<void> _tolakKoneksi() async {
-    final fatherId = _koneksi?['pending_request']?['id'];
-    if (fatherId == null) return;
-
-    final confirmed = await _showConfirmDialog(
-      title: 'Tolak request?',
-      message:
-          'Father ini akan diblock permanen dan tidak dapat menggunakan kode koneksi ini lagi.',
-      confirmText: 'Tolak',
-      isDanger: true,
-    );
-    if (!confirmed) return;
-
-    final res = await AuthService.tolakKoneksiByFatherId(fatherId);
-    if (!mounted) return;
-    if (res['success']) {
-      await Session.clearConnectedFather();
-      await _loadData();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Permintaan koneksi ditolak.')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(res['message'] ?? 'Gagal tolak koneksi')),
-      );
-    }
-  }
-
-  Future<void> _blockKoneksi() async {
-    final fatherId = _koneksi?['pasangan']?['id'];
-    if (fatherId == null) return;
-
-    final confirmed = await _showConfirmDialog(
-      title: 'Block koneksi?',
-      message:
-          'Anda akan block father ini selamanya. Setelah diblock, father tidak dapat mengakses report Anda lagi dan tidak dapat menggunakan koneksi ini kembali.',
-      confirmText: 'Block',
-      isDanger: true,
-    );
-    if (!confirmed) return;
-
-    final res = await AuthService.blockKoneksiByFatherId(fatherId);
-    if (!mounted) return;
-    if (res['success']) {
-      await Session.clearConnectedFather();
-      await _loadData();
-      ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Koneksi berhasil diblock.')),
-      );
-    } else {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text(res['message'] ?? 'Gagal block koneksi')),
-      );
-    }
-  }
-
-  Future<bool> _showConfirmDialog({
-    required String title,
-    required String message,
-    required String confirmText,
-    bool isDanger = false,
-  }) async {
-    final result = await showDialog<bool>(
-      context: context,
-      builder: (context) => AlertDialog(
-        title: Text(title),
-        content: Text(message),
-        actions: [
-          TextButton(
-            onPressed: () => Navigator.pop(context, false),
-            child: const Text('Batal'),
-          ),
-          TextButton(
-            onPressed: () => Navigator.pop(context, true),
-            child: Text(
-              confirmText,
-              style: TextStyle(
-                color: isDanger ? WarnaUtama.beresiko : WarnaUtama.secondary,
-                fontWeight: FontWeight.w700,
-              ),
-            ),
-          ),
-        ],
-      ),
-    );
-
-    return result ?? false;
-  }
-
-  StatusKoneksi _getStatusKoneksi() {
-    if (_koneksi?['pasangan'] != null) return StatusKoneksi.terkoneksi;
-    if (_koneksi?['pending_request'] != null) return StatusKoneksi.adaRequest;
-    return StatusKoneksi.belumAda;
-  }
-
-  ImageProvider _getFotoPasangan() {
-    final foto = _koneksi?['pasangan']?['photo']
-        ?? _koneksi?['pending_request']?['photo'];
-    if (foto != null) return NetworkImage(foto);
-    return const NetworkImage('https://picsum.photos/id/91/200/200');
-  }
-
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -212,22 +75,15 @@ class _ProfilPageState extends State<ProfilPage> {
                         nama: _user?['name'] ?? 'Memuat...',
                         email: _user?['email'] ?? '',
                         foto: _user?['photo'] != null
-                        ? NetworkImage('${Api.storageUrl}/${_user!['photo']}')
-                        : const NetworkImage('https://picsum.photos/id/64/200/200'),
-                        onEdit: () async {
-                          final result = await Navigator.push(
+                            ? NetworkImage(_user!['photo'])
+                            : const NetworkImage('https://picsum.photos/id/64/200/200'),
+                        onEdit: () {
+                          Navigator.push(
                             context,
                             MaterialPageRoute(
-                              builder: (_) => EditProfilPage(
-                                initialName: _user?['name'] ?? '',
-                                initialEmail: _user?['email'] ?? '',
-                                initialFoto: _user?['photo'],
-                              ),
+                              builder: (_) => const EditProfilPage(),
                             ),
                           );
-                          if (result == true) {
-                              await _loadData();
-                            }
                         },
                       ),
                     ),
@@ -247,24 +103,24 @@ class _ProfilPageState extends State<ProfilPage> {
                     ),
                     const SizedBox(height: 24),
                     KoneksiPasanganCard(
-                      status: _getStatusKoneksi(),
-                      namaPasangan: _koneksi?['pasangan']?['name']
-                          ?? _koneksi?['pending_request']?['name'] ?? '',
+                      status: _koneksi?['pasangan'] != null
+                          ? StatusKoneksi.terkoneksi
+                          : StatusKoneksi.belumAda,
+                      namaPasangan: _koneksi?['pasangan']?['name'] ?? '',
                       terhubungSejak: _koneksi?['pasangan']?['sejak'] ?? '',
-                      fotoPasangan: _getFotoPasangan(),
-                      jumlahRequest: _koneksi?['pending_request'] != null ? 1 : 0,
-                      onTerima: _terimaKoneksi,
-                      onTolak: _tolakKoneksi,
-                      onDisconnect: _blockKoneksi,
+                      fotoPasangan: _koneksi?['pasangan']?['photo'] != null
+                          ? NetworkImage(_koneksi!['pasangan']['photo'])
+                          : const NetworkImage('https://picsum.photos/id/91/200/200'),
+                      onDisconnect: () {},
                     ),
                     const SizedBox(height: 24),
                     PengaturanList(
                       onUbahSandi: () {
                         showModalBottomSheet(
-                          context: context,
-                          isScrollControlled: true,
-                          backgroundColor: Colors.transparent,
-                          builder: (_) => const UbahSandiSheet(),
+                        context: context,
+                        isScrollControlled: true,
+                        backgroundColor: Colors.transparent,
+                        builder: (_) => const UbahSandiSheet(),
                         );
                       },
                       onKeluarAkun: () => KeluarAkun.show(context),
@@ -274,7 +130,7 @@ class _ProfilPageState extends State<ProfilPage> {
                 ),
               ),
             ),
-          ],
+          ], 
         ),
       ),
     );

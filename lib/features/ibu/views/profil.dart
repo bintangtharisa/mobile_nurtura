@@ -10,6 +10,7 @@ import '../../../services/auth_service.dart';
 import '../../../services/session.dart';
 import '../../shared/widgets/ubah_sandi.dart';
 import '../../shared/widgets/keluar_akun.dart';
+import '../../../utils/api.dart';
 
 class ProfilPage extends StatefulWidget {
   final VoidCallback? onBack;
@@ -211,8 +212,8 @@ class _ProfilPageState extends State<ProfilPage> {
                         nama: _user?['name'] ?? 'Memuat...',
                         email: _user?['email'] ?? '',
                         foto: _user?['photo'] != null
-                            ? NetworkImage(_user!['photo'])
-                            : const NetworkImage('https://picsum.photos/id/64/200/200'),
+                        ? NetworkImage('${Api.storageUrl}/${_user!['photo']}')
+                        : const NetworkImage('https://picsum.photos/id/64/200/200'),
                         onEdit: () async {
                           final result = await Navigator.push(
                             context,
@@ -224,7 +225,9 @@ class _ProfilPageState extends State<ProfilPage> {
                               ),
                             ),
                           );
-                          if (result == true) _loadData();
+                          if (result == true) {
+                              await _loadData();
+                            }
                         },
                       ),
                     ),

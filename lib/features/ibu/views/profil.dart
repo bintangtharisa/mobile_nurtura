@@ -180,19 +180,19 @@ class _ProfilPageState extends State<ProfilPage> {
     return StatusKoneksi.belumAda;
   }
 
-  ImageProvider _getFotoPasangan() {
+  ImageProvider ? _getFotoPasangan() {
     final foto = _koneksi?['pasangan']?['photo']
         ?? _koneksi?['pending_request']?['photo'];
     if (foto != null) return NetworkImage(foto);
-    return const AssetImage('assets/images/logo_nurtura.png');
+    return null;
   }
 
-  ImageProvider _getFotoProfil() {
+  ImageProvider ? _getFotoProfil() {
     final photo = _user?['photo'];
     if (photo != null && photo.toString().isNotEmpty) {
       return NetworkImage('${Api.storageUrl}/$photo');
     }
-    return const AssetImage('assets/images/logo_nurtura.png');
+    return null;
   }
 
   @override
@@ -231,7 +231,7 @@ class _ProfilPageState extends State<ProfilPage> {
                               builder: (_) => EditProfilPage(
                                 initialName: _user?['name'] ?? '',
                                 initialEmail: _user?['email'] ?? '',
-                                initialFoto: initialFoto,
+                                initialFoto: initialFoto is String ? initialFoto : null,
                               ),
                             ),
                           );

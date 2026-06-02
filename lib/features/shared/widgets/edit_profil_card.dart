@@ -104,11 +104,14 @@ class EditProfilCard extends StatelessWidget {
       children: [
         Stack(
           children: [
-            CircleAvatar(
-              radius: 52,
-              backgroundColor: WarnaUtama.primary.withOpacity(0.3),
-              child: ClipOval(child: _buildFotoWidget()),
-            ),
+          CircleAvatar(
+            radius: 52,
+            backgroundImage: foto, // bisa null
+            backgroundColor: WarnaUtama.primary.withOpacity(0.3),
+            child: foto == null
+                ? Icon(Icons.person, size: 52, color: WarnaUtama.secondary)
+                : null,
+          ),
             Positioned(
               bottom: 0,
               right: 0,

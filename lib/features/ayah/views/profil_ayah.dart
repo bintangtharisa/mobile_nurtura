@@ -112,8 +112,7 @@ class _ProfilAyahPageState extends State<ProfilAyahPage> {
                           email: userData?['email'] ?? 'Email tidak tersedia',
                           foto: userData?['photo'] != null
                               ? NetworkImage(userData!['photo'])
-                              : const NetworkImage(
-                                  'https://picsum.photos/id/91/200/200'),
+                              : null,
                           onEdit: () {
                             Navigator.push(
                               context,
@@ -150,8 +149,7 @@ class _ProfilAyahPageState extends State<ProfilAyahPage> {
                           namaPasangan: userData!['connection']['mother']
                                   ['username'] ??
                               'Pasangan tidak tersedia',
-                          fotoPasangan: const NetworkImage(
-                              'https://picsum.photos/id/64/200/200'),
+                          fotoPasangan: null,
                         )
                       else
                         const Center(

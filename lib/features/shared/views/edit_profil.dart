@@ -111,10 +111,10 @@ class _EditProfilPageState extends State<EditProfilPage> {
 
   @override
   Widget build(BuildContext context) {
-    final ImageProvider fotoProvider =
+    final ImageProvider? fotoProvider =
     widget.initialFoto != null && widget.initialFoto!.isNotEmpty
-        ? NetworkImage(widget.initialFoto!) as ImageProvider
-        : const AssetImage('assets/images/logo_nurtura.png');
+        ? NetworkImage(widget.initialFoto!)
+        : null;
 
     return Scaffold(
       backgroundColor: WarnaUtama.background,

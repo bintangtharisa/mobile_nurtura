@@ -8,6 +8,7 @@ import '../../shared/views/edit_profil.dart';
 import '../../../services/auth_service.dart';
 import '../../shared/widgets/ubah_sandi.dart';
 import '../../shared/widgets/keluar_akun.dart';
+import '../../../utils/api.dart';
 
 class ProfilAyahPage extends StatefulWidget {
   final VoidCallback? onBack;
@@ -68,6 +69,14 @@ class _ProfilAyahPageState extends State<ProfilAyahPage> {
     KeluarAkun.show(context);
   }
 
+  ImageProvider ? _getFotoProfil() {
+    final photo = userData?['photo'];
+    if (photo != null && photo.toString().isNotEmpty) {
+      return NetworkImage('${Api.storageUrl}/$photo');
+    }
+    return null;
+  }
+  
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -107,25 +116,31 @@ class _ProfilAyahPageState extends State<ProfilAyahPage> {
                       )
                     else ...[
                       Center(
-                        child: ProfilAvatar(
-                          nama: userData?['name'] ?? 'Nama tidak tersedia',
-                          email: userData?['email'] ?? 'Email tidak tersedia',
-                          foto: userData?['photo'] != null
-                              ? NetworkImage(userData!['photo'])
-                              : null,
-                          onEdit: () {
-                            Navigator.push(
-                              context,
-                              MaterialPageRoute(
-                                builder: (_) => EditProfilPage(
-                                  initialName: userData?['name'],
-                                  initialEmail: userData?['email'],
-                                ),
+                      child: ProfilAvatar(
+                        nama: userData?['name'] ?? 'Memuat...',
+                        email: userData?['email'] ?? '',
+                        foto: _getFotoProfil(),
+                        onEdit: () async {
+                          final photo = userData?['photo'];
+                          final initialFoto = photo != null && photo.toString().isNotEmpty
+                              ? '${Api.storageUrl}/$photo'
+                              : null;
+                          final result = await Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (_) => EditProfilPage(
+                                initialName: userData?['name'] ?? '',
+                                initialEmail: userData?['email'] ?? '',
+                                initialFoto: initialFoto is String ? initialFoto : null,
                               ),
-                            ).then((_) => _loadData());
-                          },
-                        ),
+                            ),
+                          );
+                          if (result == true) {
+                            await _loadData();
+                          }
+                        },
                       ),
+                    ),
 
                       const SizedBox(height: 28),
 
